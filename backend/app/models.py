@@ -43,8 +43,10 @@ class UpdatePassword(SQLModel):
 class User(UserBase, table=True):
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
     hashed_password: str
-    items: list["Item"] = Relationship(back_populates="owner", cascade_delete=True)
-
+    items: list["Item"] = Relationship(
+        back_populates="owner", cascade_delete=True)
+    cards: list["Card"] = Relationship(
+        back_populates="owner", cascade_delete=True)
 
 # Properties to return via API, id is always required
 class UserPublic(UserBase):
@@ -54,6 +56,55 @@ class UserPublic(UserBase):
 class UsersPublic(SQLModel):
     data: list[UserPublic]
     count: int
+
+#Shared propertis
+class CardBase(SQLModel):
+    full_name_user: str = Field(max_length=255)
+    card_type: str = Field(default=None, max_length=255)
+
+# Properties to receive on item creation
+class CardRegister(SQLModel):
+    number_card: str = Field(min_length=16, max_length=16)
+    cvc_code: str = Field(min_length=3, max_length=3)
+    expiration_date: str = Field(min_length=7, max_length=7)
+    card_type: str = Field(max_length=255)
+
+# Properties to receive via API on update, all are optional
+
+class CardUpdateMe(SQLModel):
+    number_card: str = Field(min_length=16, max_length=16)
+    cvc_code: str = Field(min_length=3, max_length=3)
+    expiration_date: str = Field(min_length=7, max_length=7)
+    card_type: str = Field(max_length=255)
+
+
+# Database model, database table inferred from class name
+class Card(CardBase, table=True):
+    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+    hashed_number_card: str
+    hashed_cvc_code: str
+    hashed_expiration_date: str
+    owner_id: uuid.UUID = Field(
+        foreign_key="user.id", nullable=False, ondelete="CASCADE")
+    owner: "User" = Relationship(back_populates="cards")
+
+# Properties to return via API, id is always required
+class CardPublic(CardBase):
+    id: uuid.UUID
+class CardsPublic(SQLModel):
+    data: list[CardPublic]
+    count: int
+
+
+
+
+
+
+
+
+
+
+
 
 
 # Shared properties
