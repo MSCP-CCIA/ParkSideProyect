@@ -1,8 +1,7 @@
 import uuid
-
-from pydantic import EmailStr
+from datetime import datetime
+from pydantic import EmailStr, field_validator
 from sqlmodel import Field, Relationship, SQLModel
-
 
 # Shared properties
 class UserBase(SQLModel):
@@ -57,25 +56,72 @@ class UsersPublic(SQLModel):
     data: list[UserPublic]
     count: int
 
-#Shared propertis
+
+def luhn_check(card_number: str) -> bool:
+    digits = [int(d) for d in card_number]
+    checksum = 0
+    double = False
+    for i in range(len(digits) - 1, -1, -1):
+        num = digits[i]
+        if double:
+            num *= 2
+            if num > 9:
+                num -= 9
+        checksum += num
+        double = not double
+    return checksum % 10 == 0
+
+
+# Base Model for Card
 class CardBase(SQLModel):
     full_name_user: str = Field(max_length=255)
     card_type: str = Field(default=None, max_length=255)
 
-# Properties to receive on item creation
+
+# Properties to receive on card creation
 class CardRegister(SQLModel):
     number_card: str = Field(min_length=16, max_length=16)
     cvc_code: str = Field(min_length=3, max_length=3)
-    expiration_date: str = Field(min_length=7, max_length=7)
-    card_type: str = Field(max_length=255)
+    expiration_date: str
 
-# Properties to receive via API on update, all are optional
+    @field_validator("number_card")
+    @classmethod
+    def validate_card_number(cls, value):
+        """Valida el número de la tarjeta con el Algoritmo de Luhn"""
+        if not value.isdigit():
+            raise ValueError("El número de tarjeta solo debe contener dígitos")
+        if not luhn_check(value):
+            raise ValueError("El número de tarjeta no es válido según el algoritmo de Luhn")
+        return value
 
+    @field_validator("expiration_date")
+    @classmethod
+    def validate_expiration_date(cls, value):
+        """Valida que la fecha de expiración tenga el formato MM/YYYY y no esté expirada"""
+        try:
+            exp_date = datetime.strptime(value, "%m/%Y").date()
+            if exp_date < datetime.today().date():
+                raise ValueError("La tarjeta ya está expirada")
+        except ValueError:
+            raise ValueError("Formato incorrecto. Use MM/YYYY")
+        return value
+
+
+
+# Properties to receive via API on update
 class CardUpdateMe(SQLModel):
     number_card: str = Field(min_length=16, max_length=16)
     cvc_code: str = Field(min_length=3, max_length=3)
-    expiration_date: str = Field(min_length=7, max_length=7)
-    card_type: str = Field(max_length=255)
+    expiration_date: str  # Se validará igual que en `CardRegister`
+    @field_validator("number_card")
+    @classmethod
+    def validate_card_number(cls, value):
+        return CardRegister.validate_card_number(value)
+
+    @field_validator("expiration_date")
+    @classmethod
+    def validate_expiration_date(cls, value):
+        return CardRegister.validate_expiration_date(value)
 
 
 # Database model, database table inferred from class name
@@ -84,29 +130,17 @@ class Card(CardBase, table=True):
     hashed_number_card: str
     hashed_cvc_code: str
     hashed_expiration_date: str
-    owner_id: uuid.UUID = Field(
-        foreign_key="user.id", nullable=False, ondelete="CASCADE")
+    owner_id: uuid.UUID = Field(foreign_key="user.id", nullable=False)
     owner: "User" = Relationship(back_populates="cards")
 
-# Properties to return via API, id is always required
+# Properties to return via API
 class CardPublic(CardBase):
     id: uuid.UUID
+
+
 class CardsPublic(SQLModel):
     data: list[CardPublic]
     count: int
-
-
-
-
-
-
-
-
-
-
-
-
-
 # Shared properties
 class ItemBase(SQLModel):
     title: str = Field(min_length=1, max_length=255)
