@@ -3,6 +3,7 @@ from datetime import datetime
 from pydantic import EmailStr, field_validator
 from sqlmodel import Field, Relationship, SQLModel
 
+
 # Shared properties
 class UserBase(SQLModel):
     email: EmailStr = Field(unique=True, index=True, max_length=255)
@@ -107,7 +108,6 @@ class CardRegister(SQLModel):
         return value
 
 
-
 # Properties to receive via API on update
 class CardUpdateMe(SQLModel):
     number_card: str = Field(min_length=16, max_length=16)
@@ -141,6 +141,44 @@ class CardPublic(CardBase):
 class CardsPublic(SQLModel):
     data: list[CardPublic]
     count: int
+
+
+# Shared Properties
+class ParkingBase(SQLModel):
+    name: str = Field(unique=True, index=True, max_length=255)
+    places: int
+    address: str = Field(max_length=255)
+    enterprise: str = Field(max_length=255)
+
+
+# Properties to receive via API on creation
+class ParkingCreate(ParkingBase):
+    minute_rate: int
+
+
+# Properties to receive via API on update, all are optional
+class ParkingUpdate(ParkingBase):
+    name: str = Field(unique=True, index=True, max_length=255)
+    places: int
+    minute_rate: int
+
+
+# Database model, database table inferred from class name
+class Parking(ParkingBase, table=True):
+    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+    owner_id: uuid.UUID = Field(foreign_key="user.id", nullable=False)
+
+
+# Properties to return via API, id is always required
+class ParkingPublic(ParkingBase):
+    id: uuid.UUID
+
+
+class ParkingsPublic(SQLModel):
+    data: list[ParkingPublic]
+    count: int
+
+
 # Shared properties
 class ItemBase(SQLModel):
     title: str = Field(min_length=1, max_length=255)
