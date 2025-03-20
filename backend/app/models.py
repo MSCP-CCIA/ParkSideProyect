@@ -211,12 +211,65 @@ class HistoricalRate(HistoricalRateBase, table=True):
 
 
 # Properties to return via API, id is always required
-class ParkingPublic(ParkingBase):
+class HistoricalRatePublic(HistoricalRateBase):
     id: uuid.UUID
 
 
-class ParkingsPublic(SQLModel):
-    data: list[ParkingPublic]
+class HistoricalRatesPublic(SQLModel):
+    data: list[HistoricalRatePublic]
+    count: int
+
+
+# Shared properties
+class EmployeeBase(SQLModel):
+    email: EmailStr = Field(unique=True, index=True, max_length=255)
+    is_active: bool = True
+    is_superuser: bool = True
+    full_name: str | None = Field(default=None, max_length=255)
+    phone: int
+    job_position: str = Field(max_length=255)
+
+
+# Properties to receive via API on creation
+class EmployeeCreate(EmployeeBase):
+    password: str = Field(min_length=8, max_length=40)
+
+
+# Properties to receive via API on update, all are optional
+class EmployeeUpdate(EmployeeBase):
+    email: EmailStr = Field(unique=True, index=True, max_length=255)
+    is_active: bool = True
+    is_superuser: bool = True
+    full_name: str | None = Field(default=None, max_length=255)
+    phone: int
+    job_position: str = Field(max_length=255)
+
+
+class EmployeeUpdateMe(SQLModel):
+    full_name: str | None = Field(default=None, max_length=255)
+    email: EmailStr | None = Field(default=None, max_length=255)
+    phone: int
+
+
+class EmployeeUpdatePassword(SQLModel):
+    current_password: str = Field(min_length=8, max_length=40)
+    new_password: str = Field(min_length=8, max_length=40)
+
+
+# Database model, database table inferred from class name
+class Employee(EmployeeBase, table=True):
+    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+    hashed_password: str
+    parking_id: uuid.UUID = Field(foreign_key="parking.id", nullable=False)
+
+
+# Properties to return via API, id is always required
+class EmployeePublic(EmployeeBase):
+    id: uuid.UUID
+
+
+class EmployeesPublic(SQLModel):
+    data: list[EmployeePublic]
     count: int
 
 
