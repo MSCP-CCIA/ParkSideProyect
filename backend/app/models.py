@@ -1,6 +1,7 @@
 import uuid
 from datetime import datetime
 from pydantic import EmailStr, field_validator
+from datetime import Date
 from sqlmodel import Field, Relationship, SQLModel
 
 
@@ -43,10 +44,9 @@ class UpdatePassword(SQLModel):
 class User(UserBase, table=True):
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
     hashed_password: str
-    items: list["Item"] = Relationship(
-        back_populates="owner", cascade_delete=True)
-    cards: list["Card"] = Relationship(
-        back_populates="owner", cascade_delete=True)
+    items: list["Item"] = Relationship(back_populates="owner", cascade_delete=True)
+    cards: list["Card"] = Relationship(back_populates="owner", cascade_delete=True)
+
 
 # Properties to return via API, id is always required
 class UserPublic(UserBase):
@@ -92,7 +92,9 @@ class CardRegister(SQLModel):
         if not value.isdigit():
             raise ValueError("El número de tarjeta solo debe contener dígitos")
         if not luhn_check(value):
-            raise ValueError("El número de tarjeta no es válido según el algoritmo de Luhn")
+            raise ValueError(
+                "El número de tarjeta no es válido según el algoritmo de Luhn"
+            )
         return value
 
     @field_validator("expiration_date")
@@ -113,6 +115,7 @@ class CardUpdateMe(SQLModel):
     number_card: str = Field(min_length=16, max_length=16)
     cvc_code: str = Field(min_length=3, max_length=3)
     expiration_date: str  # Se validará igual que en `CardRegister`
+
     @field_validator("number_card")
     @classmethod
     def validate_card_number(cls, value):
@@ -132,6 +135,7 @@ class Card(CardBase, table=True):
     hashed_expiration_date: str
     owner_id: uuid.UUID = Field(foreign_key="user.id", nullable=False)
     owner: "User" = Relationship(back_populates="cards")
+
 
 # Properties to return via API
 class CardPublic(CardBase):
@@ -167,6 +171,43 @@ class ParkingUpdate(ParkingBase):
 class Parking(ParkingBase, table=True):
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
     owner_id: uuid.UUID = Field(foreign_key="user.id", nullable=False)
+
+
+# Properties to return via API, id is always required
+class ParkingPublic(ParkingBase):
+    id: uuid.UUID
+
+
+class ParkingsPublic(SQLModel):
+    data: list[ParkingPublic]
+    count: int
+
+
+# Shared properties
+class HistoricalRateBase(SQLModel):
+    None
+
+
+# Properties to receive via API on creation
+class HistoricalRateCreate(HistoricalRateBase):
+    car_rate: int
+    motorbike_rate: int
+    start_date: Date = None
+    end_date: Date = None
+
+
+# Properties to receive via API on update, all are optional
+class HistoricalRateUpdate(HistoricalRateBase):
+    car_rate: int
+    motorbike_rate: int
+    start_date: Date = None
+    end_date: Date = None
+
+
+# Database model, database table inferred from class name
+class HistoricalRate(HistoricalRateBase, table=True):
+    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+    parking_id: uuid.UUID = Field(foreign_key="parking.id", nullable=False)
 
 
 # Properties to return via API, id is always required
