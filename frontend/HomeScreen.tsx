@@ -1,8 +1,11 @@
 import React from "react";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
+import { useNavigation } from "@react-navigation/native";
 
 const HomeScreen: React.FC = () => {
+  const navigation = useNavigation();
+
   return (
     <LinearGradient colors={["#000000", "#ff00ff"]} style={styles.container}>
       <Text style={styles.title}>Bienvenido</Text>
@@ -24,7 +27,11 @@ const HomeScreen: React.FC = () => {
         </Text>
       </TouchableOpacity>
 
-      <TouchableOpacity style={styles.button}>
+      {/* Botón actualizado para navegar a InformacionVehiculo.tsx */}
+      <TouchableOpacity
+        style={styles.button}
+        onPress={() => navigation.navigate("InformacionVehiculo")}
+      >
         <Text style={styles.buttonText}>INFORMACIÓN DEL VEHÍCULO</Text>
         <Text style={styles.description}>
           Ingresa la información importante de tu vehículo
