@@ -13,21 +13,29 @@ const HomeScreen: React.FC = () => {
         Escoge alguna de las siguientes opciones:
       </Text>
 
-      <TouchableOpacity style={styles.button}>
+      {/* Botón para ESTADO */}
+      <TouchableOpacity
+        style={styles.button}
+        onPress={() => navigation.navigate("Estado")}
+      >
         <Text style={styles.buttonText}>ESTADO</Text>
         <Text style={styles.description}>
           Revisa en tiempo real el estado de tu vehículo
         </Text>
       </TouchableOpacity>
 
-      <TouchableOpacity style={styles.button}>
+      {/* Botón para AGREGAR TARJETA */}
+      <TouchableOpacity
+        style={styles.button}
+        onPress={() => navigation.navigate("InfoTarjeta")}
+      >
         <Text style={styles.buttonText}>AGREGAR TARJETA</Text>
         <Text style={styles.description}>
           Agrega un método de pago para pagar tu estadía del parqueadero
         </Text>
       </TouchableOpacity>
 
-      {/* Botón actualizado para navegar a InformacionVehiculo.tsx */}
+      {/* Botón para INFORMACIÓN DEL VEHÍCULO */}
       <TouchableOpacity
         style={styles.button}
         onPress={() => navigation.navigate("InformacionVehiculo")}
@@ -38,7 +46,11 @@ const HomeScreen: React.FC = () => {
         </Text>
       </TouchableOpacity>
 
-      <TouchableOpacity style={styles.button}>
+      {/* Botón para MOVIMIENTOS */}
+      <TouchableOpacity
+        style={styles.button}
+        onPress={() => navigation.navigate("Movimientos")}
+      >
         <Text style={styles.buttonText}>MOVIMIENTOS</Text>
         <Text style={styles.description}>
           Revisa el historial de parqueos que hayas hecho
