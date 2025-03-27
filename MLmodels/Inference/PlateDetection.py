@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import json
 
 def DetectPlate(route : str):
-    model = YOLO('../Models/plateDetection.onnx')
+    model = YOLO('../models/plateDetection.onnx')
     image = cv2.imread(route)
     # Realizar inferencia
     results = model(image)

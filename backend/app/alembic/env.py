@@ -3,6 +3,7 @@ from logging.config import fileConfig
 
 from alembic import context
 from sqlalchemy import engine_from_config, pool
+from sqlmodel import SQLModel
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -18,7 +19,14 @@ fileConfig(config.config_file_name)
 # target_metadata = mymodel.Base.metadata
 # target_metadata = None
 
-from app.models import SQLModel  # noqa
+#from app.models import SQLModel  # noqa
+from backend.app.models.user import User
+from backend.app.models.card import Card
+from backend.app.models.employee import Employee
+from backend.app.models.historical_rate import HistoricalRate
+from backend.app.models.item import Item
+from backend.app.models.parking import Parking
+from backend.app.models.vehicle import Vehicle
 from app.core.config import settings # noqa
 
 target_metadata = SQLModel.metadata
