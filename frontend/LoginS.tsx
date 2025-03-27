@@ -20,6 +20,11 @@ export default function LoginScreen({ navigation }) {
   };
 
   const handleLogin = () => {
+    if (!email || !password) {
+      Alert.alert("Error", "Por favor, completa todos los campos.");
+      return;
+    }
+
     if (!validarCorreo(email)) {
       Alert.alert(
         "Error",
@@ -27,10 +32,8 @@ export default function LoginScreen({ navigation }) {
       );
       return;
     }
-    // Lógica de autenticación aquí
-    console.log("Iniciando sesión con:", email, password);
 
-    // Navegar a la pantalla de inicio
+    console.log("Iniciando sesión con:", email, password);
     navigation.navigate("Home");
   };
 

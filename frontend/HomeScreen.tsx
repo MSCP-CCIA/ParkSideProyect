@@ -7,7 +7,7 @@ const HomeScreen: React.FC = () => {
   const navigation = useNavigation();
 
   return (
-    <LinearGradient colors={["#000000", "#ff00ff"]} style={styles.container}>
+    <LinearGradient colors={["#000000", "#4B0082"]} style={styles.container}>
       <Text style={styles.title}>Bienvenido</Text>
       <Text style={styles.subtitle}>
         Escoge alguna de las siguientes opciones:

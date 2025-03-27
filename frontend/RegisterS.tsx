@@ -11,7 +11,10 @@ import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 
 export default function RegisterScreen({ navigation }) {
+  const [nombre, setNombre] = useState("");
+  const [apellidos, setApellidos] = useState("");
   const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
   const validarCorreo = (correo) => {
     const regex = /^[a-zA-Z0-9.]+@[a-zA-Z0-9]+\.[a-zA-Z]{2,}$/;
@@ -19,6 +22,11 @@ export default function RegisterScreen({ navigation }) {
   };
 
   const handleRegister = () => {
+    if (!nombre || !apellidos || !email || !password) {
+      Alert.alert("Error", "Todos los campos son obligatorios.");
+      return;
+    }
+
     if (!validarCorreo(email)) {
       Alert.alert(
         "Error",
@@ -26,8 +34,8 @@ export default function RegisterScreen({ navigation }) {
       );
       return;
     }
-    // Lógica de registro aquí
-    console.log("Registrando usuario con:", email);
+
+    console.log("Registrando usuario con:", { nombre, apellidos, email });
   };
 
   return (
@@ -45,11 +53,15 @@ export default function RegisterScreen({ navigation }) {
         style={styles.input}
         placeholder="Tu Nombre"
         placeholderTextColor="#999"
+        value={nombre}
+        onChangeText={setNombre}
       />
       <TextInput
         style={styles.input}
         placeholder="Tus Apellidos"
         placeholderTextColor="#999"
+        value={apellidos}
+        onChangeText={setApellidos}
       />
       <TextInput
         style={styles.input}
@@ -63,6 +75,8 @@ export default function RegisterScreen({ navigation }) {
         placeholder="Introduce tu contraseña"
         placeholderTextColor="#999"
         secureTextEntry
+        value={password}
+        onChangeText={setPassword}
       />
 
       <TouchableOpacity style={styles.button} onPress={handleRegister}>

@@ -30,7 +30,7 @@ const InformacionVehiculo: React.FC = () => {
   };
 
   return (
-    <LinearGradient colors={["#0D0D0D", "#211E4E"]} style={styles.container}>
+    <LinearGradient colors={["#0D0D0D", "#4B0082"]} style={styles.container}>
       <Text style={styles.title}>Información del vehículo</Text>
 
       <Text style={styles.label}>Cédula del propietario</Text>

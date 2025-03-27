@@ -12,7 +12,7 @@ const Estado = () => {
   const [placa, setPlaca] = useState("");
 
   return (
-    <LinearGradient colors={["#0D0D2B", "#1B1B3A"]} style={styles.container}>
+    <LinearGradient colors={["#0D0D2B", "#4B0082"]} style={styles.container}>
       <Text style={styles.title}>ESTADO</Text>
 
       <Text style={styles.label}>Placa del Vehículo</Text>
