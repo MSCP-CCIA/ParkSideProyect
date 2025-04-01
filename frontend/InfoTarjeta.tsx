@@ -10,28 +10,35 @@ import { Picker } from "@react-native-picker/picker";
 import { LinearGradient } from "expo-linear-gradient";
 
 const InfoTarjeta = () => {
-  const [tipoTarjeta, setTipoTarjeta] = useState("credito");
+  const [numeroTarjeta, setNumeroTarjeta] = useState("");
+  const [tipoTarjeta, setTipoTarjeta] = useState("");
+
+  const detectarTipoTarjeta = (numero) => {
+    setNumeroTarjeta(numero);
+    if (/^4/.test(numero)) {
+      setTipoTarjeta("Visa");
+    } else if (/^5[1-5]/.test(numero)) {
+      setTipoTarjeta("MasterCard");
+    } else if (/^3[47]/.test(numero)) {
+      setTipoTarjeta("American Express");
+    } else {
+      setTipoTarjeta("Desconocida");
+    }
+  };
 
   return (
     <LinearGradient colors={["#0D0D2B", "#4B0082"]} style={styles.container}>
       <Text style={styles.title}>Agregar una tarjeta crédito/débito</Text>
 
-      <Text style={styles.label}>Número de la tarjeta</Text>
+      <Text style={styles.label}>Número de la tarjeta ({tipoTarjeta})</Text>
       <TextInput
         style={styles.input}
         keyboardType="numeric"
         placeholder="**** **** **** ****"
+        maxLength={16}
+        value={numeroTarjeta}
+        onChangeText={detectarTipoTarjeta}
       />
-
-      <Text style={styles.label}>Tipo de Tarjeta</Text>
-      <Picker
-        selectedValue={tipoTarjeta}
-        onValueChange={(value) => setTipoTarjeta(value)}
-        style={styles.picker}
-      >
-        <Picker.Item label="Crédito" value="credito" />
-        <Picker.Item label="Débito" value="debito" />
-      </Picker>
 
       <Text style={styles.label}>Titular de la tarjeta</Text>
       <TextInput style={styles.input} placeholder="Nombre del titular" />
@@ -42,11 +49,13 @@ const InfoTarjeta = () => {
           style={styles.inputSmall}
           placeholder="MM"
           keyboardType="numeric"
+          maxLength={2}
         />
         <TextInput
           style={styles.inputSmall}
           placeholder="AA"
           keyboardType="numeric"
+          maxLength={2}
         />
       </View>
 
@@ -56,6 +65,7 @@ const InfoTarjeta = () => {
         keyboardType="numeric"
         secureTextEntry
         placeholder="***"
+        maxLength={4}
       />
 
       <TouchableOpacity style={styles.button}>
@@ -85,7 +95,6 @@ const styles = StyleSheet.create({
     padding: 10,
     marginTop: 5,
   },
-  picker: { backgroundColor: "white", marginTop: 5 },
   row: { flexDirection: "row", justifyContent: "space-between" },
   inputSmall: {
     backgroundColor: "white",
