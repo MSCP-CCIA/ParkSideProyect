@@ -40,6 +40,7 @@ class User(UserBase, table=True):
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
     hashed_password: str
 
+    parkings: list["Parking"] = Relationship(back_populates="owner", sa_relationship_kwargs={"cascade": "all, delete"})
     items: list["Item"] = Relationship(back_populates="owner", sa_relationship_kwargs={"cascade": "all, delete-orphan"})
     cards: list["Card"] = Relationship(back_populates="owner", sa_relationship_kwargs={"cascade": "all, delete"})
     vehicles: list["Vehicle"] = Relationship(back_populates="owner", sa_relationship_kwargs={"cascade": "all, delete"})
