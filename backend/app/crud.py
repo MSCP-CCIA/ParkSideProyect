@@ -2,8 +2,8 @@ import uuid
 from typing import Any
 from sqlmodel import Session, select
 from app.core.security import get_password_hash, verify_password
-from backend.app.models.item import ItemCreate, Item
-from backend.app.models.user import UserCreate, User, UserUpdate
+from app.models.item import ItemCreate, Item
+from app.models.user import UserCreate, User, UserUpdate
 
 
 def create_user(*, session: Session, user_create: UserCreate) -> User:

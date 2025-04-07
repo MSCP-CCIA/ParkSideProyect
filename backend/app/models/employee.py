@@ -1,8 +1,10 @@
 import uuid
+from typing import TYPE_CHECKING, Optional
 from pydantic import EmailStr
 from sqlmodel import Field, Relationship, SQLModel
 
-from backend.app.models.parking import Parking
+if TYPE_CHECKING:
+    from app.models.parking import Parking
 
 
 class EmployeeBase(SQLModel):
@@ -43,7 +45,8 @@ class Employee(EmployeeBase, table=True):
     hashed_password: str
     owner_id: uuid.UUID = Field(
         foreign_key="parking.id", nullable=False, ondelete="CASCADE")
-    owner: Parking | None = Relationship(back_populates="employees")
+    owner: Optional["Parking"] = Relationship(back_populates="employees", sa_relationship_kwargs={"cascade": "all, delete"})
+
 
 
 class EmployeePublic(EmployeeBase):

@@ -1,10 +1,12 @@
 import uuid
 from datetime import datetime
+from typing import TYPE_CHECKING
 from pydantic import field_validator
 from sqlmodel import Field, Relationship, SQLModel
 from creditcard import CreditCard
-from backend.app.models.user import User
 
+if TYPE_CHECKING:
+    from app.models.user import User  # solo para hints, no ejecuta
 
 class CardBase(SQLModel):
     full_name_user: str = Field(max_length=255)
@@ -79,7 +81,7 @@ class Card(CardBase, table=True):
     hashed_cvc_code: str
     hashed_expiration_date: str
     owner_id: uuid.UUID = Field(foreign_key="user.id", nullable=False, ondelete="CASCADE")
-    owner: "User" = Relationship(back_populates="cards")
+    owner: "User" = Relationship(back_populates="cards", sa_relationship_kwargs={"cascade": "all, delete"})
 
 
 class CardPublic(CardBase):

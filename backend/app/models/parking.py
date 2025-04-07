@@ -1,8 +1,12 @@
 import uuid
 from sqlmodel import Field, Relationship, SQLModel
-from backend.app.models.employee import Employee
-from backend.app.models.historical_rate import HistoricalRate
-from backend.app.models.user import User
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from app.models.employee import Employee
+    from app.models.user import User
+    from app.models.historical_rate import HistoricalRate
+
 
 
 class ParkingBase(SQLModel):
@@ -24,9 +28,8 @@ class ParkingUpdate(ParkingBase):
 
 class Parking(ParkingBase, table=True):
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
-    users: list["User"] | None = Relationship(
-        back_populates="owner", cascade_delete=True
-    )
+    users: list["User"] = Relationship(back_populates="owner", sa_relationship_kwargs={"cascade": "all, delete"})
+
     historical_rates: list["HistoricalRate"] | None = Relationship(
         back_populates="owner", cascade_delete=True
     )

@@ -22,6 +22,9 @@ dependencies = [
     "sentry-sdk[fastapi]<2.0.0,>=1.40.6",
     "pyjwt<3.0.0,>=2.8.0",
     "easyocr>=1.7.2",
+    "creditcard>=1.0.0",
+    "setuptools>=65.0.0"
+
 ]
 
 [tool.uv]

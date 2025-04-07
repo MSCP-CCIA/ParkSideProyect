@@ -1,27 +1,32 @@
 import uuid
 from datetime import datetime
+from typing import Optional, TYPE_CHECKING
 from sqlmodel import Field, Relationship, SQLModel
-from backend.app.models.payment import Payment
-from backend.app.models.vehicle import Vehicle
 
+if TYPE_CHECKING:
+    from app.models.vehicle import Vehicle
+    from app.models.payment import Payment
 
-class ParkingRegistrationRegister(SQLModel):
-    vehicle_entry_datetime: datetime
-    vehicle_exit_datetime: datetime | None
+class ParkingRegistrationCreate(SQLModel):
+    vehicle_plate: str
+    entry_time: datetime
 
-
-class ParkingRegistrationUpdate(SQLModel):
-    vehicle_entry_datetime: datetime
-    vehicle_exit_datetime: datetime
-
-
-class ParkingRegistration(SQLModel):
+class ParkingRegistration(SQLModel, table=True):
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
-    vehicle_entry_datetime: datetime
-    vehicle_exit_datetime: datetime | None
-    owner_id: uuid.UUID = Field(foreign_key="vehicle.id", nullable=False)
-    owner: Vehicle | None = Relationship(back_populates="vehicles")
-    payment: "Payment" | None = Relationship(
-        back_populates="user",
-        sa_relationship_kwargs={"uselist": False, "cascade": "all, delete"}
+    vehicle_plate: str
+    entry_time: datetime
+    exit_time: Optional[datetime] = None
+
+    owner_id: uuid.UUID = Field(
+        foreign_key="vehicle.id", nullable=False, ondelete="CASCADE"
     )
+    owner: Optional["Vehicle"] = Relationship(back_populates="parking_registration")
+    payment: Optional["Payment"] = Relationship(back_populates="parking_registration")
+
+
+class ParkingRegistrationPublic(SQLModel):
+    id: uuid.UUID
+
+class ParkingRegistrationsPublic(SQLModel):
+    data: list[ParkingRegistrationPublic]
+    count: int

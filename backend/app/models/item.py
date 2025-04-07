@@ -1,6 +1,9 @@
 import uuid
+from typing import TYPE_CHECKING, Optional
 from sqlmodel import Field, Relationship, SQLModel
-from backend.app.models.user import User
+
+if TYPE_CHECKING:
+    from app.models.user import User
 
 
 class ItemBase(SQLModel):
@@ -22,7 +25,7 @@ class Item(ItemBase, table=True):
     owner_id: uuid.UUID = Field(
         foreign_key="user.id", nullable=False, ondelete="CASCADE"
     )
-    owner: User | None = Relationship(back_populates="items")
+    owner: Optional["User"] = Relationship(back_populates="items")
 
 
 class ItemPublic(ItemBase):
