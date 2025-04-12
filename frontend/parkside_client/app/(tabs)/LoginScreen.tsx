@@ -57,7 +57,7 @@ const LoginScreen: FC<LoginScreenProps> = ({ navigation }) => {
   };
 
   const handleRegister = () => {
-    console.log('Registrarse');
+    navigation.navigate('Register');
   };
 
   return (
