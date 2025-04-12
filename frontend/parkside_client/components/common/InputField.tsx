@@ -1,4 +1,4 @@
-import React, { FC, useState, useEffect } from 'react';
+import React, { FC } from 'react';
 import { TextInput, View, Text, StyleSheet, StyleProp, ViewStyle, TextStyle, TextInputProps } from 'react-native';
 
 interface InputFieldProps extends TextInputProps {
@@ -7,8 +7,9 @@ interface InputFieldProps extends TextInputProps {
   value: string;
   onChangeText: (text: string) => void;
   secureTextEntry?: boolean;
-  type: 'email' | 'password'; // Nuevo prop para especificar el tipo de campo
-  maxLength?: number; // Prop opcional para la longitud máxima
+  type?: 'email' | 'password' | 'text' | 'tel';
+  maxLength?: number;
+  errorMessage?: string | null; // Nuevo prop para recibir el mensaje de error
 }
 
 const InputField: FC<InputFieldProps> = ({
@@ -17,47 +18,23 @@ const InputField: FC<InputFieldProps> = ({
   value,
   onChangeText,
   secureTextEntry,
-  type,
   maxLength,
+  errorMessage,
   ...rest
 }) => {
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    setError(null); // Limpiar el error al cambiar el valor
-  }, [value]);
-
-  const handleOnChangeText = (text: string) => {
-    onChangeText(text);
-    // Realizar verificaciones básicas en tiempo real
-    if (type === 'email') {
-      if (text && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(text)) {
-        setError('Introduce un correo electrónico válido.');
-      } else if (maxLength && text.length > maxLength) {
-        setError(`El correo electrónico no puede tener más de ${maxLength} caracteres.`);
-      }
-    } else if (type === 'password') {
-      if (text && text.length < 8) {
-        setError('La contraseña debe tener al menos 8 caracteres.');
-      } else if (maxLength && text.length > maxLength) {
-        setError(`La contraseña no puede tener más de ${maxLength} caracteres.`);
-      }
-    }
-  };
-
   return (
     <View style={styles.container}>
       <Text style={styles.label}>{label}</Text>
       <TextInput
-        style={[styles.input, error && styles.inputError]} // Estilo de error condicional
+        style={[styles.input, errorMessage && styles.inputError]}
         placeholder={placeholder}
         value={value}
-        onChangeText={handleOnChangeText}
+        onChangeText={onChangeText}
         secureTextEntry={secureTextEntry}
         maxLength={maxLength}
         {...rest}
       />
-      {error && <Text style={styles.errorText}>{error}</Text>}
+      {errorMessage && <Text style={styles.errorText}>{errorMessage}</Text>}
     </View>
   );
 };
