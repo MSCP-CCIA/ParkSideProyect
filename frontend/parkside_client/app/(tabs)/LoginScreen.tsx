@@ -1,5 +1,5 @@
 import React, { useState, FC } from 'react';
-import { View, Alert } from 'react-native';
+import { Alert } from 'react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import AuthLayout from '../layouts/AuthLayout';
 import AuthTitle from '../../components/auth/AuthTitle';
@@ -46,7 +46,7 @@ const LoginScreen: FC<LoginScreenProps> = ({ navigation }) => {
 
     if (isValid) {
       console.log('Iniciando sesión con:', email, password);
-      navigation.navigate('Home');
+      navigation.navigate('MainMenu');
     } else {
       Alert.alert('Error', 'Por favor, corrige los errores en los campos.');
     }
