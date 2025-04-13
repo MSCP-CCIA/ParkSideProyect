@@ -4,7 +4,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import LoginScreen from '../app/(tabs)/LoginScreen';
 import RegisterScreen from '../app/(tabs)/RegisterScreen';
 import MainMenuScreen from '../app/(tabs)/MainMenuScreen'; // Importa la nueva pantalla
-
+import EstadoVehiculoScreen from "../app/(tabs)/StateVehicleScreen";
 type RootStackParamList = {
   Login: undefined;
   Register: undefined;
@@ -13,7 +13,7 @@ type RootStackParamList = {
   AgregarVehiculo: undefined; // Ejemplo de otra pantalla
   EstadoVehiculo: undefined; // Ejemplo de otra pantalla
   AgregarTarjeta: undefined; // Ejemplo de otra pantalla
-  Movimientos: undefined; // Ejemplo de otra pantalla
+  Movimientos: undefined;// Ejemplo de otra pantalla
   // ... otras pantallas
 };
 
@@ -26,6 +26,7 @@ const App = () => {
         <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />
         <Stack.Screen name="Register" component={RegisterScreen} options={{ headerShown: false }} />
         <Stack.Screen name="MainMenu" component={MainMenuScreen} options={{ headerShown: false }} />
+        <Stack.Screen name="EstadoVehiculo" component={EstadoVehiculoScreen} options={{ headerShown: false }} />
         {/* Agrega otras pantallas aquí */}
       </Stack.Navigator>
   );
