@@ -2,11 +2,11 @@ import React, { FC, useState } from 'react';
  import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
  import ScreenLayout from '../layouts/ScreenLayout';
 
- interface EstadoVehiculoScreenProps {
+ interface StateVehicleScreenProps {
    navigation: any;
  }
 
- const EstadoVehiculoScreen: FC<EstadoVehiculoScreenProps> = ({ navigation }) => {
+ const StateVehicleScreen: FC<StateVehicleScreenProps> = ({ navigation }) => {
    const [estadoVehiculo, setEstadoVehiculo] = useState('ESTACIONADO'); // Estado inicial
 
    const handlePagar = () => {
@@ -148,4 +148,4 @@ import React, { FC, useState } from 'react';
    },
  });
 
- export default EstadoVehiculoScreen;
+ export default StateVehicleScreen;

@@ -48,13 +48,13 @@ import React, { FC, useState } from 'react';
        <MenuItem
          title="ESTADO"
          description="ESTADO: Revisa en tiempo real el estado de tu vehículo"
-         onPress={() => navigateTo('EstadoVehiculo')}
+         onPress={() => navigateTo('StateVehicle')}
          style={styles.menuItem}
        />
        <MenuItem
          title="AGREGAR TARJETA"
          description="AGREGAR TARJETA: Agrega un método de pago para pagar tu estadía del parqueadero"
-         onPress={() => navigateTo('AgregarTarjeta')}
+         onPress={() => navigateTo('AddCard')}
          style={styles.menuItem}
        />
        <MenuItem
@@ -80,12 +80,12 @@ import React, { FC, useState } from 'react';
              <Text style={styles.drawerText}>Info Vehiculo</Text>
            </TouchableOpacity>
 
-           <TouchableOpacity onPress={() => navigateTo('EstadoVehiculo')} style={styles.drawerItem}>
+           <TouchableOpacity onPress={() => navigateTo('StateVehicle')} style={styles.drawerItem}>
              <Ionicons name="alert-circle-outline" size={24} color="#1976D2" style={styles.drawerIcon} />
              <Text style={styles.drawerText}>Estado</Text>
            </TouchableOpacity>
 
-           <TouchableOpacity onPress={() => navigateTo('AgregarTarjeta')} style={styles.drawerItem}>
+           <TouchableOpacity onPress={() => navigateTo('AddCard')} style={styles.drawerItem}>
              <Ionicons name="card-outline" size={24} color="#1976D2" style={styles.drawerIcon} />
              <Text style={styles.drawerText}>Nueva Tarjeta</Text>
            </TouchableOpacity>
