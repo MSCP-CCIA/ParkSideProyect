@@ -26,7 +26,7 @@ const RegisterScreen: FC<RegisterScreenProps> = ({ navigation }) => {
     // Aquí iría la lógica para registrar al usuario
     console.log('Registrando con:', { documentType, documentNumber, name, lastName, email, password });
     // Navegar a otra pantalla después del registro exitoso, por ejemplo:
-    // navigation.navigate('Home');
+    navigation.navigate('Login');
   };
 
   const handleGoBack = () => {
