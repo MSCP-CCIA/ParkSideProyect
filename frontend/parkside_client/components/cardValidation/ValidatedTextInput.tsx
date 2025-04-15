@@ -63,13 +63,12 @@ import { View, Text, TextInput, StyleSheet, StyleProp, ViewStyle, TextStyle } fr
        <TextInput
          style={styles.input}
          placeholder={placeholder}
-         keyboardType="number-pad"
+         keyboardType="default"
          secureTextEntry={secureTextEntry}
          value={value}
          onChangeText={handleTextChange}
          onBlur={() => validate(value)} // Valida al perder el foco
        />
-       {error && <Text style={styles.error}>{error}</Text>}
      </View>
    );
  };
