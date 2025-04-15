@@ -18,17 +18,18 @@ const LoginScreen: FC<LoginScreenProps> = ({ navigation }) => {
   const [passwordError, setPasswordError] = useState<string | null>(null);
 
   const validarCorreo = (correo: string): boolean => {
-    const regex = /^[a-zA-Z0-9.]+@[a-zA-Z0-9]+\.[a-zA-Z]{2,}$/;
+    const regex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     return regex.test(correo);
   };
 
   const handleLogin = () => {
     let isValid = true;
+
     if (!email) {
       setEmailError('Por favor, introduce tu correo electrónico.');
       isValid = false;
     } else if (!validarCorreo(email)) {
-      setEmailError('Correo electrónico inválido. Usa solo letras, números y puntos.');
+      setEmailError('Correo electrónico inválido. Verifica el formato.');
       isValid = false;
     } else {
       setEmailError(null);
@@ -61,32 +62,32 @@ const LoginScreen: FC<LoginScreenProps> = ({ navigation }) => {
   };
 
   return (
-    <AuthLayout>
-      <AuthTitle />
-      <InputField
-        label="Correo"
-        placeholder="example@email.com"
-        value={email}
-        onChangeText={setEmail}
-        keyboardType="email-address"
-        type="email"
-        maxLength={100}
-        errorMessage={emailError} // Nuevo prop para mostrar el error
-      />
-      <InputField
-        label="Contraseña"
-        placeholder="Introduce tu contraseña"
-        value={password}
-        onChangeText={setPassword}
-        secureTextEntry={true}
-        type="password"
-        maxLength={50}
-        errorMessage={passwordError} // Nuevo prop para mostrar el error
-      />
-      <Button title="INICIAR SESIÓN" onPress={handleLogin} style={{ marginBottom: 16 }} />
-      <LinkText title="He olvidado mi contraseña" onPress={handleForgotPassword} style={{ marginBottom: 8 }} />
-      <LinkText title="¿No tienes cuenta? Regístrate" onPress={handleRegister} />
-    </AuthLayout>
+      <AuthLayout>
+        <AuthTitle />
+        <InputField
+            label="Correo"
+            placeholder="example@email.com"
+            value={email}
+            onChangeText={setEmail}
+            keyboardType="email-address"
+            type="email"
+            maxLength={100}
+            errorMessage={emailError}
+        />
+        <InputField
+            label="Contraseña"
+            placeholder="Introduce tu contraseña"
+            value={password}
+            onChangeText={setPassword}
+            secureTextEntry={true}
+            type="password"
+            maxLength={50}
+            errorMessage={passwordError}
+        />
+        <Button title="INICIAR SESIÓN" onPress={handleLogin} style={{ marginBottom: 16 }} />
+        <LinkText title="He olvidado mi contraseña" onPress={handleForgotPassword} style={{ marginBottom: 8 }} />
+        <LinkText title="¿No tienes cuenta? Regístrate" onPress={handleRegister} />
+      </AuthLayout>
   );
 };
 

@@ -4,6 +4,7 @@
  import ScreenLayout from '../layouts/ScreenLayout';
  import ValidatedTextInput from '../../components/cardValidation/ValidatedTextInput';
  import CardLogo from '../../components/cardValidation/CardLogo';
+ import InputField from '../../components/common/InputField';
 
  interface AgregarTarjetaScreenProps {
    navigation: any;
@@ -98,6 +99,7 @@
          <ValidatedTextInput
            label="Titular de la tarjeta"
            placeholder="Nombre Titular"
+           keyboardType="default"
            value={cardHolderName}
            onChangeText={setCardHolderName}
            validationRules={{ required: true }}
