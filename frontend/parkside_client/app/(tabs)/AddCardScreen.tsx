@@ -118,7 +118,6 @@ const AgregarTarjetaScreen: FC<AgregarTarjetaScreenProps> = ({navigation}) => {
                     keyboardType="number-pad"
                     value={expiryDate}
                     onChangeText={handleExpiryChange}
-                    maxLength={5}
                     style={styles.inputField}
                 />
                 {errors.expiryDate && <Text style={styles.error}>{errors.expiryDate}</Text>}

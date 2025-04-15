@@ -68,7 +68,6 @@ import { View, Text, TextInput, StyleSheet, StyleProp, ViewStyle, TextStyle } fr
          onChangeText={handleTextChange}
          onBlur={() => validate(value)} // Valida al perder el foco
        />
-       {error && <Text style={styles.error}>{error}</Text>}
      </View>
    );
  };
