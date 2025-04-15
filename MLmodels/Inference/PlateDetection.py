@@ -1,8 +1,7 @@
 from ultralytics import YOLO
 import cv2
-import matplotlib.pyplot as plt
 import json
-
+from CharacterExtraction import characterExtraction
 def DetectPlate(route : str):
     model = YOLO('../models/plateDetection.onnx')
     image = cv2.imread(route)
@@ -34,10 +33,13 @@ def DetectPlate(route : str):
         cv2.destroyAllWindows()
 
     # Guardar la primera placa detectada (para pruebas)
+    ruta= 'placa_detectada.jpg'
     if plate_images:
-        cv2.imwrite("placa_detectada.jpg", plate_images[0])
-
+        cv2.imwrite(ruta, plate_images[0])
     # Guardar en un JSON para pasarlo a OCR
-    import json
+
     with open("deteccion_placa.json", "w") as f:
         json.dump(plate_data, f)
+    return ruta
+characterExtraction(DetectPlate(r"C:\Users\Asus\Downloads\placas-patentes-motos-colombia-1.jpg"))
+
