@@ -1,10 +1,10 @@
 import React, { FC, useState } from 'react';
-import { View, Text, TextInput, StyleSheet, StyleProp, ViewStyle, TextStyle } from 'react-native';
+import {View, Text, TextInput, StyleSheet, StyleProp, ViewStyle, TextStyle, KeyboardTypeOptions} from 'react-native';
 
  interface ValidatedTextInputProps {
    label: string;
    placeholder?: string;
-   keyboardType?: 'default' | 'number-pad' | 'email-address' | 'phone-pad' | 'number' | 'decimal-pad' | 'numeric';
+   keyboardType?: KeyboardTypeOptions;
    secureTextEntry?: boolean;
    value: string;
    onChangeText: (text: string) => void;
@@ -15,7 +15,7 @@ import { View, Text, TextInput, StyleSheet, StyleProp, ViewStyle, TextStyle } fr
      pattern?: RegExp;
      custom?: (value: string) => string | null; // Retorna null si es válido, error si no
    };
-   style?: StyleProp<ViewStyle | TextStyle>; // Agrega la propiedad style aquí
+   style?: StyleProp<TextStyle>; // Agrega la propiedad style aquí
  }
 
  const ValidatedTextInput: FC<ValidatedTextInputProps> = ({
@@ -57,17 +57,17 @@ import { View, Text, TextInput, StyleSheet, StyleProp, ViewStyle, TextStyle } fr
    };
 
    return (
-     <View style={[styles.container]}> {/* Aplica el estilo recibido al contenedor */}
-       <Text style={styles.label}>{label}</Text>
-       <TextInput
-         style={styles.input}
-         placeholder={placeholder}
-         keyboardType="default"
-         secureTextEntry={secureTextEntry}
-         value={value}
-         onChangeText={handleTextChange}
-         onBlur={() => validate(value)} // Valida al perder el foco
-       />
+     <View style={styles.container}>
+        <Text style={styles.label}>{label}</Text>
+        <TextInput
+          style={[styles.input, style]}
+          placeholder={placeholder}
+          keyboardType={keyboardType || 'default'}
+          secureTextEntry={secureTextEntry}
+          value={value}
+          onChangeText={handleTextChange}
+          onBlur={() => validate(value)}
+        />
      </View>
    );
  };
