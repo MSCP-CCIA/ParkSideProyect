@@ -42,7 +42,7 @@ import React, { FC, useState } from 'react';
        <MenuItem
          title="AGREGAR INFO VEHICULO"
          description="INFORMACIÓN DEL VEHICULO: Ingresa la información importante de tu vehículo"
-         onPress={() => navigateTo('AgregarVehiculo')}
+         onPress={() => navigateTo('AddVehicle')}
          style={styles.menuItem}
        />
        <MenuItem

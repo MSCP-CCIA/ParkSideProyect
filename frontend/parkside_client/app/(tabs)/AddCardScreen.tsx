@@ -1,7 +1,7 @@
 import React, {FC, useState} from 'react';
 import {View, Text, StyleSheet, TouchableOpacity, KeyboardAvoidingView, Platform} from 'react-native';
 import ScreenLayout from '../layouts/ScreenLayout';
-import ValidatedTextInput from '../../components/cardValidation/ValidatedTextInput';
+import ValidatedTextInput from '../../components/common/ValidatedTextInput';
 import CardLogo from '../../components/cardValidation/CardLogo';
 
 interface AgregarTarjetaScreenProps {
