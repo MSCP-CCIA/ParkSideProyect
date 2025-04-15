@@ -1,4 +1,3 @@
-
 import React, { FC, useState } from 'react';
 import { View, Text, TextInput, StyleSheet, StyleProp, ViewStyle, TextStyle } from 'react-native';
 
@@ -63,7 +62,7 @@ import { View, Text, TextInput, StyleSheet, StyleProp, ViewStyle, TextStyle } fr
        <TextInput
          style={styles.input}
          placeholder={placeholder}
-         keyboardType="number-pad"
+         keyboardType="default"
          secureTextEntry={secureTextEntry}
          value={value}
          onChangeText={handleTextChange}
