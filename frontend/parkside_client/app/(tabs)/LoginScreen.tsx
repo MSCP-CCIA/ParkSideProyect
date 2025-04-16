@@ -54,7 +54,7 @@ const LoginScreen: FC<LoginScreenProps> = ({ navigation }) => {
   };
 
   const handleForgotPassword = () => {
-    console.log('Olvidé mi contraseña');
+    navigation.navigate('ChangePassword')
   };
 
   const handleRegister = () => {

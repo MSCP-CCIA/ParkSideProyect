@@ -8,7 +8,7 @@ import StateVehicleScreen from '../app/(tabs)/StateVehicleScreen';
 import AddCardScreen from '../app/(tabs)/AddCardScreen'
 import AddVehicleScreen from "../app/(tabs)/AddVehicleScreen";
 import EditProfileScreen from '../app/(tabs)/EditProfileScreen'
-
+import ChangePasswordScreen from '../app/(tabs)/ChangePasswordScreen'
 type RootStackParamList = {
     Login: undefined;
     Register: undefined;
@@ -20,6 +20,7 @@ type RootStackParamList = {
     AddCard: undefined; // Ejemplo de otra pantalla
     Movimientos: undefined;// Ejemplo de otra pantalla
     EditProfile: undefined;
+    ChangePassword: undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -36,6 +37,7 @@ const App = () => {
             <Stack.Screen name="AddVehicle" component={AddVehicleScreen} options={{headerShown: false}}/>
             <Stack.Screen name="InfoVehiculo" component={AddVehicleScreen} options={{headerShown: false}}/>
             <Stack.Screen name="EditProfile" component={EditProfileScreen} options={{headerShown: false}}/>
+            <Stack.Screen name="ChangePassword" component={ChangePasswordScreen} options={{headerShown: false}}/>
             {/* Agrega otras pantallas aquí */}
         </Stack.Navigator>
     );

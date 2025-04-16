@@ -82,7 +82,6 @@ import React, { FC, useState } from 'react';
    },
    label: {
      fontSize: 16,
-     fontWeight: 'bold',
      color: 'black',
      marginBottom: 5,
    },
