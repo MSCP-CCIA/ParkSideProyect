@@ -80,7 +80,7 @@ const AgregarTarjetaScreen: FC<AgregarTarjetaScreenProps> = ({navigation}) => {
     };
 
     return (
-        <ScreenLayout title="Método de pago" navigation={navigation}>
+        <ScreenLayout title="Agregar Tarjeta" navigation={navigation}>
             <KeyboardAvoidingView
                 style={styles.container}
                 behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -88,7 +88,7 @@ const AgregarTarjetaScreen: FC<AgregarTarjetaScreenProps> = ({navigation}) => {
             >
                 <View style={styles.inputRow}>
                     <ValidatedTextInput
-                        label="Número de la tarjeta"
+                        label="Número"
                         placeholder="XXXXXXXXXXXXXXXX"
                         keyboardType="number-pad"
                         value={cardNumber}
@@ -103,7 +103,7 @@ const AgregarTarjetaScreen: FC<AgregarTarjetaScreenProps> = ({navigation}) => {
                 {errors.cardNumber && <Text style={styles.error}>{errors.cardNumber}</Text>}
 
                 <ValidatedTextInput
-                    label="Titular de la tarjeta"
+                    label="Titular"
                     placeholder="Nombre Titular"
                     keyboardType="default"
                     value={cardHolderName}
@@ -113,7 +113,7 @@ const AgregarTarjetaScreen: FC<AgregarTarjetaScreenProps> = ({navigation}) => {
                 {errors.cardHolderName && <Text style={styles.error}>{errors.cardHolderName}</Text>}
 
                 <ValidatedTextInput
-                    label="Fecha de vencimiento"
+                    label="Fecha de Vencimiento"
                     placeholder="MM/YY"
                     keyboardType="number-pad"
                     value={expiryDate}

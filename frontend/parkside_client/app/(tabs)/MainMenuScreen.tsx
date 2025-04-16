@@ -40,26 +40,26 @@ import React, { FC, useState } from 'react';
        <Text style={styles.subtitle}>Escoge alguna de las siguientes opciones:</Text>
 
        <MenuItem
-         title="AGREGAR INFO VEHICULO"
-         description="INFORMACIÓN DEL VEHICULO: Ingresa la información importante de tu vehículo"
+         title="INFORMACIÓN DE LOS VEHICULOS"
+         description="Ingresa o revisa la información importante de tu vehículo"
          onPress={() => navigateTo('AddVehicle')}
          style={styles.menuItem}
        />
        <MenuItem
-         title="ESTADO"
-         description="ESTADO: Revisa en tiempo real el estado de tu vehículo"
+         title="ESTADO VEHICULO"
+         description="Revisa en tiempo real el estado de tu vehículo"
          onPress={() => navigateTo('StateVehicle')}
          style={styles.menuItem}
        />
        <MenuItem
-         title="AGREGAR TARJETA"
-         description="AGREGAR TARJETA: Agrega un método de pago para pagar tu estadía del parqueadero"
+         title="METODOS DE PAGO"
+         description="Configura tus métodos de pago para pagar tu estadía del parqueadero"
          onPress={() => navigateTo('AddCard')}
          style={styles.menuItem}
        />
        <MenuItem
          title="MOVIMIENTOS"
-         description="MOVIMIENTOS: Revisa el historial de parqueos que hayas hecho"
+         description="Revisa el historial de parqueos que hayas hecho"
          onPress={() => navigateTo('Movimientos')}
          style={styles.menuItem}
        />
@@ -77,29 +77,23 @@ import React, { FC, useState } from 'react';
 
            <TouchableOpacity onPress={() => navigateTo('InfoVehiculo')} style={styles.drawerItem}>
              <Ionicons name="add-circle-outline" size={24} color="#1976D2" style={styles.drawerIcon} />
-             <Text style={styles.drawerText}>Info Vehiculo</Text>
+             <Text style={styles.drawerText}>Información Vehiculos</Text>
            </TouchableOpacity>
 
            <TouchableOpacity onPress={() => navigateTo('StateVehicle')} style={styles.drawerItem}>
              <Ionicons name="alert-circle-outline" size={24} color="#1976D2" style={styles.drawerIcon} />
-             <Text style={styles.drawerText}>Estado</Text>
+             <Text style={styles.drawerText}>Estado del Vehiculo</Text>
            </TouchableOpacity>
 
            <TouchableOpacity onPress={() => navigateTo('AddCard')} style={styles.drawerItem}>
              <Ionicons name="card-outline" size={24} color="#1976D2" style={styles.drawerIcon} />
-             <Text style={styles.drawerText}>Nueva Tarjeta</Text>
+             <Text style={styles.drawerText}>Metodos de Pago</Text>
            </TouchableOpacity>
 
-           <TouchableOpacity onPress={() => navigateTo('Movimientos')} style={styles.drawerItem}>
+           <TouchableOpacity onPress={() => navigateTo('Movements')} style={styles.drawerItem}>
              <Ionicons name="stats-chart-outline" size={24} color="#1976D2" style={styles.drawerIcon} />
              <Text style={styles.drawerText}>Movimientos</Text>
            </TouchableOpacity>
-
-           <TouchableOpacity onPress={() => navigateTo('Configuracion')} style={styles.drawerItem}>
-             <Ionicons name="settings-outline" size={24} color="#1976D2" style={styles.drawerIcon} />
-             <Text style={styles.drawerText}>Configuración</Text>
-           </TouchableOpacity>
-
            <TouchableOpacity onPress={handleCerrarSesion} style={styles.drawerSignOutButton}>
              <Text style={styles.drawerSignOutButtonText}>Cerrar Sesión</Text>
            </TouchableOpacity>

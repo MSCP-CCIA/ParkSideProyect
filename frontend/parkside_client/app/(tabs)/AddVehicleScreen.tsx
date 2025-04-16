@@ -30,7 +30,7 @@ import React, { FC, useState } from 'react';
    };
 
    return (
-     <ScreenLayout title="Vehicle Information" navigation={navigation}>
+     <ScreenLayout title="Agregar Vehiculo" navigation={navigation}>
        <KeyboardAvoidingView
          style={styles.container}
          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -38,14 +38,14 @@ import React, { FC, useState } from 'react';
        >
          <View style={styles.formContainer}>
            <Dropdown
-             label="Vehicle Type"
+             label="Tipo"
              value={selectedVehicleType}
              items={vehicleTypes}
              onValueChange={handleVehicleTypeChange}
            />
 
            <ValidatedTextInput
-             label="Vehicle Plate"
+             label="Placa"
              placeholder="######"
              value={vehiclePlate}
              onChangeText={handleVehiclePlateChange}
