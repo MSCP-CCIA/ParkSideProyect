@@ -1,5 +1,5 @@
 import React, { FC, useState } from 'react';
-import {View, Text, TextInput, StyleSheet, StyleProp, ViewStyle, TextStyle, KeyboardTypeOptions} from 'react-native';
+ import {View, Text, TextInput, StyleSheet, StyleProp, ViewStyle, TextStyle, KeyboardTypeOptions} from 'react-native';
 
  interface ValidatedTextInputProps {
    label: string;
@@ -16,6 +16,7 @@ import {View, Text, TextInput, StyleSheet, StyleProp, ViewStyle, TextStyle, Keyb
      custom?: (value: string) => string | null; // Retorna null si es válido, error si no
    };
    style?: StyleProp<TextStyle>; // Agrega la propiedad style aquí
+   editable?: boolean; // Add the editable prop here
  }
 
  const ValidatedTextInput: FC<ValidatedTextInputProps> = ({
@@ -27,6 +28,7 @@ import {View, Text, TextInput, StyleSheet, StyleProp, ViewStyle, TextStyle, Keyb
    onChangeText,
    validationRules = {},
    style, // Recibe la propiedad style
+   editable = true, // Default value for editable is true
  }) => {
    const [error, setError] = useState<string | null>(null);
 
@@ -67,6 +69,7 @@ import {View, Text, TextInput, StyleSheet, StyleProp, ViewStyle, TextStyle, Keyb
           value={value}
           onChangeText={handleTextChange}
           onBlur={() => validate(value)}
+          editable={editable} // Pass the editable prop to TextInput
         />
      </View>
    );

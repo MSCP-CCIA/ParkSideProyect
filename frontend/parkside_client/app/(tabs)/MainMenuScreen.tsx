@@ -70,7 +70,7 @@ import React, { FC, useState } from 'react';
 
            <Text style={styles.drawerTitle}>Menú</Text>
 
-           <TouchableOpacity onPress={() => navigateTo('EditarPerfil')} style={styles.drawerItem}>
+           <TouchableOpacity onPress={() => navigateTo('EditProfile')} style={styles.drawerItem}>
              <Ionicons name="person-outline" size={24} color="#1976D2" style={styles.drawerIcon} />
              <Text style={styles.drawerText}>Editar Perfil</Text>
            </TouchableOpacity>
