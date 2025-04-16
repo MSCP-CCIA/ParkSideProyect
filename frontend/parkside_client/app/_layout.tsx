@@ -13,7 +13,8 @@ type RootStackParamList = {
   Register: undefined;
   Home: undefined; // Ejemplo
   MainMenu: undefined; // Define la ruta para el menú principal
-  AddVehicle: undefined; // Ejemplo de otra pantalla
+  AddVehicle: undefined;
+  InfoVehiculo: undefined;// Ejemplo de otra pantalla
   StateVehicle: undefined; // Ejemplo de otra pantalla
   AddCard: undefined; // Ejemplo de otra pantalla
   Movimientos: undefined;// Ejemplo de otra pantalla
@@ -32,6 +33,7 @@ const App = () => {
         <Stack.Screen name="StateVehicle" component={StateVehicleScreen} options={{ headerShown: false }} />
         <Stack.Screen name="AddCard" component={AddCardScreen} options={{ headerShown: false }} />
           <Stack.Screen name="AddVehicle" component={AddVehicleScreen} options={{ headerShown: false }} />
+          <Stack.Screen name="InfoVehiculo" component={AddVehicleScreen} options={{ headerShown: false }} />
         {/* Agrega otras pantallas aquí */}
       </Stack.Navigator>
   );
