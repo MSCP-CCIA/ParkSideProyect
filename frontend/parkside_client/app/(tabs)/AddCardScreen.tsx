@@ -1,5 +1,5 @@
-import React, {FC, useState} from 'react';
-import {View, Text, StyleSheet, TouchableOpacity, KeyboardAvoidingView, Platform} from 'react-native';
+import React, { FC, useState } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, KeyboardAvoidingView, Platform } from 'react-native';
 import ScreenLayout from '../layouts/ScreenLayout';
 import ValidatedTextInput from '../../components/common/ValidatedTextInput';
 import CardLogo from '../../components/cardValidation/CardLogo';
@@ -8,7 +8,7 @@ interface AgregarTarjetaScreenProps {
     navigation: any;
 }
 
-const AgregarTarjetaScreen: FC<AgregarTarjetaScreenProps> = ({navigation}) => {
+const AgregarTarjetaScreen: FC<AgregarTarjetaScreenProps> = ({ navigation }) => {
     const [cardNumber, setCardNumber] = useState('');
     const [expiryDate, setExpiryDate] = useState('');
     const [cvv, setCvv] = useState('');
@@ -40,6 +40,15 @@ const AgregarTarjetaScreen: FC<AgregarTarjetaScreenProps> = ({navigation}) => {
         if (!/^(0[1-9]|1[0-2])\/\d{2}$/.test(expiryDate)) {
             newErrors.expiryDate = 'Formato inválido. Usa MM/YY.';
             isValid = false;
+        } else {
+            const [monthStr, yearStr] = expiryDate.split('/');
+            const month = parseInt(monthStr, 10);
+            const year = parseInt(yearStr, 10);
+
+            if (month < 1 || month > 12 || year < 25 || year > 40) {
+                newErrors.expiryDate = 'Fecha fuera de rango permitido (MM: 01–12, YY: 25–40).';
+                isValid = false;
+            }
         }
 
         if (!/^\d{3,4}$/.test(cvv)) {
@@ -73,7 +82,7 @@ const AgregarTarjetaScreen: FC<AgregarTarjetaScreenProps> = ({navigation}) => {
 
     const handleAddCard = () => {
         if (validateForm()) {
-            console.log('Tarjeta agregada:', {cardNumber, expiryDate, cvv, cardHolderName});
+            console.log('Tarjeta agregada:', { cardNumber, expiryDate, cvv, cardHolderName });
         } else {
             console.log('Validación fallida.');
         }
@@ -98,7 +107,7 @@ const AgregarTarjetaScreen: FC<AgregarTarjetaScreenProps> = ({navigation}) => {
                 </View>
 
                 <View style={styles.cardLogoContainerBelow}>
-                    <CardLogo cardNumber={cardNumber}/>
+                    <CardLogo cardNumber={cardNumber} />
                 </View>
                 {errors.cardNumber && <Text style={styles.error}>{errors.cardNumber}</Text>}
 
