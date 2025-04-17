@@ -54,13 +54,13 @@ import React, { FC, useState } from 'react';
        <MenuItem
          title="METODOS DE PAGO"
          description="Configura tus métodos de pago para pagar tu estadía del parqueadero"
-         onPress={() => navigateTo('AddCard')}
+         onPress={() => navigateTo('PaymentMethods')}
          style={styles.menuItem}
        />
        <MenuItem
          title="MOVIMIENTOS"
          description="Revisa el historial de parqueos que hayas hecho"
-         onPress={() => navigateTo('Movimientos')}
+         onPress={() => navigateTo('Movements')}
          style={styles.menuItem}
        />
 
@@ -85,7 +85,7 @@ import React, { FC, useState } from 'react';
              <Text style={styles.drawerText}>Estado del Vehiculo</Text>
            </TouchableOpacity>
 
-           <TouchableOpacity onPress={() => navigateTo('AddCard')} style={styles.drawerItem}>
+           <TouchableOpacity onPress={() => navigateTo('PaymentMethods')} style={styles.drawerItem}>
              <Ionicons name="card-outline" size={24} color="#1976D2" style={styles.drawerIcon} />
              <Text style={styles.drawerText}>Metodos de Pago</Text>
            </TouchableOpacity>
