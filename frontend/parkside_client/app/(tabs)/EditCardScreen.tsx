@@ -86,7 +86,7 @@ const EditCardScreen: FC<EditCardScreenProps> = ({ navigation, route }) => {
     const handleSaveChanges = () => {
         if (validateForm()) {
             Alert.alert('Cambios guardados', 'Tu tarjeta ha sido actualizada correctamente.');
-            navigation.navigate('PaymentMethods');
+            navigation.navigate('MainMenu');
         }
     };
 
