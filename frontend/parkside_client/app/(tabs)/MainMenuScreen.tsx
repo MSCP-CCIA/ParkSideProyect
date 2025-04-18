@@ -42,7 +42,7 @@ import React, { FC, useState } from 'react';
        <MenuItem
          title="INFORMACIÓN DE LOS VEHICULOS"
          description="Ingresa o revisa la información importante de tu vehículo"
-         onPress={() => navigateTo('AddVehicle')}
+         onPress={() => navigateTo('MyVehiclesScreen')}
          style={styles.menuItem}
        />
        <MenuItem
@@ -75,7 +75,7 @@ import React, { FC, useState } from 'react';
              <Text style={styles.drawerText}>Editar Perfil</Text>
            </TouchableOpacity>
 
-           <TouchableOpacity onPress={() => navigateTo('InfoVehiculo')} style={styles.drawerItem}>
+           <TouchableOpacity onPress={() => navigateTo('MyVehiclesScreen')} style={styles.drawerItem}>
              <Ionicons name="add-circle-outline" size={24} color="#1976D2" style={styles.drawerIcon} />
              <Text style={styles.drawerText}>Información Vehiculos</Text>
            </TouchableOpacity>
