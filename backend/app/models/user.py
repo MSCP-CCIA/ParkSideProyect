@@ -36,14 +36,16 @@ class UpdatePassword(SQLModel):
     new_password: str = PydanticField(min_length=8, max_length=40)
 
 
-class User(UserBase, table=True):
-    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
-    hashed_password: str
-    items: list["Item"] = Relationship(back_populates="owner", sa_relationship_kwargs={"cascade": "all, delete-orphan"})
-    cards: list["Card"] = Relationship(back_populates="owner", sa_relationship_kwargs={"cascade": "all, delete"})
-    vehicles: list["Vehicle"] = Relationship(back_populates="owner", sa_relationship_kwargs={"cascade": "all, delete"})
-    owner_id: uuid.UUID = Field(foreign_key="parking.id", nullable=False, ondelete="CASCADE")
-    owner: "Parking" = Relationship(back_populates="users")
+class User(SQLModel, table=True):
+    id: int = Field(primary_key=True)
+    full_name: str = Field(index=True)
+    email: str = Field(index=True)
+    password_hash: str
+    is_active: bool = Field(default=True)
+    parking_id: int = Field(foreign_key="parking.id")
+    parking: Parking = Relationship(back_populates="users")
+    cards: list["Card"] = Relationship(back_populates="user")
+    vehicles: list["Vehicle"] = Relationship(back_populates="user")
 
 class UserPublic(UserBase):
     id: uuid.UUID

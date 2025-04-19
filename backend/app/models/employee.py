@@ -40,12 +40,17 @@ class EmployeeUpdatePassword(SQLModel):
     new_password: str = Field(min_length=8, max_length=40)
 
 
-class Employee(EmployeeBase, table=True):
-    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
-    hashed_password: str
-    owner_id: uuid.UUID = Field(
-        foreign_key="parking.id", nullable=False, ondelete="CASCADE")
-    owner: Optional["Parking"] = Relationship(back_populates="employees", sa_relationship_kwargs={"cascade": "all, delete"})
+class Employee(SQLModel, table=True):
+    id: int = Field(primary_key=True)
+    full_name: str = Field(index=True)
+    email: str = Field(index=True)
+    password_hash: str
+    phone: int
+    job_position: str
+    is_active: bool = Field(default=True)
+    parking_id: int = Field(foreign_key="parking.id")
+    parking: Parking = Relationship(back_populates="employees")
+    payments: list["Payment"] = Relationship(back_populates="employee")
 
 
 

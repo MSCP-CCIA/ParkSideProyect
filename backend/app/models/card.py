@@ -1,6 +1,6 @@
 import uuid
-from datetime import datetime
-from typing import TYPE_CHECKING
+from datetime import datetime, date
+from typing import TYPE_CHECKING, Optional
 from pydantic import field_validator
 from sqlmodel import Field, Relationship, SQLModel
 from creditcard import CreditCard
@@ -75,13 +75,16 @@ class CardUpdateMe(SQLModel):
         return CardRegister.validate_expiration_date(value)
 
 
-class Card(CardBase, table=True):
-    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
-    hashed_number_card: str
-    hashed_cvc_code: str
-    hashed_expiration_date: str
-    owner_id: uuid.UUID = Field(foreign_key="user.id", nullable=False, ondelete="CASCADE")
-    owner: "User" = Relationship(back_populates="cards", sa_relationship_kwargs={"cascade": "all, delete"})
+class Card(SQLModel, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+    card_number_hash: str
+    full_name_user: str
+    cvc_code_hash: str
+    expiration_date: date
+    card_type: str
+    user_id: int = Field(foreign_key="user.id")
+
+    user: User = Relationship(back_populates="cards")
 
 
 class CardPublic(CardBase):

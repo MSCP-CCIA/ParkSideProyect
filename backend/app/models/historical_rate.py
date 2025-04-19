@@ -21,13 +21,14 @@ class HistoricalRateUpdate(SQLModel):
 
 
 class HistoricalRate(SQLModel, table=True):
-    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+    id: Optional[int] = Field(default=None, primary_key=True)
     car_rate: int
     motorbike_rate: int
-    start_date: Optional[date] = None
+    start_date: date
     end_date: Optional[date] = None
-    owner_id: uuid.UUID = Field(foreign_key="parking.id", nullable=False, ondelete="CASCADE")
-    owner: Optional["Parking"] = Relationship(back_populates="historical_rates")
+    parking_id: int = Field(foreign_key="parking.id")
+
+    parking: Parking = Relationship(back_populates="historical_rates")
 
 
 class HistoricalRatePublic(SQLModel):

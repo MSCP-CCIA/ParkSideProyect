@@ -13,15 +13,11 @@ class VehicleRegister(SQLModel):
     color: str = Field(default=None, max_length=255)
 
 class Vehicle(SQLModel, table=True):
-    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
-    plate: str = Field(min_length=6, max_length=6)
-    type: str = Field(default=None, max_length=255)
-    model: str = Field(default=None, max_length=255)
-    color: str = Field(default=None, max_length=255)
+    plate: str = Field(primary_key=True)
+    type: str
+    model: str
+    color: str
+    user_id: int = Field(foreign_key="user.id")
 
-    parking_registration: list["ParkingRegistration"] | None = Relationship(
-        back_populates="owner", sa_relationship_kwargs={"cascade": "all, delete"}
-    )
-
-    owner_id: uuid.UUID = Field(foreign_key="user.id", nullable=False, ondelete="CASCADE")
-    owner: "User" = Relationship(back_populates="vehicles")
+    user: User = Relationship(back_populates="vehicles")
+    parking_registrations: list["ParkingRegistration"] = Relationship(back_populates="vehicle")
