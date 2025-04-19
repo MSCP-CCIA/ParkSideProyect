@@ -1,11 +1,11 @@
 import uuid
 from sqlmodel import Field, Relationship, SQLModel
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, Optional, List
 
 if TYPE_CHECKING:
-    from app.models.employee import Employee
-    from app.models.user import User
-    from app.models.historical_rate import HistoricalRate
+    from app.models.employee import Employees
+    from app.models.user import Users
+    from app.models.historical_rate import HistoricalRates
 
 
 
@@ -26,15 +26,15 @@ class ParkingUpdate(ParkingBase):
     minute_rate: int
 
 
-class Parking(SQLModel, table=True):
+class Parkings(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     name: str = Field(index=True)
     places: int
     address: str
     enterprise: str
-    historical_rates: list["HistoricalRate"] = Relationship(back_populates="parking")
-    users: list["User"] = Relationship(back_populates="parking")
-    employees: list["Employee"] = Relationship(back_populates="parking")
+    historical_rates: List["HistoricalRates"] = Relationship(back_populates="parking")
+    users: List["Users"] = Relationship(back_populates="parking")
+    employees: List["Employees"] = Relationship(back_populates="parking")
 
 
 class ParkingPublic(ParkingBase):

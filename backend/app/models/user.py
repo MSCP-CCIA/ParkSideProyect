@@ -1,13 +1,14 @@
 import uuid
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, Optional, List
 from pydantic import EmailStr, Field as PydanticField
+from sqlalchemy import BigInteger, Column
 from sqlmodel import Field, Relationship, SQLModel
 
 if TYPE_CHECKING:
-    from .card import Card
+    from .card import Cards
     from .item import Item
-    from .parking import Parking
-    from .vehicle import Vehicle
+    from .parking import Parkings
+    from .vehicle import Vehicles
 
 
 class UserBase(SQLModel):
@@ -36,16 +37,16 @@ class UpdatePassword(SQLModel):
     new_password: str = PydanticField(min_length=8, max_length=40)
 
 
-class User(SQLModel, table=True):
-    id: int = Field(primary_key=True)
+class Users(SQLModel, table=True):
+    id: int = Field(sa_column=Column(BigInteger, primary_key=True))
     full_name: str = Field(index=True)
     email: str = Field(index=True)
     password_hash: str
     is_active: bool = Field(default=True)
-    parking_id: int = Field(foreign_key="parking.id")
-    parking: Parking = Relationship(back_populates="users")
-    cards: list["Card"] = Relationship(back_populates="user")
-    vehicles: list["Vehicle"] = Relationship(back_populates="user")
+    parking_id: int = Field(foreign_key="parkings.id")
+    parking: "Parkings" = Relationship(back_populates="users")
+    cards: List["Cards"] = Relationship(back_populates="user")
+    vehicles: List["Vehicles"] = Relationship(back_populates="user")
 
 class UserPublic(UserBase):
     id: uuid.UUID
@@ -74,5 +75,5 @@ class NewPassword(SQLModel):
     new_password: str = PydanticField(min_length=8, max_length=40)
 
 
-User.update_forward_refs()
+Users.update_forward_refs()
 

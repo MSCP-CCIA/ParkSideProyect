@@ -6,7 +6,7 @@ from sqlmodel import Field, Relationship, SQLModel
 from creditcard import CreditCard
 
 if TYPE_CHECKING:
-    from app.models.user import User  # solo para hints, no ejecuta
+    from app.models.user import Users  # solo para hints, no ejecuta
 
 class CardBase(SQLModel):
     full_name_user: str = Field(max_length=255)
@@ -75,16 +75,16 @@ class CardUpdateMe(SQLModel):
         return CardRegister.validate_expiration_date(value)
 
 
-class Card(SQLModel, table=True):
+class Cards(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     card_number_hash: str
     full_name_user: str
     cvc_code_hash: str
     expiration_date: date
     card_type: str
-    user_id: int = Field(foreign_key="user.id")
+    user_id: int = Field(foreign_key="users.id")
 
-    user: User = Relationship(back_populates="cards")
+    user: "Users" = Relationship(back_populates="cards")
 
 
 class CardPublic(CardBase):
