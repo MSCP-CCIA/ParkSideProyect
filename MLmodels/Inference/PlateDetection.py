@@ -1,45 +1,17 @@
-from ultralytics import YOLO
 import cv2
-import json
-from CharacterExtraction import characterExtraction
+from MLmodels.Inference.plate_model import model
+
 def DetectPlate(route : str):
-    model = YOLO('../models/plateDetection.onnx')
     image = cv2.imread(route)
-    # Realizar inferencia
-    results = model(image)
-
-    # Procesar resultados
-    plate_images = []  # Lista para guardar las imágenes recortadas de placas
-    plate_data = []  # Lista para guardar la info de detección
-
+    results = model(image,imgsz=800)
+    plate_images = []
     for result in results:
-        boxes = result.boxes.cpu().numpy()  # Obtener bounding boxes
-
+        boxes = result.boxes.cpu().numpy()
         for box in boxes:
-            x1, y1, x2, y2 = map(int, box.xyxy[0])  # Coordenadas de la placa
-            conf = box.conf[0]  # Confianza de la detección
-
-            # Recortar la región de la placa
+            x1, y1, x2, y2 = map(int, box.xyxy[0])
             plate_roi = image[y1:y2, x1:x2]
-
-            # Guardar información
             plate_images.append(plate_roi)
-            plate_data.append({"x1": x1, "y1": y1, "x2": x2, "y2": y2, "conf": float(conf)})
-
-    # Mostrar la placa detectada (solo si hay detecciones)
-    if plate_images:
-        cv2.imshow("Placa Detectada", plate_images[0])  # Mostrar la primera placa
-        cv2.waitKey(0)
-        cv2.destroyAllWindows()
-
-    # Guardar la primera placa detectada (para pruebas)
-    ruta= 'placa_detectada.jpg'
+    ruta = 'temp_detected_plate.jpg'
     if plate_images:
         cv2.imwrite(ruta, plate_images[0])
-    # Guardar en un JSON para pasarlo a OCR
-
-    with open("deteccion_placa.json", "w") as f:
-        json.dump(plate_data, f)
     return ruta
-characterExtraction(DetectPlate(r"C:\Users\Asus\Downloads\placas-patentes-motos-colombia-1.jpg"))
-
