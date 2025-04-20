@@ -12,7 +12,7 @@ const WebLayout: React.FC<WebLayoutProps> = ({ children }) => {
 const styles = StyleSheet.create({
     page: {
         flex: 1,
-        minHeight: '100vh', // Asegura que ocupe toda la altura de la pantalla
+        height: '100%',
         backgroundColor: '#DDF0F4', // Fondo azul claro
         justifyContent: 'center',
         alignItems: 'center',

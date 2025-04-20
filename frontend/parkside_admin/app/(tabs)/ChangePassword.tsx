@@ -1,59 +1,49 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TextInput, Image, TouchableOpacity, Alert } from 'react-native';
-import { router } from 'expo-router';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, Platform } from 'react-native';
 import WebLayout from '../layouts/WebLayout';
+import { router } from 'expo-router';
 
-const Login = () => {
+const ChangePassword = () => {
     const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
     const [emailError, setEmailError] = useState<string | null>(null);
-    const [passwordError, setPasswordError] = useState<string | null>(null);
 
     const validarCorreo = (correo: string): boolean => {
         const regex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
         return regex.test(correo);
     };
 
-    const handleLogin = () => {
-        let isValid = true;
-
+    const handleAccept = () => {
         if (!email) {
             setEmailError('Por favor, introduce tu correo electrónico.');
-            isValid = false;
         } else if (!validarCorreo(email)) {
             setEmailError('Correo electrónico inválido. Usa un formato válido.');
-            isValid = false;
         } else {
             setEmailError(null);
-        }
 
-        if (!password) {
-            setPasswordError('Por favor, introduce tu contraseña.');
-            isValid = false;
-        } else if (password.length < 8) {
-            setPasswordError('La contraseña debe tener al menos 8 caracteres.');
-            isValid = false;
-        } else {
-            setPasswordError(null);
-        }
+            // Mostramos alerta de forma web-compatible
+            if (Platform.OS === 'web') {
+                window.alert('Revisa tu correo para restablecer tu contraseña.');
+            }
 
-        if (isValid) {
-            Alert.alert('Inicio de sesión exitoso');
-        } else {
-            Alert.alert('Error', 'Por favor, corrige los errores en los campos.');
+            // Redirigir después de un pequeño retraso
+            setTimeout(() => {
+                router.replace('/(tabs)/Login');
+            }, 100);
         }
+    };
+
+    const handleCancel = () => {
+        router.replace('/(tabs)/Login');
     };
 
     return (
         <WebLayout>
             <View style={styles.wrapper}>
                 <View style={styles.container}>
-                    <Image
-                        source={require('../../assets/images/car_parking_icon.png')}
-                        style={styles.logo}
-                        resizeMode="contain"
-                    />
-                    <Text style={styles.title}>Iniciar Sesión</Text>
+                    <Text style={styles.title}>Recuperar Contraseña</Text>
+                    <Text style={styles.description}>
+                        Por favor, introduce tu correo electrónico para enviar un enlace de recuperación.
+                    </Text>
 
                     <Text style={styles.label}>Correo electrónico</Text>
                     <TextInput
@@ -66,22 +56,12 @@ const Login = () => {
                     />
                     {emailError && <Text style={styles.error}>{emailError}</Text>}
 
-                    <Text style={styles.label}>Contraseña</Text>
-                    <TextInput
-                        placeholder="Contraseña"
-                        style={styles.input}
-                        value={password}
-                        onChangeText={setPassword}
-                        secureTextEntry
-                    />
-                    {passwordError && <Text style={styles.error}>{passwordError}</Text>}
-
-                    <TouchableOpacity style={styles.button} onPress={handleLogin}>
-                        <Text style={styles.buttonText}>Ingresar</Text>
+                    <TouchableOpacity style={styles.button} onPress={handleAccept}>
+                        <Text style={styles.buttonText}>Aceptar</Text>
                     </TouchableOpacity>
 
-                    <TouchableOpacity onPress={() => router.push('../(tabs)/ChangePassword')}>
-                        <Text style={styles.link}>¿Olvidaste tu contraseña?</Text>
+                    <TouchableOpacity style={styles.cancelButton} onPress={handleCancel}>
+                        <Text style={styles.cancelButtonText}>Cancelar</Text>
                     </TouchableOpacity>
                 </View>
             </View>
@@ -92,16 +72,16 @@ const Login = () => {
 const styles = StyleSheet.create({
     wrapper: {
         flex: 1,
+        minHeight: '100%',
         justifyContent: 'center',
         alignItems: 'center',
         backgroundColor: '#DDF0F4',
     },
     container: {
         width: '100%',
-        maxWidth: 1800,
-        alignSelf: 'center',
-        paddingHorizontal: 250,
-        paddingVertical: 40,
+        maxWidth: 700,
+        paddingHorizontal: 40,
+        paddingVertical: 50,
         backgroundColor: '#fff',
         borderRadius: 20,
         shadowColor: '#000',
@@ -110,18 +90,18 @@ const styles = StyleSheet.create({
         shadowRadius: 5,
         elevation: 5,
     },
-    logo: {
-        width: 200,
-        height: 200,
-        alignSelf: 'center',
-        marginBottom: 20,
-    },
     title: {
         fontSize: 28,
         fontWeight: 'bold',
-        marginBottom: 30,
         textAlign: 'center',
+        marginBottom: 15,
         color: '#333',
+    },
+    description: {
+        textAlign: 'center',
+        fontSize: 16,
+        marginBottom: 25,
+        color: '#555',
     },
     label: {
         fontSize: 16,
@@ -134,18 +114,14 @@ const styles = StyleSheet.create({
         paddingHorizontal: 16,
         paddingVertical: 12,
         borderRadius: 8,
-        marginBottom: 10,
         backgroundColor: '#fff',
         fontSize: 16,
-        width: 400,
-        alignSelf: 'center',
+        marginBottom: 10,
     },
     error: {
         color: 'red',
         fontSize: 12,
         marginBottom: 10,
-        marginTop: -5,
-        alignSelf: 'center',
     },
     button: {
         backgroundColor: '#1976D2',
@@ -153,20 +129,21 @@ const styles = StyleSheet.create({
         borderRadius: 8,
         alignItems: 'center',
         marginTop: 10,
-        width: 400,
-        alignSelf: 'center',
     },
     buttonText: {
         color: '#fff',
         fontWeight: 'bold',
         fontSize: 16,
     },
-    link: {
+    cancelButton: {
+        marginTop: 10,
+        alignItems: 'center',
+    },
+    cancelButtonText: {
         color: '#1976D2',
-        textAlign: 'center',
-        marginTop: 15,
         fontSize: 14,
+        fontWeight: 'bold',
     },
 });
 
-export default Login;
+export default ChangePassword;
