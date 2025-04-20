@@ -1,7 +1,7 @@
 from sqlmodel import Session, create_engine, select
-
+from app.models import *
 from app.core.config import settings
-from app.models_prueba import Vehicle
+from app.models.vehicle import Vehicle
 
 engine = create_engine(str(settings.SQLALCHEMY_DATABASE_URI))
 
