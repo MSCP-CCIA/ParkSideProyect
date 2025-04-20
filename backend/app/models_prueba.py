@@ -6,16 +6,16 @@ from sqlalchemy import BigInteger, Column
 from sqlmodel import Field, Relationship, SQLModel
 
 
-class Parkings(SQLModel, table=True):
+class Parking(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     name: str = Field(index=True)
     places: int
     address: str
     enterprise: str
 
-    historical_rates: List["HistoricalRates"] = Relationship(back_populates="parking")
-    users: List["Users"] = Relationship(back_populates="parking")
-    employees: List["Employees"] = Relationship(back_populates="parking")
+    historical_rates: List["HistoricalRate"] = Relationship(back_populates="parking")
+    customers: List["Customer"] = Relationship(back_populates="parking")
+    employees: List["Employee"] = Relationship(back_populates="parking")
 
 
 class ParkingCreate(SQLModel):
@@ -25,15 +25,14 @@ class ParkingCreate(SQLModel):
     enterprise: str
 
 
-class HistoricalRates(SQLModel, table=True):
+class HistoricalRate(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     car_rate: int
     motorbike_rate: int
     start_date: date
     end_date: Optional[date] = None
-    parking_id: int = Field(foreign_key="parkings.id")
-
-    parking: "Parkings" = Relationship(back_populates="historical_rates")
+    parking_id: int = Field(foreign_key="parking.id")
+    parking: "Parking" = Relationship(back_populates="historical_rates")
 
 
 class HistoricalRateCreate(SQLModel):
@@ -44,17 +43,17 @@ class HistoricalRateCreate(SQLModel):
     parking_id: int
 
 
-class Users(SQLModel, table=True):
+class Customer(SQLModel, table=True):
     id: int = Field(sa_column=Column(BigInteger, primary_key=True))
     full_name: str = Field(index=True)
     email: str = Field(index=True)
     password_hash: str
     is_active: bool = Field(default=True)
-    parking_id: int = Field(foreign_key="parkings.id")
+    parking_id: int = Field(foreign_key="parking.id")
 
-    parking: "Parkings" = Relationship(back_populates="users")
-    cards: List["Cards"] = Relationship(back_populates="user")
-    vehicles: List["Vehicles"] = Relationship(back_populates="user")
+    parking: "Parking" = Relationship(back_populates="customers")
+    cards: List["Card"] = Relationship(back_populates="customer")
+    vehicles: List["Vehicle"] = Relationship(back_populates="customer")
 
 
 class UsersCreate(SQLModel):
@@ -66,7 +65,7 @@ class UsersCreate(SQLModel):
     parking_id: int
 
 
-class Employees(SQLModel, table=True):
+class Employee(SQLModel, table=True):
     id: int = Field(sa_column=Column(BigInteger, primary_key=True))
     full_name: str = Field(index=True)
     email: str = Field(index=True)
@@ -74,10 +73,10 @@ class Employees(SQLModel, table=True):
     phone: int
     job_position: str
     is_active: bool = Field(default=True)
-    parking_id: int = Field(foreign_key="parkings.id")
+    parking_id: int = Field(foreign_key="parking.id")
 
-    parking: "Parkings" = Relationship(back_populates="employees")
-    payments: List["Payments"] = Relationship(back_populates="employee")
+    parking: "Parking" = Relationship(back_populates="employees")
+    payments: List["Payment"] = Relationship(back_populates="employee")
 
 
 class EmployeesCreate(SQLModel):
@@ -91,16 +90,15 @@ class EmployeesCreate(SQLModel):
     parking_id: int
 
 
-class Cards(SQLModel, table=True):
+class Card(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     card_number_hash: str
-    full_name_user: str
+    full_name_customer: str
     cvc_code_hash: str
     expiration_date: date
     card_type: str
-    user_id: int = Field(foreign_key="users.id")
-
-    user: "Users" = Relationship(back_populates="cards")
+    customer_id: int = Field(foreign_key="customer.id")
+    customer: "Customer" = Relationship(back_populates="cards")
 
 
 class CardsCreate(SQLModel):
@@ -112,15 +110,15 @@ class CardsCreate(SQLModel):
     user_id: int
 
 
-class Vehicles(SQLModel, table=True):
+class Vehicle(SQLModel, table=True):
     plate: str = Field(primary_key=True)
     type: str
     model: str
     color: str
-    user_id: int = Field(foreign_key="users.id")
+    customer_id: int = Field(foreign_key="customer.id")
 
-    user: "Users" = Relationship(back_populates="vehicles")
-    parking_registrations: List["ParkingRegistrations"] = Relationship(back_populates="vehicle")
+    customer: "Customer" = Relationship(back_populates="vehicles")
+    parking_registrations: List["ParkingRegistration"] = Relationship(back_populates="vehicle")
 
 
 class VehiclesCreate(SQLModel):
@@ -131,21 +129,21 @@ class VehiclesCreate(SQLModel):
     user_id: int
 
 
-class ParkingRegistrations(SQLModel, table=True):
+class ParkingRegistration(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     entry_datetime: datetime = Field(default_factory=datetime.now)
     exit_datetime: datetime = Field(default_factory=datetime.now)
-    plate: str = Field(foreign_key="vehicles.plate")
+    plate: str = Field(foreign_key="vehicle.plate")
 
-    vehicle: "Vehicles" = Relationship(back_populates="parking_registrations")
-    payment: Optional["Payments"] = Relationship(back_populates="parking_registration")
+    vehicle: "Vehicle" = Relationship(back_populates="parking_registrations")
+    payment: Optional["Payment"] = Relationship(back_populates="parking_registration")
 
 
 class ParkingRegistrationsCreate(SQLModel):
     plate: str
 
 
-class Payments(SQLModel, table=True):
+class Payment(SQLModel, table=True):
     id: int = Field(sa_column=Column(BigInteger, primary_key=True))
     status: str
     status_detail: str
@@ -155,10 +153,10 @@ class Payments(SQLModel, table=True):
     installments: int = Field(default=1)
     date_created: datetime = Field(default_factory=datetime.now)
     date_approved: datetime = Field(default_factory=datetime.now)
-    parking_registration_id: int = Field(foreign_key="parkingregistrations.id")
-    employee_id: Optional[int] = Field(default=None, foreign_key="employees.id")
-    parking_registration: "ParkingRegistrations" = Relationship(back_populates="payment")
-    employee: Optional["Employees"] = Relationship(back_populates="payments")
+    parking_registration_id: int = Field(foreign_key="parkingregistration.id")
+    employee_id: Optional[int] = Field(default=None, foreign_key="employee.id")
+    parking_registration: "ParkingRegistration" = Relationship(back_populates="payment")
+    employee: Optional["Employee"] = Relationship(back_populates="payments")
 
 
 class PaymentsCreate(SQLModel):
