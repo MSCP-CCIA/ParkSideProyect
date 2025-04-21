@@ -1,18 +1,27 @@
-import React from 'react';
+import React, { FC } from 'react';
+import { TouchableOpacity, Text, StyleSheet, StyleProp, TextStyle, ViewStyle } from 'react-native';
 
 interface LinkTextProps {
-    text: string;
-    onClick: () => void;
-    style?: string;
+    title: string;
+    onPress: () => void;
+    style?: StyleProp<ViewStyle>;
+    textStyle?: StyleProp<TextStyle>;
 }
 
-const LinkText: React.FC<LinkTextProps> = ({ text, onClick, style }) => (
-    <p
-        className={`text-sm text-blue-600 hover:underline cursor-pointer text-center mt-2 ${style}`}
-        onClick={onClick}
-    >
-        {text}
-    </p>
-);
+const LinkText: FC<LinkTextProps> = ({ title, onPress, style, textStyle }) => {
+    return (
+        <TouchableOpacity onPress={onPress} style={style}>
+            <Text style={[styles.text, textStyle]}>{title}</Text>
+        </TouchableOpacity>
+    );
+};
+
+const styles = StyleSheet.create({
+    text: {
+        color: '#1976D2',
+        fontSize: 14,
+        textAlign: 'center',
+    },
+});
 
 export default LinkText;

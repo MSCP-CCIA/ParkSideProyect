@@ -1,16 +1,24 @@
-import { Stack } from 'expo-router';
 import React from 'react';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import Login from '../app/(tabs)/Login';
+import ChangePassword from '../app/(tabs)/ChangePassword';
 
-export default function RootLayout() {
+type RootStackParamList = {
+    Login: undefined;
+    ChangePassword: undefined;
+
+};
+
+const Stack = createNativeStackNavigator<RootStackParamList>();
+
+const App = () => {
     return (
-        <Stack
-            screenOptions={{
-                headerShown: false, // Ocultamos el encabezado como en la app móvil
-            }}
-        >
-            {/* Definimos explícitamente la ruta para ChangePassword si deseas más control */}
-            <Stack.Screen name="(tabs)/Login" />
-            <Stack.Screen name="(tabs)/ChangePassword" />
-        </Stack>
+
+            <Stack.Navigator>
+                <Stack.Screen name="Login" component={Login} options={{ headerShown: false }} />
+                <Stack.Screen name="ChangePassword" component={ChangePassword} options={{ headerShown: false }} />
+            </Stack.Navigator>
     );
-}
+};
+
+export default App;

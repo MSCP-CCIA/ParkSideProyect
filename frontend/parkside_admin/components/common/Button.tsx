@@ -1,22 +1,36 @@
-import React from 'react';
+import React, { FC } from 'react';
+import { TouchableOpacity, Text, StyleSheet, StyleProp, TextStyle, ViewStyle } from 'react-native';
 
 interface ButtonProps {
     title: string;
-    onClick: () => void;
-    disabled?: boolean;
-    style?: string;
+    onPress: () => void;
+    style?: StyleProp<ViewStyle>;
+    textStyle?: StyleProp<TextStyle>;
 }
 
-const Button: React.FC<ButtonProps> = ({ title, onClick, disabled = false, style }) => {
+const Button: FC<ButtonProps> = ({ title, onPress, style, textStyle }) => {
     return (
-        <button
-            onClick={onClick}
-            disabled={disabled}
-            className={`w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition ${style} ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
-        >
-            {title}
-        </button>
+        <TouchableOpacity style={[styles.button, style]} onPress={onPress}>
+            <Text style={[styles.text, textStyle]}>{title}</Text>
+        </TouchableOpacity>
     );
 };
+
+const styles = StyleSheet.create({
+    button: {
+        backgroundColor: '#1976D2',
+        borderRadius: 8,
+        paddingVertical: 12,
+        alignItems: 'center',
+        width: 200,
+        justifyContent: 'center',
+        alignSelf: 'center',
+    },
+    text: {
+        color: 'white',
+        fontSize: 16,
+        fontWeight: 'bold',
+    },
+});
 
 export default Button;

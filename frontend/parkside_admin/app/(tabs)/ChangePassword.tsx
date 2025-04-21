@@ -1,9 +1,12 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, Platform } from 'react-native';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, Alert, Dimensions } from 'react-native';
 import WebLayout from '../layouts/WebLayout';
-import { router } from 'expo-router';
 
-const ChangePassword = () => {
+interface Props {
+    navigation: any;
+}
+
+const ChangePassword: React.FC<Props> = ({ navigation }) => {
     const [email, setEmail] = useState('');
     const [emailError, setEmailError] = useState<string | null>(null);
 
@@ -20,20 +23,14 @@ const ChangePassword = () => {
         } else {
             setEmailError(null);
 
-            // Mostramos alerta de forma web-compatible
-            if (Platform.OS === 'web') {
-                window.alert('Revisa tu correo para restablecer tu contraseña.');
-            }
+            window.alert('Revisa tu correo para restablecer tu contraseña.');
 
-            // Redirigir después de un pequeño retraso
-            setTimeout(() => {
-                router.replace('/(tabs)/Login');
-            }, 100);
+            navigation.replace('Login');
         }
     };
 
     const handleCancel = () => {
-        router.replace('/(tabs)/Login');
+        navigation.replace('Login');
     };
 
     return (
@@ -72,7 +69,7 @@ const ChangePassword = () => {
 const styles = StyleSheet.create({
     wrapper: {
         flex: 1,
-        minHeight: '100%',
+        height: Dimensions.get('window').height,
         justifyContent: 'center',
         alignItems: 'center',
         backgroundColor: '#DDF0F4',
