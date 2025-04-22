@@ -1,2 +1,2 @@
 from ultralytics import YOLO
-model = YOLO('../Models/best.onnx', task='detect')
+model = YOLO(r'C:\Users\Asus\PycharmProjects\ParkSideProyect\MLmodels\Models\best.onnx', task='detect')

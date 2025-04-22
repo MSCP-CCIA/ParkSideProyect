@@ -1,5 +1,5 @@
-from CharacterExtraction import characterExtraction
-from PlateDetection import DetectPlate
+from MLmodels.Inference.CharacterExtraction import characterExtraction
+from MLmodels.Inference.PlateDetection import DetectPlate
 import re
 import os
 
@@ -29,4 +29,3 @@ def Service(img: str):
             if re.fullmatch(r'[A-Z]{3}\d{2}[A-Z]', plate):
                 return plate
     return None
-print(Service(r"C:\Users\Asus\Downloads\placas-patentes-motos-colombia-1.jpg"))
