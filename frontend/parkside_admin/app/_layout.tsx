@@ -2,10 +2,12 @@ import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import Login from '../app/(tabs)/Login';
 import ChangePassword from '../app/(tabs)/ChangePassword';
+import Usuarios from '../app/(tabs)/Usuarios';
 
 type RootStackParamList = {
     Login: undefined;
     ChangePassword: undefined;
+    Usuarios: undefined;
 
 };
 
@@ -17,6 +19,8 @@ const App = () => {
             <Stack.Navigator>
                 <Stack.Screen name="Login" component={Login} options={{ headerShown: false }} />
                 <Stack.Screen name="ChangePassword" component={ChangePassword} options={{ headerShown: false }} />
+                <Stack.Screen name="Usuarios" component={Usuarios} options={{ headerShown: false }} />
+
             </Stack.Navigator>
     );
 };
