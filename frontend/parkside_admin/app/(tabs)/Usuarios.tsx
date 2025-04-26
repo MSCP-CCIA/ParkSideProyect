@@ -1,35 +1,74 @@
 import React from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, Image, ScrollView } from 'react-native';
+import {
+    View,
+    Text,
+    StyleSheet,
+    TextInput,
+    TouchableOpacity,
+    ScrollView,
+    Alert,
+} from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import DashboardLayout from '../layouts/DashboardLayout';
 import ReusableTable from '../../components/common/ReusableTable';
+import FloatingActionsButton from '../../components/Button +/FloatingActionsButton';
 
-const masIcono = require('../../assets/images/mas-icono.png');
+const headers = [
+    { label: 'Número de Documento', key: 'numeroDocumento' },
+    { label: 'Nombre', key: 'nombre' },
+    { label: 'Tipo Documento', key: 'tipoDocumento' },
+    { label: 'Correo', key: 'correo' },
+    { label: 'Rol', key: 'rol' },
+];
 
 const usuarios = [
     {
-        documento: '1054785687',
+        numeroDocumento: '1054785687',
         nombre: 'Juan Valdés',
-        tipo: 'Cédula',
+        tipoDocumento: 'Cédula',
         correo: 'juan@gmail.com',
         rol: 'Usuario',
     },
     {
-        documento: '518386954',
+        numeroDocumento: '518386954',
         nombre: 'Manuel Castro',
-        tipo: 'Tarjeta Identidad',
+        tipoDocumento: 'Tarjeta Identidad',
         correo: 'manuC@outlook.com',
         rol: 'Empleado',
     },
     {
-        documento: '1000041257',
+        numeroDocumento: '1000041257',
         nombre: 'Andres Hurtado',
-        tipo: 'Cédula Extranjera',
+        tipoDocumento: 'Cédula Extranjera',
         correo: 'andy@usa.edu.co',
         rol: 'Administrador',
     },
 ];
 
 const Usuarios = () => {
+    const navigation = useNavigation<NativeStackNavigationProp<any>>();
+
+    const handleCreateUser = () => {
+        navigation.navigate('CrearUsuario');
+    };
+
+    const handleBlock = (nombre: string) => {
+        Alert.alert(
+            'Usuario bloqueado',
+            `El usuario ${nombre} ha sido bloqueado correctamente.`,
+            [{ text: 'Aceptar' }]
+        );
+    };
+
+    const handleDeactivate = (nombre: string) => {
+        Alert.alert(
+            'Usuario desactivado',
+            `El usuario ${nombre} ha sido desactivado correctamente.`,
+            [{ text: 'Aceptar' }]
+        );
+    };
+
     return (
         <DashboardLayout>
             <ScrollView>
@@ -46,17 +85,18 @@ const Usuarios = () => {
                 </View>
 
                 <ReusableTable
-                    headers={['Número de Documento', 'Nombre', 'Tipo Documento', 'Correo', 'Rol']}
+                    headers={headers}
                     data={usuarios}
                     renderActions={(row, index) => (
-                        <TouchableOpacity onPress={() => console.log('Abrir CRUD para', row.nombre)}>
-                            <Image source={masIcono} style={styles.icon} />
-                        </TouchableOpacity>
+                        <FloatingActionsButton
+                            onBlock={() => handleBlock(row.nombre)}
+                            onDeactivate={() => handleDeactivate(row.nombre)}
+                        />
                     )}
                     noDataText="No hay usuarios registrados."
                 />
 
-                <TouchableOpacity style={styles.createButton}>
+                <TouchableOpacity style={styles.createButton} onPress={handleCreateUser}>
                     <Text style={styles.createButtonText}>Crear nuevo usuario</Text>
                 </TouchableOpacity>
             </ScrollView>
@@ -94,10 +134,6 @@ const styles = StyleSheet.create({
     refreshButtonText: {
         color: '#fff',
         fontWeight: 'bold',
-    },
-    icon: {
-        width: 20,
-        height: 20,
     },
     createButton: {
         marginTop: 24,

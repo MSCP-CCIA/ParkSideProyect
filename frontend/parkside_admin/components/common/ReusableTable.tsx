@@ -1,8 +1,13 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 
+interface HeaderItem {
+    label: string;
+    key: string;
+}
+
 interface ReusableTableProps {
-    headers: string[];
+    headers: HeaderItem[];
     data: Record<string, string>[];
     renderActions?: (row: Record<string, string>, index: number) => React.ReactNode;
     noDataText?: string;
@@ -14,45 +19,41 @@ const ReusableTable: React.FC<ReusableTableProps> = ({
                                                          renderActions,
                                                          noDataText = 'No hay datos para mostrar.',
                                                      }) => {
+    const totalColumns = headers.length + (renderActions ? 1 : 0);
 
-    const getColumnStyle = (index: number) => {
-        switch (index) {
-            case 0: return styles.col0;
-            case 1: return styles.col1;
-            case 2: return styles.col2;
-            case 3: return styles.col3;
-            case 4: return styles.col4;
-            default: return styles.defaultCol;
-        }
-    };
+    const getColumnStyle = (): { flex: number; textAlign: 'center' } => ({
+        flex: 1,
+        textAlign: 'center',
+    });
 
     return (
         <View style={styles.table}>
+            {/* Encabezado */}
             <View style={styles.headerRow}>
                 {headers.map((header, idx) => (
-                    <Text key={idx} style={[styles.headerCell, getColumnStyle(idx)]}>
-                        {header}
-                    </Text>
+                    <View key={idx} style={[styles.cellWrapper, getColumnStyle()]}>
+                        <Text style={styles.headerCell}>{header.label}</Text>
+                    </View>
                 ))}
                 {renderActions && (
-                    <Text style={[styles.headerCell, styles.colAcciones]}>Acciones</Text>
+                    <View style={[styles.cellWrapper, getColumnStyle()]}>
+                        <Text style={styles.headerCell}>Acciones</Text>
+                    </View>
                 )}
             </View>
 
+            {/* Filas */}
             {data.length > 0 ? (
-                data.map((row, index) => (
-                    <View key={index} style={styles.dataRow}>
-                        {headers.map((_, idx) => {
-                            const value = Object.values(row)[idx];
-                            return (
-                                <Text key={idx} style={[styles.cell, getColumnStyle(idx)]}>
-                                    {value}
-                                </Text>
-                            );
-                        })}
+                data.map((row, rowIndex) => (
+                    <View key={rowIndex} style={styles.dataRow}>
+                        {headers.map((header, colIndex) => (
+                            <View key={colIndex} style={[styles.cellWrapper, getColumnStyle()]}>
+                                <Text style={styles.cell}>{row[header.key]}</Text>
+                            </View>
+                        ))}
                         {renderActions && (
-                            <View style={[styles.colAcciones, styles.actionCell]}>
-                                {renderActions(row, index)}
+                            <View style={[styles.cellWrapper, getColumnStyle()]}>
+                                {renderActions(row, rowIndex)}
                             </View>
                         )}
                     </View>
@@ -72,14 +73,11 @@ const styles = StyleSheet.create({
         backgroundColor: '#fff',
         overflow: 'hidden',
     },
-    actionCell: {
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
     headerRow: {
         flexDirection: 'row',
         backgroundColor: '#e6e6e6',
         paddingVertical: 12,
+        alignItems: 'center',
     },
     dataRow: {
         flexDirection: 'row',
@@ -88,30 +86,24 @@ const styles = StyleSheet.create({
         borderColor: '#f0f0f0',
         alignItems: 'center',
     },
+    cellWrapper: {
+        justifyContent: 'center',
+        alignItems: 'center',
+        flex: 1,
+    },
     headerCell: {
         fontWeight: 'bold',
         textAlign: 'center',
+        fontSize: 14,
     },
     cell: {
         textAlign: 'center',
+        fontSize: 14,
     },
     noData: {
         padding: 16,
         textAlign: 'center',
         color: '#555',
-    },
-    col0: { width: 160 },
-    col1: { width: 160 },
-    col2: { width: 160 },
-    col3: { width: 220 },
-    col4: { width: 130 },
-    colAcciones: {
-        width: 80,
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    defaultCol: {
-        width: 100,
     },
 });
 
