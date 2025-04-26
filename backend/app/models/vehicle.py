@@ -8,8 +8,6 @@ if TYPE_CHECKING:
 class Vehicle(SQLModel, table=True):
     plate: str = Field(primary_key=True)
     type: str
-    model: str
-    color: str
     customer_id: int = Field(foreign_key="customer.id")
 
     customer: "Customer" = Relationship(back_populates="vehicles")

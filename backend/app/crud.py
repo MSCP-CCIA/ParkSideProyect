@@ -2,7 +2,16 @@ import uuid
 from typing import Any
 from sqlmodel import Session, select
 from app.core.security import get_password_hash, verify_password
-from app.models.customer import UserCreate, User, UserUpdate
+from app.models.customer import Customer, UserCreate, User, UserUpdate, create_customer_model_from_usercreate
+
+
+
+def create_customer(db: Session, user_in: UserCreate) -> Customer:
+    db_customer = create_customer_model_from_usercreate(user_in)
+    db.add(db_customer)
+    db.commit()
+    db.refresh(db_customer)
+    return db_customer
 
 
 def create_user(*, session: Session, user_create: UserCreate) -> User:
@@ -44,9 +53,4 @@ def authenticate(*, session: Session, email: str, password: str) -> User | None:
     return db_user
 
 
-def create_item(*, session: Session, item_in: ItemCreate, owner_id: uuid.UUID) -> Item:
-    db_item = Item.model_validate(item_in, update={"owner_id": owner_id})
-    session.add(db_item)
-    session.commit()
-    session.refresh(db_item)
-    return db_item
+
