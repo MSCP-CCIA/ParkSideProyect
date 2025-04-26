@@ -19,3 +19,6 @@ class Customer(SQLModel, table=True):
     parking: "Parking" = Relationship(back_populates="customers")
     cards: List["Card"] = Relationship(back_populates="customer")
     vehicles: List["Vehicle"] = Relationship(back_populates="customer")
+
+class TokenPayload(SQLModel):
+    sub: Optional[str] = None
