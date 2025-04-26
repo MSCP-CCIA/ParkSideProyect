@@ -1,41 +1,83 @@
-from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel
-from typing import Dict
+from typing import List
 
-app = FastAPI()
+from fastapi import FastAPI, HTTPException, status, APIRouter
 
-# Base de datos ficticia para vehículos
-vehicle_db: Dict[str, Dict[str, Dict]] = {}
+from app.models.message import Message
+from app.models.vehicle import (RegisterVehicleRequest, SearchVehicleRequest, SearchVehicleResponse,
+                                SearchVehiclesRequest, SearchVehiclesResponse)
+from app.crud.vehicleCrud import *
+from app.api.deps import SessionDep
 
-class Vehicle(BaseModel):
-    plate: str
-    owner: str
-    vehicle_type: str
+router = APIRouter(prefix="/vehicle", tags=["vehicleRegistration"])
 
-@app.post("/register-vehicle/{parking_id}")
-def register_vehicle(parking_id: str, vehicle: Vehicle):
-    if parking_id not in vehicle_db:
-        vehicle_db[parking_id] = {}
-    if vehicle.plate in vehicle_db[parking_id]:
-        raise HTTPException(status_code=400, detail="Vehicle already registered")
-    vehicle_db[parking_id][vehicle.plate] = vehicle.dict()
-    return {"msg": "Vehicle registered successfully", "parking_id": parking_id, "vehicle": vehicle}
 
-@app.get("/get-vehicle/{parking_id}/{plate}")
-def get_vehicle(parking_id: str, plate: str):
-    if parking_id not in vehicle_db or plate not in vehicle_db[parking_id]:
-        raise HTTPException(status_code=404, detail="Vehicle not found")
-    return vehicle_db[parking_id][plate]
+@router.post("/register-vehicle/", response_model=Message)
+def register_vehicle(session: SessionDep, registerVehicleRequest: RegisterVehicleRequest) -> Message:
+    try:
+        create_vehicle(session=session, registerVehicleRequest=registerVehicleRequest)
+        return Message(message="Registro de vehículo exitoso")
+    except Exception as e:
+        # Cualquier otro error se considera un error interno
+        raise HTTPException(
+            status_code=400,
+            detail="Error inesperado al registrar el vehículo"
+        )
 
-@app.get("/vehicles/{parking_id}")
-def list_vehicles(parking_id: str):
-    if parking_id not in vehicle_db:
-        raise HTTPException(status_code=404, detail="No vehicles found for this parking lot")
-    return vehicle_db[parking_id]
 
-@app.delete("/delete-vehicle/{parking_id}/{plate}")
-def delete_vehicle(parking_id: str, plate: str):
-    if parking_id not in vehicle_db or plate not in vehicle_db[parking_id]:
-        raise HTTPException(status_code=404, detail="Vehicle not found")
-    del vehicle_db[parking_id][plate]
-    return {"msg": "Vehicle deleted successfully", "parking_id": parking_id, "plate": plate}
+@router.post("/{customer}/get-vehicle-{plate}", response_model=SearchVehicleResponse)
+def get_vehicle(session: SessionDep, searchVehicleRequest: SearchVehicleRequest) -> SearchVehicleResponse:
+    try:
+        vehicle = get_customer_vehicle(session=session, searchVehicleRequest=searchVehicleRequest)
+        if not vehicle:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Cliente o vehículo no encontrado"
+            )
+        return SearchVehicleResponse(
+            type = vehicle.type,
+            plate = vehicle.plate
+        )
+    except Exception as e:
+        print(e)
+        raise HTTPException(
+            status_code=400,
+            detail="Error inesperado al buscar el vehiclo"
+        )
+
+
+@router.post("/{customer_id}/get-vehicles", response_model=SearchVehiclesResponse)
+def get_vehicles(session: SessionDep, searchVehiclesRequest: SearchVehiclesRequest) -> SearchVehiclesResponse:
+    try:
+        vehicles = get_customer_vehicles(session=session, searchVehiclesRequest=searchVehiclesRequest)
+        if not vehicles:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Cliente o vehículos no encontrados"
+            )
+        vehicles_response = [
+            SearchVehicleResponse(
+                plate=vehicle.plate,
+                type=vehicle.type
+            )
+            for vehicle in vehicles
+        ]
+        return SearchVehiclesResponse(vehicles=vehicles_response)
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error inesperado al buscar los vehículos: {str(e)}"
+        )
+
+
+@router.delete("/{customer_id}/delete-vehicle-{plate}", response_model=Message)
+def delete_vehicle(session: SessionDep, deleteVehicleRequest: DeleteVehicleRequest):
+    try:
+        if delete_customer_vehicle(session=session, deleteVehicleRequest=deleteVehicleRequest):
+            return Message(message="Vehiculo eliminado correctamente")
+        return Message(message="El vehiculo no ha sido eliminado")
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Vehículo no encontrado"
+        )
+

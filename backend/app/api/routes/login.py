@@ -76,7 +76,8 @@ def recover_password(email: str, session: SessionDep) -> Message:
 
 @router.post("/reset-password/")
 def reset_password(session: SessionDep, body: NewPassword) -> Message:
-    """
+    """vehicle = Vehicle(plate="AAA123", type="Carro", customer_id=1000000001)
+    add_vehicle(vehicle)
     Reset password
     """
     email = verify_password_reset_token(token=body.token)

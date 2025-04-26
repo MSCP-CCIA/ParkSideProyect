@@ -1,0 +1,87 @@
+import uuid
+from fastapi import HTTPException, status
+from typing import Any, List
+from sqlmodel import Session, select
+from app.core.security import get_password_hash, verify_password
+from app.models.vehicle import *
+
+
+def create_vehicle(*, session: Session, registerVehicleRequest: RegisterVehicleRequest) -> Vehicle:
+    try:
+        db_obj = Vehicle.model_validate(
+            registerVehicleRequest
+        )
+        session.add(db_obj)
+        session.commit()
+        session.refresh(db_obj)
+        return db_obj
+    except HTTPException as e:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error al crear el vehículo: {str(e)}"
+        )
+
+
+def get_customer_vehicle(*, session: Session, searchVehicleRequest: SearchVehicleRequest) -> Vehicle:
+    try:
+        statement = select(Vehicle).where(
+            (Vehicle.plate == searchVehicleRequest.plate) & (Vehicle.customer_id == searchVehicleRequest.customer_id)
+        )
+        vehicle = session.exec(statement).first()
+        if not vehicle:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Vehículo no encontrado"
+            )
+        return vehicle
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error al obtener el vehículo: {str(e)}"
+        )
+
+
+def get_customer_vehicles(*, session: Session, searchVehiclesRequest: SearchVehiclesRequest) -> List[Vehicle]:
+    try:
+        statement = select(Vehicle).where(Vehicle.customer_id == searchVehiclesRequest.customer_id)
+        vehicles = session.exec(statement).all()
+        if not vehicles:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="No se encontraron vehículos para este cliente"
+            )
+        return vehicles
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error al obtener los vehículos: {str(e)}"
+        )
+
+
+def delete_customer_vehicle(*, session: Session, deleteVehicleRequest: DeleteVehicleRequest) -> bool:
+    try:
+        statement = select(Vehicle).where(
+            (Vehicle.plate == deleteVehicleRequest.plate) & (Vehicle.customer_id == deleteVehicleRequest.customer_id)
+        )
+        vehicle = session.exec(statement).first()
+        if not vehicle:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Vehículo no encontrado para eliminar"
+            )
+        session.delete(vehicle)
+        session.commit()
+        return True
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error al eliminar el vehículo: {str(e)}"
+        )

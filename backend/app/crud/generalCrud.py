@@ -14,6 +14,10 @@ def create_customer(db: Session, user_in: UserCreate) -> Customer:
     return db_customer
 
 
+################################################################################################################
+########################################### Modelos a mover ####################################################
+################################################################################################################
+
 def create_user(*, session: Session, user_create: UserCreate) -> User:
     db_obj = User.model_validate(
         user_create, update={"hashed_password": get_password_hash(user_create.password)}
