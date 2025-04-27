@@ -23,7 +23,8 @@ dependencies = [
     "pyjwt<3.0.0,>=2.8.0",
     "easyocr>=1.7.2",
     "creditcard>=1.0.0",
-    "setuptools>=65.0.0"
+    "setuptools>=65.0.0",
+    "cryptography>= 42.0.5"
 
 ]
 

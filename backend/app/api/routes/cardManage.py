@@ -1,86 +1,52 @@
-from fastapi import FastAPI, HTTPException, Depends, status
-from pydantic import BaseModel, Field
-from typing import List, Optional
+from fastapi import APIRouter, HTTPException, Depends
+from sqlmodel import select, Session
+from typing import List
 from datetime import datetime
 from cryptography.fernet import Fernet
 
-# Configuración básica
-SECRET_KEY = Fernet.generate_key()
-fernet = Fernet(SECRET_KEY)
+from app.api.deps import SessionDep, CurrentUser
+from app.schemas.card import CardCreate, TransactionCreate, TransactionResponse, CardPublic
+from app.schemas.common import Message
+from app.models.card import Card
+from app.models.customer import Customer
+from app.core.config import settings
 
-app = FastAPI()
+router = APIRouter(prefix="/cards", tags=["cards"])
 
-# Base de datos ficticia
-fake_db = {"transactions": []}
-
-# Modelos
-class Card(BaseModel):
-    card_number: str = Field(..., min_length=16, max_length=16)
-    cardholder_name: str
-    expiration_date: str
-    cvv: str = Field(..., min_length=3, max_length=3)
-    balance: float
-
-class Transaction(BaseModel):
-    card_number: str
-    amount: float
-    merchant: str
-    timestamp: datetime = datetime.utcnow()
-    status: str = "pending"
-
-class TransactionResponse(BaseModel):
-    transaction_id: int
-    card_number: str
-    amount: float
-    merchant: str
-    timestamp: datetime
-    status: str
+fernet = Fernet(settings.SECRET_KEY.encode())
 
 # Helpers
+def encrypt_value(value: str) -> str:
+    return fernet.encrypt(value.encode()).decode()
 
-def encrypt_card_number(card_number: str) -> str:
-    return fernet.encrypt(card_number.encode()).decode()
-
-def decrypt_card_number(encrypted_card_number: str) -> str:
-    return fernet.decrypt(encrypted_card_number.encode()).decode()
+def decrypt_value(value: str) -> str:
+    return fernet.decrypt(value.encode()).decode()
 
 
-def validate_card(card: Card):
-    if card.expiration_date < datetime.now().strftime("%Y-%m"):
-        raise HTTPException(status_code=400, detail="Card expired")
-    return True
+@router.post("/register", response_model=CardPublic)
+def register_card(card_in: CardCreate, session: SessionDep, current_user: CurrentUser):
+    """
+    Register a new card linked to the current customer.
+    """
+    db_card = Card(
+        card_number_hash=encrypt_value(card_in.card_number),
+        full_name_customer=card_in.cardholder_name,
+        cvc_code_hash=encrypt_value(card_in.cvv),
+        expiration_date=card_in.expiration_date,
+        card_type=card_in.card_type,
+        customer_id=current_user.id,
+    )
+    session.add(db_card)
+    session.commit()
+    session.refresh(db_card)
+    return db_card
 
-# Endpoints
 
-@app.post("/register-card")
-def register_card(card: Card):
-    encrypted_number = encrypt_card_number(card.card_number)
-    fake_db[encrypted_number] = card.dict()
-    fake_db[encrypted_number]["card_number"] = encrypted_number
-    return {"msg": "Card registered successfully"}
-
-@app.post("/create-transaction", response_model=TransactionResponse)
-def create_transaction(transaction: Transaction):
-    encrypted_number = encrypt_card_number(transaction.card_number)
-    card = fake_db.get(encrypted_number)
-    if not card:
-        raise HTTPException(status_code=404, detail="Card not found")
-    if card["balance"] < transaction.amount:
-        raise HTTPException(status_code=400, detail="Insufficient funds")
-    card["balance"] -= transaction.amount
-    transaction_id = len(fake_db["transactions"]) + 1
-    transaction.status = "completed"
-    fake_db["transactions"].append(transaction.dict())
-    return {"transaction_id": transaction_id, **transaction.dict()}
-
-@app.get("/transactions", response_model=List[TransactionResponse])
-def get_transactions():
-    return fake_db["transactions"]
-
-@app.get("/card-balance/{card_number}")
-def get_card_balance(card_number: str):
-    encrypted_number = encrypt_card_number(card_number)
-    card = fake_db.get(encrypted_number)
-    if not card:
-        raise HTTPException(status_code=404, detail="Card not found")
-    return {"balance": card["balance"]}
+@router.get("/", response_model=List[CardPublic])
+def list_cards(session: SessionDep, current_user: CurrentUser):
+    """
+    List all cards of the current customer.
+    """
+    statement = select(Card).where(Card.customer_id == current_user.id)
+    cards = session.exec(statement).all()
+    return cards
