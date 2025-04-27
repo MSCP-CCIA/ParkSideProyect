@@ -7,9 +7,9 @@ router = APIRouter(prefix="/vehicle", tags=["vehicleRegistration"])
 
 
 @router.post("/register-vehicle/", response_model=Message)
-def register_vehicle(session: SessionDep, createVehicleRequest: CreateVehicleRequest) -> Message:
+def register_vehicle(session: SessionDep, json: CreateVehicleRequest) -> Message:
     try:
-        create_vehicle(session=session, createVehicleRequest=createVehicleRequest)
+        create_vehicle(session=session, json=json)
         return Message(message="Registro de vehículo exitoso")
     except Exception as e:
         raise HTTPException(
@@ -19,9 +19,9 @@ def register_vehicle(session: SessionDep, createVehicleRequest: CreateVehicleReq
 
 
 @router.post("/{customer}/get-vehicle-{plate}", response_model=SearchVehicleResponse)
-def get_vehicle(session: SessionDep, searchVehicleRequest: SearchVehicleRequest) -> SearchVehicleResponse:
+def get_vehicle(session: SessionDep, json: SearchVehicleRequest) -> SearchVehicleResponse:
     try:
-        vehicle = get_customer_vehicle(session=session, searchVehicleRequest=searchVehicleRequest)
+        vehicle = get_customer_vehicle(session=session, json=json)
         if not vehicle:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
@@ -39,13 +39,13 @@ def get_vehicle(session: SessionDep, searchVehicleRequest: SearchVehicleRequest)
 
 
 @router.post("/{customer_id}/get-vehicles", response_model=SearchVehiclesResponse)
-def get_vehicles(session: SessionDep, searchVehiclesRequest: SearchVehiclesRequest) -> SearchVehiclesResponse:
+def get_vehicles(session: SessionDep, json: SearchVehiclesRequest) -> SearchVehiclesResponse:
     try:
-        vehicles = get_customer_vehicles(session=session, searchVehiclesRequest=searchVehiclesRequest)
+        vehicles = get_customer_vehicles(session=session, json=json)
         if not vehicles:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
-                detail="Cliente o vehículos no encontrados"
+                detail="Vehículos no encontrados"
             )
         vehicles_response = [
             SearchVehicleResponse(
@@ -63,9 +63,9 @@ def get_vehicles(session: SessionDep, searchVehiclesRequest: SearchVehiclesReque
 
 
 @router.delete("/{customer_id}/delete-vehicle-{plate}", response_model=Message)
-def delete_vehicle(session: SessionDep, deleteVehicleRequest: DeleteVehicleRequest):
+def delete_vehicle(session: SessionDep, json: DeleteVehicleRequest):
     try:
-        if delete_customer_vehicle(session=session, deleteVehicleRequest=deleteVehicleRequest):
+        if delete_customer_vehicle(session=session, json=json):
             return Message(message="Vehiculo eliminado correctamente")
         return Message(message="El vehiculo no ha sido eliminado")
     except Exception as e:

@@ -5,7 +5,7 @@ from sqlmodel import Field, Relationship, SQLModel
 
 if TYPE_CHECKING:
     from app.models.customer import Customer
-    from app.models.parking_registration import ParkingRegistration
+    from app.models.parkingRegistration import ParkingRegistration
 
 class Vehicle(SQLModel, table=True):
     plate: str = Field(primary_key=True)

@@ -4,16 +4,15 @@ from app.models.parking import *
 from app.models.employee import Employee
 
 
-def get_parking(*, session: Session, searchParkingRequest: SearchParkingRequest) -> Parking:
+def get_parking(*, session: Session, json: SearchParkingRequest) -> Parking:
     try:
-        employee = session.exec(select(Employee).where(Employee.id == searchParkingRequest.employee_id)).first()
+        employee = session.exec(select(Employee).where(Employee.id == json.employee_id)).first()
         if not employee:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="Empleado no encontrado"
             )
         statement = select(Parking).where(
-            (Parking.name == searchParkingRequest.name) &
             (Parking.id == employee.parking_id)
         )
         parking = session.exec(statement).first()

@@ -3,10 +3,10 @@ from sqlmodel import Session, select
 from app.models.vehicle import *
 
 
-def create_vehicle(*, session: Session, createVehicleRequest: CreateVehicleRequest) -> Vehicle:
+def create_vehicle(*, session: Session, json: CreateVehicleRequest) -> Vehicle:
     try:
         db_obj = Vehicle.model_validate(
-            createVehicleRequest
+            json
         )
         session.add(db_obj)
         session.commit()
@@ -21,10 +21,10 @@ def create_vehicle(*, session: Session, createVehicleRequest: CreateVehicleReque
         )
 
 
-def get_customer_vehicle(*, session: Session, searchVehicleRequest: SearchVehicleRequest) -> Vehicle:
+def get_customer_vehicle(*, session: Session, json: SearchVehicleRequest) -> Vehicle:
     try:
         statement = select(Vehicle).where(
-            (Vehicle.plate == searchVehicleRequest.plate) & (Vehicle.customer_id == searchVehicleRequest.customer_id)
+            (Vehicle.plate == json.plate) & (Vehicle.customer_id == json.customer_id)
         )
         vehicle = session.exec(statement).first()
         if not vehicle:
@@ -42,9 +42,9 @@ def get_customer_vehicle(*, session: Session, searchVehicleRequest: SearchVehicl
         )
 
 
-def get_customer_vehicles(*, session: Session, searchVehiclesRequest: SearchVehiclesRequest) -> List[Vehicle]:
+def get_customer_vehicles(*, session: Session, json: SearchVehiclesRequest) -> List[Vehicle]:
     try:
-        statement = select(Vehicle).where(Vehicle.customer_id == searchVehiclesRequest.customer_id)
+        statement = select(Vehicle).where(Vehicle.customer_id == json.customer_id)
         vehicles = session.exec(statement).all()
         if not vehicles:
             raise HTTPException(
@@ -61,10 +61,10 @@ def get_customer_vehicles(*, session: Session, searchVehiclesRequest: SearchVehi
         )
 
 
-def delete_customer_vehicle(*, session: Session, deleteVehicleRequest: DeleteVehicleRequest) -> bool:
+def delete_customer_vehicle(*, session: Session, json: DeleteVehicleRequest) -> bool:
     try:
         statement = select(Vehicle).where(
-            (Vehicle.plate == deleteVehicleRequest.plate) & (Vehicle.customer_id == deleteVehicleRequest.customer_id)
+            (Vehicle.plate == json.plate) & (Vehicle.customer_id == json.customer_id)
         )
         vehicle = session.exec(statement).first()
         if not vehicle:

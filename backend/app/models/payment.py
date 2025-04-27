@@ -5,7 +5,7 @@ from sqlalchemy import Column, BigInteger
 from sqlmodel import Field, Relationship, SQLModel
 
 if TYPE_CHECKING:
-    from app.models.parking_registration import ParkingRegistration
+    from app.models.parkingRegistration import ParkingRegistration
     from app.models.employee import Employee
 
 class Payment(SQLModel, table=True):

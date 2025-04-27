@@ -1,15 +1,14 @@
 from fastapi import APIRouter
-from app.models.message import Message
 from app.crud.parkingCrud import *
 from app.api.deps import SessionDep
 
 router = APIRouter(prefix="/parking", tags=["parkingManage"])
 
 
-@router.post("/get-parking-{name}", response_model=SearchParkingResponse)
-def get_vehicle(session: SessionDep, searchParkingRequest: SearchParkingRequest) -> SearchParkingResponse:
+@router.post("/get-parking", response_model=SearchParkingResponse)
+def get_vehicle(session: SessionDep, json: SearchParkingRequest) -> SearchParkingResponse:
     try:
-        parking = get_parking(session=session, searchParkingRequest=searchParkingRequest)
+        parking = get_parking(session=session, json=json)
         if not parking:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
