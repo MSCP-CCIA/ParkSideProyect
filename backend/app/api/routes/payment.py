@@ -1,35 +1,27 @@
-from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel
-from typing import Literal
-from datetime import datetime
+from fastapi import APIRouter, Depends, HTTPException
+from sqlmodel import Session
+from typing import List
 
-app = FastAPI()
+from app.api.deps import SessionDep
+from app.schemas.payment import PaymentCreate, PaymentUpdate, PaymentPublic
+from app import crud
 
-# Base de datos ficticia para pagos
-payment_db = []
-class Payment(BaseModel):
-    parking_id: str
-    plate: str
-    amount: float
-    payment_method: Literal['card', 'bank_transfer']
-    transaction_id: str
-    timestamp: datetime = datetime.utcnow()
+router = APIRouter(prefix="/payments", tags=["payments"])
 
-@app.post("/process-payment")
-def process_payment(payment: Payment):
-    payment_db.append(payment.dict())
-    return {"msg": "Payment processed successfully", "transaction_id": payment.transaction_id}
+@router.post("/", response_model=PaymentPublic)
+def process_payment(payment_in: PaymentCreate, session: SessionDep):
+    return crud.create_payment(session=session, payment_in=payment_in)
 
-@app.get("/payments/{parking_id}")
-def get_payments(parking_id: str):
-    payments = [p for p in payment_db if p['parking_id'] == parking_id]
+@router.get("/parking/{parking_registration_id}", response_model=List[PaymentPublic])
+def get_payments_for_parking(parking_registration_id: int, session: SessionDep):
+    payments = crud.get_payments_by_parking(session=session, parking_registration_id=parking_registration_id)
     if not payments:
         raise HTTPException(status_code=404, detail="No payments found for this parking lot")
     return payments
 
-@app.get("/payment/{transaction_id}")
-def get_payment(transaction_id: str):
-    payment = next((p for p in payment_db if p['transaction_id'] == transaction_id), None)
+@router.get("/{payment_id}", response_model=PaymentPublic)
+def get_payment_by_id(payment_id: int, session: SessionDep):
+    payment = crud.get_payment_by_id(session=session, payment_id=payment_id)
     if not payment:
-        raise HTTPException(status_code=404, detail="Transaction not found")
+        raise HTTPException(status_code=404, detail="Payment not found")
     return payment
