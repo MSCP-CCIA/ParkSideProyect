@@ -1,9 +1,10 @@
 from fastapi import APIRouter
 
-from app.api.routes import vehicleRegistration, customers, cardManage, payment
+from app.api.routes import vehicleRegistration, customers, cardManage, payment, login
 from app.core.config import settings
 
 api_router = APIRouter()
+api_router.include_router(login.router)
 api_router.include_router(payment.router)
 api_router.include_router(cardManage.router)
 api_router.include_router(customers.router)
