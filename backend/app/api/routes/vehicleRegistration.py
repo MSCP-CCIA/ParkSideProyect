@@ -1,10 +1,5 @@
-from typing import List
-
-from fastapi import FastAPI, HTTPException, status, APIRouter
-
+from fastapi import APIRouter
 from app.models.message import Message
-from app.models.vehicle import (RegisterVehicleRequest, SearchVehicleRequest, SearchVehicleResponse,
-                                SearchVehiclesRequest, SearchVehiclesResponse)
 from app.crud.vehicleCrud import *
 from app.api.deps import SessionDep
 
@@ -12,12 +7,11 @@ router = APIRouter(prefix="/vehicle", tags=["vehicleRegistration"])
 
 
 @router.post("/register-vehicle/", response_model=Message)
-def register_vehicle(session: SessionDep, registerVehicleRequest: RegisterVehicleRequest) -> Message:
+def register_vehicle(session: SessionDep, createVehicleRequest: CreateVehicleRequest) -> Message:
     try:
-        create_vehicle(session=session, registerVehicleRequest=registerVehicleRequest)
+        create_vehicle(session=session, createVehicleRequest=createVehicleRequest)
         return Message(message="Registro de vehículo exitoso")
     except Exception as e:
-        # Cualquier otro error se considera un error interno
         raise HTTPException(
             status_code=400,
             detail="Error inesperado al registrar el vehículo"
@@ -31,14 +25,13 @@ def get_vehicle(session: SessionDep, searchVehicleRequest: SearchVehicleRequest)
         if not vehicle:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
-                detail="Cliente o vehículo no encontrado"
+                detail="Vehículo no encontrado"
             )
         return SearchVehicleResponse(
             type = vehicle.type,
             plate = vehicle.plate
         )
     except Exception as e:
-        print(e)
         raise HTTPException(
             status_code=400,
             detail="Error inesperado al buscar el vehiclo"

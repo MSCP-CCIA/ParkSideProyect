@@ -1,15 +1,12 @@
-import uuid
 from fastapi import HTTPException, status
-from typing import Any, List
 from sqlmodel import Session, select
-from app.core.security import get_password_hash, verify_password
 from app.models.vehicle import *
 
 
-def create_vehicle(*, session: Session, registerVehicleRequest: RegisterVehicleRequest) -> Vehicle:
+def create_vehicle(*, session: Session, createVehicleRequest: CreateVehicleRequest) -> Vehicle:
     try:
         db_obj = Vehicle.model_validate(
-            registerVehicleRequest
+            createVehicleRequest
         )
         session.add(db_obj)
         session.commit()
