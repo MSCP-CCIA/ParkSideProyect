@@ -1,39 +1,28 @@
-from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel
-from typing import List, Dict
-from datetime import datetime
+from fastapi import APIRouter
+from app.models.message import Message
+from app.crud.parkingCrud import *
+from app.api.deps import SessionDep
 
-app = FastAPI()
-# Base de datos ficticia para la API de gestión
-parking_db = {}
+router = APIRouter(prefix="/parking", tags=["parkingManage"])
 
-class ParkingLot(BaseModel):
-    id: str
-    name: str
-    capacity: int
-    location: str
 
-@app.post("/create-parking")
-def create_parking(parking: ParkingLot):
-    if parking.id in parking_db:
-        raise HTTPException(status_code=400, detail="Parking lot already exists")
-    parking_db[parking.id] = parking.dict()
-    return {"msg": "Parking lot created successfully"}
-
-@app.get("/parkings", response_model=List[ParkingLot])
-def list_parkings():
-    return list(parking_db.values())
-
-@app.get("/parking/{parking_id}")
-def get_parking(parking_id: str):
-    parking = parking_db.get(parking_id)
-    if not parking:
-        raise HTTPException(status_code=404, detail="Parking lot not found")
-    return parking
-
-@app.delete("/delete-parking/{parking_id}")
-def delete_parking(parking_id: str):
-    if parking_id not in parking_db:
-        raise HTTPException(status_code=404, detail="Parking lot not found")
-    del parking_db[parking_id]
-    return {"msg": "Parking lot deleted successfully"}
+@router.post("/get-parking-{name}", response_model=SearchParkingResponse)
+def get_vehicle(session: SessionDep, searchParkingRequest: SearchParkingRequest) -> SearchParkingResponse:
+    try:
+        parking = get_parking(session=session, searchParkingRequest=searchParkingRequest)
+        if not parking:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Parqueadero no encontrado"
+            )
+        return SearchParkingResponse(
+            name=parking.name,
+            address=parking.address,
+            enterprise=parking.enterprise,
+        )
+    except Exception as e:
+        print(e)
+        raise HTTPException(
+            status_code=400,
+            detail="Error inesperado al buscar el parqueadero"
+        )

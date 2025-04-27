@@ -15,7 +15,7 @@ class Vehicle(SQLModel, table=True):
     customer: "Customer" = Relationship(back_populates="vehicles")
     parking_registrations: List["ParkingRegistration"] = Relationship(back_populates="vehicle")
 
-class RegisterVehicleRequest(BaseModel):
+class CreateVehicleRequest(BaseModel):
     plate: str
     type: str
     customer_id: int

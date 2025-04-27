@@ -1,4 +1,4 @@
-import uuid
+from pydantic import BaseModel
 from sqlmodel import Field, Relationship, SQLModel
 from typing import TYPE_CHECKING, Optional, List
 
@@ -9,8 +9,8 @@ if TYPE_CHECKING:
 
 
 class Parking(SQLModel, table=True):
-    id: Optional[int] = Field(default=None, primary_key=True)
-    name: str = Field(index=True)
+    id: int = Field(default=None, primary_key=True)
+    name: str
     places: int
     address: str
     enterprise: str
@@ -19,3 +19,11 @@ class Parking(SQLModel, table=True):
     customers: List["Customer"] = Relationship(back_populates="parking")
     employees: List["Employee"] = Relationship(back_populates="parking")
 
+class SearchParkingRequest(BaseModel):
+    name: str
+    employee_id: int
+
+class SearchParkingResponse(BaseModel):
+    name: str
+    address: str
+    enterprise: str
