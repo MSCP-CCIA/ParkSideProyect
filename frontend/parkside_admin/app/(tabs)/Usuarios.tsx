@@ -13,6 +13,7 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import DashboardLayout from '../layouts/DashboardLayout';
 import ReusableTable from '../../components/common/ReusableTable';
 import FloatingActionsButton from '../../components/Button +/FloatingActionsButton';
+import RefreshButton from '../../components/common/RefreshButton'; // 🔵 Agregado
 
 const headers = [
     { label: 'Número de Documento', key: 'numeroDocumento' },
@@ -69,6 +70,10 @@ const Usuarios = () => {
         );
     };
 
+    const handleRefresh = () => {
+        console.log('Refrescando usuarios...');
+    };
+
     return (
         <DashboardLayout>
             <ScrollView>
@@ -79,9 +84,7 @@ const Usuarios = () => {
                         placeholder="Buscar por Número de Documento, Nombre, Correo, Rol"
                         style={styles.searchInput}
                     />
-                    <TouchableOpacity style={styles.refreshButton}>
-                        <Text style={styles.refreshButtonText}>REFRESCAR</Text>
-                    </TouchableOpacity>
+                    <RefreshButton onPress={handleRefresh} />
                 </View>
 
                 <ReusableTable
@@ -123,17 +126,7 @@ const styles = StyleSheet.create({
         borderRadius: 8,
         paddingHorizontal: 10,
         backgroundColor: '#fff',
-    },
-    refreshButton: {
-        backgroundColor: '#1976D2',
-        paddingHorizontal: 20,
-        marginLeft: 10,
-        borderRadius: 8,
-        justifyContent: 'center',
-    },
-    refreshButtonText: {
-        color: '#fff',
-        fontWeight: 'bold',
+        marginRight: 10,
     },
     createButton: {
         marginTop: 24,
