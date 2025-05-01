@@ -32,6 +32,9 @@ def hash_card_number(card_number: str) -> str:
     end = card_number[-4:]
     return hashlib.sha256(card_number.encode()).hexdigest() + end
 
+def hash_password(password: str) -> str:
+    return hashlib.sha256(password.encode()).hexdigest()
+
 def encrypt_value(value: str) -> str:
     return fernet.encrypt(value.encode()).decode()
 

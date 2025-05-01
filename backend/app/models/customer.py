@@ -1,8 +1,7 @@
-import uuid
 from typing import TYPE_CHECKING, Optional, List
+from pydantic import BaseModel
 from sqlalchemy import BigInteger, Column
 from sqlmodel import Field, Relationship, SQLModel
-from app.core.security import get_hash
 
 if TYPE_CHECKING:
     from app.models.parking import Parking
@@ -22,4 +21,31 @@ class Customer(SQLModel, table=True):
     cards: List["Card"] = Relationship(back_populates="customer")
     vehicles: List["Vehicle"] = Relationship(back_populates="customer")
 
+class CreateCustomerRequest1(BaseModel):
+    id: int
+    full_name: str
+    email: str
+    password: str
+    is_active: bool = True
+    parking_id: int = 1
 
+class CreateCustomerRequest2(BaseModel):
+    id: int
+    full_name: str
+    email: str
+    password_hash: str
+    is_active: bool = True
+    parking_id: int = 1
+
+class UpdateCustomerRequest(BaseModel):
+    id: int
+    full_name: str
+    #password: str
+
+class SearchCustomerRequest(BaseModel):
+    email: str
+    password: str
+
+class SearchCustomerResponse(BaseModel):
+    id: int
+    token: str

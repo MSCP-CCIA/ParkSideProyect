@@ -13,7 +13,8 @@ from app.core import security
 from app.core.config import settings
 from app.core.db import engine
 from app.models.card import CreateCardRequest1, CreateCardRequest2, UpdateCardRequest
-from app.core.security import hash_card_number
+from app.models.customer import CreateCustomerRequest1, CreateCustomerRequest2
+from app.core.security import hash_card_number, hash_password
 
 from app.schemas.token import TokenPayload
 from app.models.customer import Customer as User
@@ -82,4 +83,14 @@ def transform_card_update_model(json: UpdateCardRequest) -> CreateCardRequest2:
         expiration_date=date(json.year, json.month, 1),
         card_type=json.card_type,
         customer_id=json.customer_id
+    )
+
+def hash_password_dep(json: CreateCustomerRequest1) -> CreateCustomerRequest2:
+    return CreateCustomerRequest2(
+        id=json.id,
+        full_name=json.full_name,
+        email=json.email,
+        password_hash=hash_password(json.password),
+        is_active=json.is_active,
+        parking_id=json.parking_id
     )
