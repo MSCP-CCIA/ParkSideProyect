@@ -11,7 +11,8 @@ import {
 import ScreenLayout from '../layouts/ScreenLayout';
 import ValidatedTextInput from '../../components/common/ValidatedTextInput';
 import Dropdown from '../../components/common/Dropdown';
-
+import { CreateVehicleRequest } from '../../models/vehicle_models';
+import axios from 'axios';
 interface AddVehicleScreenProps {
   navigation: any;
 }
@@ -56,9 +57,25 @@ const AddVehicleScreen: FC<AddVehicleScreenProps> = ({ navigation }) => {
     return valid;
   };
 
-  const handleAccept = () => {
+  const handleAccept = async () => {
     if (validatePlate()) {
-      console.log('Vehículo agregado:', { selectedVehicleType, vehiclePlate });
+      const createVehicleRequest: CreateVehicleRequest = {
+        plate: vehiclePlate,
+        type: selectedVehicleType,
+        customer_id: 12345,
+      };
+      try {
+        // Enviar la petición POST usando axios
+        const response = await axios.post('http://127.0.0.1:8000/register-vehicle/', createVehicleRequest); // Reemplazar 'URL_DEL_ENDPOINT'
+        console.log('Respuesta del servidor:', response.data);
+        Alert.alert('Vehículo registrado correctamente');
+        navigation.goBack();
+
+      } catch (error: any) {
+        console.error('Error al registrar el vehículo:', error);
+        Alert.alert('Error', 'No se pudo registrar el vehículo. Por favor, intenta de nuevo.');
+      }
+      console.log('Vehículo agregado:', {selectedVehicleType, vehiclePlate});
       Alert.alert('Vehículo registrado correctamente');
       navigation.goBack();
     }
