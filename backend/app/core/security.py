@@ -30,7 +30,8 @@ def get_hash(plain_txt: str) -> str:
 
 def hash_card_number(card_number: str) -> str:
     end = card_number[-4:]
-    return hashlib.sha256(card_number.encode()).hexdigest() + end
+    first = card_number[:4]
+    return first + hashlib.sha256(card_number.encode()).hexdigest() + end
 
 def hash_password(password: str) -> str:
     return hashlib.sha256(password.encode()).hexdigest()

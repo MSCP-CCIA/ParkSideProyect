@@ -72,7 +72,6 @@ def update_card_crud(*, session: Session, json: UpdateCardRequest) -> Card:
             (Card.customer_id == json.customer_id)
         )
         card = session.exec(statement).first()
-        print(card)
         if not card:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
