@@ -1,0 +1,76 @@
+# app/api/routes/employee.py
+
+from datetime import timedelta
+
+from fastapi import APIRouter, HTTPException, Form, Depends
+from sqlmodel import Session
+
+from app.api.deps import SessionDep, SuperuserEmployee
+from app.crud.employeeCrud import (
+    authenticate_employee,
+    get_all_customers,
+    update_customer_status,
+)
+from app.core.security import create_access_token
+from app.core.config import settings
+
+router = APIRouter(prefix="/employee", tags=["employee"])
+
+
+@router.post("/login/")
+def login_employee(
+    session: SessionDep,
+    email: str = Form(...),
+    password: str = Form(...),
+):
+    """
+    Login de Employee (admin) aceptando x-www-form-urlencoded:
+      - email
+      - password
+    """
+    emp = authenticate_employee(session, email, password)
+    if not emp:
+        raise HTTPException(status_code=400, detail="Incorrect email or password")
+    if not emp.is_active:
+        raise HTTPException(status_code=400, detail="Inactive employee")
+
+    token = create_access_token(
+        subject=emp.id,
+        expires_delta=timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES),
+    )
+    return {"access_token": token, "token_type": "bearer"}
+
+
+@router.get("/customers/")
+def list_customers(
+    session: SessionDep,
+    _: SuperuserEmployee,
+):
+    """
+    Lista todos los Customer (solo accesible para Employees con rol admin).
+    """
+    return get_all_customers(session)
+
+
+@router.patch("/customers/{customer_id}/status/")
+def change_customer_status(
+    customer_id: int,
+    session: SessionDep,
+    _: SuperuserEmployee,
+    is_active: bool = Form(...),
+):
+    """
+    Cambia el campo `is_active` de un Customer.
+    Form-urlencoded:
+      - is_active: true|false
+    """
+    cust = update_customer_status(
+        session=session,
+        customer_id=customer_id,
+        is_active=is_active,
+    )
+    return {
+        "message": "Customer status updated",
+        "customer_id": cust.id,
+        "is_active": cust.is_active,
+    }

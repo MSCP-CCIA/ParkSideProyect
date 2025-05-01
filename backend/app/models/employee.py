@@ -1,8 +1,8 @@
-import uuid
-from typing import TYPE_CHECKING, Optional, List
-from pydantic import EmailStr
+# app/models/employee.py
+
 from sqlalchemy import Column, BigInteger
 from sqlmodel import Field, Relationship, SQLModel
+from typing import TYPE_CHECKING, List
 
 if TYPE_CHECKING:
     from app.models.parking import Parking
