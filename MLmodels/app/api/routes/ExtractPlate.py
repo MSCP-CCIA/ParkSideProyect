@@ -1,5 +1,6 @@
 from fastapi import APIRouter, FastAPI, UploadFile, File, HTTPException
 from MLmodels.Inference.ocr_processor import Service
+from app.models.vehicle import SearchVehicleRequest
 import shutil
 import os
 
