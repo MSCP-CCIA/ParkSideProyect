@@ -29,29 +29,29 @@ const Sidebar = () => {
                 <Text style={styles.text}>Usuarios</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.item}>
+            <TouchableOpacity style={styles.item} onPress={() => navigation.navigate('InfoVehiculos')}>
                 <Image source={iconVehiculos} style={styles.icon} />
                 <Text style={styles.text}>Info Vehículos</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.item}>
+            <TouchableOpacity style={styles.item} onPress={() => navigation.navigate('Reportes')}>
                 <Image source={iconReportes} style={styles.icon} />
                 <Text style={styles.text}>Reportes</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.item}>
+            <TouchableOpacity style={styles.item} onPress={() => navigation.navigate('RegistroEntrada')}>
                 <Image source={iconRegistroEntrada} style={styles.icon} />
                 <Text style={styles.text}>Registro Entrada</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.item}>
+            <TouchableOpacity style={styles.item} onPress={() => navigation.navigate('RegistroSalida')}>
                 <Image source={iconRegistroSalida} style={styles.icon} />
                 <Text style={styles.text}>Registro Salida</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.item}>
+            <TouchableOpacity style={styles.item} onPress={() => navigation.navigate('Parqueadero')}>
                 <Image source={iconParqueaderos} style={styles.icon} />
-                <Text style={styles.text}>Parqueaderos</Text>
+                <Text style={styles.text}>Parqueadero</Text>
             </TouchableOpacity>
 
             <TouchableOpacity style={styles.item} onPress={() => navigation.navigate('EditarPerfil')}>
@@ -81,13 +81,13 @@ const styles = StyleSheet.create({
     item: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginBottom: 50,
+        marginBottom: 50, //por si quiero separar más los botones
     },
     icon: {
-        width: 24,  // Ajustado para que todas se vean iguales
+        width: 24,
         height: 24,
         marginRight: 10,
-        resizeMode: 'contain', // <-- Para que no se deformen ni se recorten
+        resizeMode: 'contain',
     },
     text: {
         fontSize: 14,
