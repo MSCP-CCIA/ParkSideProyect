@@ -1,43 +1,30 @@
-FROM python:3.10
+# backend/Dockerfile
 
-ENV PYTHONUNBUFFERED=1
+FROM python:3.12-slim
 
-WORKDIR /app/
+# 1) Instala curl y limpia cachés de apt
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends curl \
+ && rm -rf /var/lib/apt/lists/*
 
-# Install uv
-# Ref: https://docs.astral.sh/uv/guides/integration/docker/#installing-uv
-COPY --from=ghcr.io/astral-sh/uv:0.5.11 /uv /uvx /bin/
+# 2) Instala Poetry vía pip
+RUN pip install --no-cache-dir poetry
 
-# Place executables in the environment at the front of the path
-# Ref: https://docs.astral.sh/uv/guides/integration/docker/#using-the-environment
-ENV PATH="/app/.venv/bin:$PATH"
+WORKDIR /app
 
-# Compile bytecode
-# Ref: https://docs.astral.sh/uv/guides/integration/docker/#compiling-bytecode
-ENV UV_COMPILE_BYTECODE=1
+# 3) Copia pyproject.toml y poetry.lock desde backend/
+COPY backend/pyproject.toml backend/poetry.lock ./
 
-# uv Cache
-# Ref: https://docs.astral.sh/uv/guides/integration/docker/#caching
-ENV UV_LINK_MODE=copy
+# 4) Instala dependencias de producción (sin virtualenv)
+RUN poetry config virtualenvs.create false \
+ && poetry install --no-root --no-interaction --no-ansi
 
-# Install dependencies
-# Ref: https://docs.astral.sh/uv/guides/integration/docker/#intermediate-layers
-RUN --mount=type=cache,target=/root/.cache/uv \
-    --mount=type=bind,source=uv.lock,target=uv.lock \
-    --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
-    uv sync --frozen --no-install-project
+# 5) Copia únicamente tu paquete `app/` del backend:
+#    Host: backend/app → Contenedor: /app/app
+COPY backend/app /app/app
 
-ENV PYTHONPATH=/app
+# 6) Exponer el puerto de Uvicorn
+EXPOSE 8000
 
-COPY ./scripts /app/scripts
-
-COPY ./pyproject.toml ./uv.lock ./alembic.ini /app/
-
-COPY ./app /app/app
-
-# Sync the project
-# Ref: https://docs.astral.sh/uv/guides/integration/docker/#intermediate-layers
-RUN --mount=type=cache,target=/root/.cache/uv \
-    uv sync
-
-CMD ["fastapi", "run", "--workers", "4", "app/main.py"]
+# 7) Arranca Uvicorn apuntando al módulo `app.main`
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
