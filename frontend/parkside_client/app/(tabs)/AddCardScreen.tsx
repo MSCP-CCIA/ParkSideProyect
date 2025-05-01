@@ -1,8 +1,34 @@
-import React, { FC, useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, KeyboardAvoidingView, Platform } from 'react-native';
+import React, { FC, useState, useEffect } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, KeyboardAvoidingView, Platform, Alert } from 'react-native';
 import ScreenLayout from '../layouts/ScreenLayout';
 import ValidatedTextInput from '../../components/common/ValidatedTextInput';
 import CardLogo from '../../components/cardValidation/CardLogo';
+import axios, { AxiosResponse } from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+// API Service
+interface SaveCardRequest {
+    card_number: number;
+    full_name_customer: string;
+    month: number;
+    year: number;
+    cvc: number;
+    card_type: string;
+    customer_id: number;
+}
+
+const saveCard = async (cardData: SaveCardRequest): Promise<AxiosResponse<any>> => {
+    try {
+        const response = await axios.post(
+            'http://127.0.0.1:8000/api/v1/cards/register-card/', // Reemplaza con la URL de tu API para guardar tarjetas
+            cardData
+        );
+        return response;
+    } catch (error: any) {
+        console.error('Error al guardar la tarjeta:', error);
+        throw error;
+    }
+};
 
 interface AgregarTarjetaScreenProps {
     navigation: any;
@@ -19,6 +45,40 @@ const AgregarTarjetaScreen: FC<AgregarTarjetaScreenProps> = ({ navigation }) => 
         cvv?: string;
         cardHolderName?: string;
     }>({});
+    const [loading, setLoading] = useState(false);
+    const [saveError, setSaveError] = useState<string | null>(null);
+    const [saveSuccess, setSaveSuccess] = useState(false); // Nuevo estado para éxito
+    const [customerId, setCustomerId] = useState<number | null>(null);
+
+    useEffect(() => {
+        const getCustomerIdFromStorage = async () => {
+            try {
+                const storedData = await AsyncStorage.getItem('loginData');
+                if (storedData) {
+                    const { id } = JSON.parse(storedData);
+                    setCustomerId(id);
+                } else {
+                    // Manejar el caso en que no hay datos de inicio de sesión
+                    Alert.alert('Error', 'No se ha iniciado sesión. Por favor, inicie sesión.');
+                    navigation.navigate('Login'); // Redirigir a la pantalla de inicio de sesión
+                }
+            } catch (error) {
+                console.error('Error al obtener el ID del cliente:', error);
+                Alert.alert('Error', 'No se pudo obtener la información del usuario.');
+                navigation.navigate('Login');
+            }
+        };
+        getCustomerIdFromStorage();
+    }, [navigation]);
+
+    const getCardType = (number: string): string => {
+        if (/^4/.test(number)) {
+            return 'visa';
+        } else if (/^5[1-5]/.test(number)) {
+            return 'mastercard';
+        }
+        return '';
+    };
 
     const validateForm = () => {
         const newErrors: typeof errors = {};
@@ -43,10 +103,19 @@ const AgregarTarjetaScreen: FC<AgregarTarjetaScreenProps> = ({ navigation }) => 
         } else {
             const [monthStr, yearStr] = expiryDate.split('/');
             const month = parseInt(monthStr, 10);
-            const year = parseInt(yearStr, 10);
+            const year = parseInt(yearStr, 10) + 2000;
 
-            if (month < 1 || month > 12 || year < 25 || year > 40) {
-                newErrors.expiryDate = 'Fecha fuera de rango permitido (MM: 01–12, YY: 25–40).';
+            const currentYear = new Date().getFullYear();
+            const currentMonth = new Date().getMonth() + 1;
+
+            if (year < currentYear || (year === currentYear && month < currentMonth) || year > currentYear + 15) {
+                newErrors.expiryDate = 'Fecha de vencimiento inválida.';
+                isValid = false;
+            } else if (month < 1 || month > 12) {
+                newErrors.expiryDate = 'Mes inválido (01-12).';
+                isValid = false;
+            } else if (year < 2025 || year > 2040) {
+                newErrors.expiryDate = 'Año fuera de rango permitido (25-40).';
                 isValid = false;
             }
         }
@@ -80,9 +149,42 @@ const AgregarTarjetaScreen: FC<AgregarTarjetaScreenProps> = ({ navigation }) => 
         setCvv(text.replace(/[^0-9]/g, '').slice(0, 4));
     };
 
-    const handleAddCard = () => {
-        if (validateForm()) {
-            console.log('Tarjeta agregada:', { cardNumber, expiryDate, cvv, cardHolderName });
+    const handleAddCard = async () => {
+        if (validateForm() && customerId !== null) {
+            setLoading(true);
+            setSaveError(null);
+            setSaveSuccess(false); // Reset success state
+            try {
+                const [monthStr, yearShortStr] = expiryDate.split('/');
+                const month = parseInt(monthStr, 10);
+                const year = parseInt(yearShortStr, 10) + 2000;
+                const cardNumberNumber = parseInt(cardNumber, 10);
+                const cvvNumber = parseInt(cvv, 10);
+
+                const cardData: SaveCardRequest = {
+                    card_number: cardNumberNumber,
+                    full_name_customer: cardHolderName,
+                    month: month,
+                    year: year,
+                    cvc: cvvNumber,
+                    card_type: getCardType(cardNumber),
+                    customer_id: customerId, // Usamos el customerId del estado
+                };
+
+                await saveCard(cardData);
+                setLoading(false);
+                setSaveSuccess(true);
+                // Puedes navegar aquí si deseas una navegación automática sin alerta
+                navigation.goBack();
+            } catch (error: any) {
+                setLoading(false);
+                setSaveError('Error al guardar la tarjeta. Por favor, intenta de nuevo.');
+                setSaveSuccess(false);
+                console.error('Error al guardar la tarjeta:', error);
+            }
+        } else if (customerId === null) {
+            Alert.alert('Advertencia', 'No se ha podido obtener la información del usuario. Por favor, inicie sesión nuevamente.');
+            navigation.navigate('Login');
         } else {
             console.log('Validación fallida.');
         }
@@ -142,11 +244,14 @@ const AgregarTarjetaScreen: FC<AgregarTarjetaScreenProps> = ({ navigation }) => 
                 />
                 {errors.cvv && <Text style={styles.error}>{errors.cvv}</Text>}
 
-                <TouchableOpacity style={styles.button} onPress={handleAddCard}>
-                    <Text style={styles.buttonText}>SIGUIENTE</Text>
+                {saveError && <Text style={styles.error}>{saveError}</Text>}
+                {saveSuccess && <Text style={styles.success}>Tarjeta guardada correctamente.</Text>}
+
+                <TouchableOpacity style={styles.button} onPress={handleAddCard} disabled={loading || customerId === null}>
+                    <Text style={styles.buttonText}>{loading ? 'Guardando...' : 'SIGUIENTE'}</Text>
                 </TouchableOpacity>
 
-                <TouchableOpacity style={styles.cancelButton} onPress={() => navigation.goBack()}>
+                <TouchableOpacity style={styles.cancelButton} onPress={() => navigation.goBack()} disabled={loading}>
                     <Text style={styles.cancelButtonText}>CANCELAR</Text>
                 </TouchableOpacity>
             </KeyboardAvoidingView>
@@ -184,6 +289,12 @@ const styles = StyleSheet.create({
         fontSize: 12,
         marginBottom: 10,
         alignSelf: 'flex-start',
+    },
+    success: {
+        color: 'green',
+        fontSize: 16,
+        marginTop: 10,
+        alignSelf: 'center',
     },
     button: {
         backgroundColor: '#1976D2',

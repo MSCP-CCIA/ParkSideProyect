@@ -7,6 +7,16 @@ import LinkText from '../../components/common/LinkText';
 import Dropdown from '../../components/common/Dropdown';
 import { Ionicons } from '@expo/vector-icons';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import axios, { AxiosResponse } from 'axios';
+
+interface RegisterResponse {
+    id: number;
+    full_name: string;
+    email: string;
+    is_active: boolean;
+    parking_id: number;
+    // Puedes incluir otros campos que tu backend responda
+}
 
 interface RegisterScreenProps {
     navigation: NativeStackNavigationProp<any>;
@@ -25,6 +35,8 @@ const RegisterScreen: FC<RegisterScreenProps> = ({ navigation }) => {
     const [lastNameError, setLastNameError] = useState<string | null>(null);
     const [emailError, setEmailError] = useState<string | null>(null);
     const [passwordError, setPasswordError] = useState<string | null>(null);
+    const [registrationError, setRegistrationError] = useState<string | null>(null);
+    const [loading, setLoading] = useState<boolean>(false);
 
     const documentTypes = ['Cédula de Ciudadanía', 'Pasaporte', 'Tarjeta de Identidad'];
 
@@ -36,7 +48,7 @@ const RegisterScreen: FC<RegisterScreenProps> = ({ navigation }) => {
     const soloLetras = (texto: string): boolean => /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(texto);
     const soloNumeros = (texto: string): boolean => /^\d+$/.test(texto);
 
-    const handleRegister = () => {
+    const handleRegister = async () => {
         let isValid = true;
 
         if (!documentNumber || !soloNumeros(documentNumber)) {
@@ -80,8 +92,32 @@ const RegisterScreen: FC<RegisterScreenProps> = ({ navigation }) => {
         }
 
         if (isValid) {
-            console.log('Registrando con:', { documentType, documentNumber, name, lastName, email, password });
-            navigation.navigate('Login');
+            setLoading(true);
+            setRegistrationError(null);
+            try {
+                const userData = {
+                    id: parseInt(documentNumber, 10) || 0, // Usar el número de documento como ID
+                    full_name: `${name.trim()} ${lastName.trim()}`,
+                    email: email.trim(),
+                    password: password,
+                    is_active: true,
+                    parking_id: 1,
+                };
+
+                const response: AxiosResponse<RegisterResponse> = await axios.post(
+                    'http://127.0.0.1:8000/api/v1/register/',
+                    userData
+                );
+
+                setLoading(false);
+                console.log('Registro exitoso:', response.data);
+                navigation.navigate('Login')
+            } catch (error: any) {
+                setLoading(false);
+                console.error('Error al registrar:', error.response?.data || error.message);
+                setRegistrationError(error.response?.data?.message || 'Error al registrar. Por favor, intenta de nuevo.');
+                Alert.alert('Error', error.response?.data?.message || 'No se pudo registrar la cuenta.');
+            }
         } else {
             Alert.alert('Error', 'Por favor, corrige los errores en el formulario.');
         }
@@ -154,7 +190,14 @@ const RegisterScreen: FC<RegisterScreenProps> = ({ navigation }) => {
                 errorMessage={passwordError}
             />
 
-            <Button title="REGISTRARME" onPress={handleRegister} style={{ marginTop: 20, marginBottom: 10 }} />
+            {registrationError && <Text style={{ color: 'red', marginBottom: 10, textAlign: 'center' }}>{registrationError}</Text>}
+
+            <Button
+                title={loading ? 'Registrando...' : 'REGISTRARME'}
+                onPress={handleRegister}
+                style={{ marginTop: 20, marginBottom: 10 }}
+
+            />
             <LinkText title="¿Ya tienes cuenta? Inicia Sesión" onPress={handleLoginNavigation} />
         </AuthLayout>
     );

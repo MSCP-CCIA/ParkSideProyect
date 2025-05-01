@@ -1,4 +1,4 @@
-import React, { FC, useState } from 'react';
+import React, { FC, useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -8,6 +8,8 @@ import {
   Platform,
   Alert,
 } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useNavigation } from '@react-navigation/native';
 
 // Layout
 import ScreenLayout from '../layouts/ScreenLayout';
@@ -32,9 +34,33 @@ const AddVehicleScreen: FC<AddVehicleScreenProps> = ({ navigation }) => {
   const [selectedVehicleType, setSelectedVehicleType] = useState<string>('');
   const [vehiclePlate, setVehiclePlate] = useState('');
   const [plateError, setPlateError] = useState<string | null>(null);
+  const [customerId, setCustomerId] = useState<number | null>(null);
+  const [loading, setLoading] = useState<boolean>(false); // Para mostrar un indicador de carga
 
   // Data
   const vehicleTypes = ['Carro', 'Motocicleta'];
+
+    // Obtener el customer_id del AsyncStorage
+    useEffect(() => {
+      const getCustomerIdFromStorage = async () => {
+        try {
+          const storedData = await AsyncStorage.getItem('loginData');
+          if (storedData) {
+            const { id } = JSON.parse(storedData);
+            setCustomerId(id);
+          } else {
+            // Manejar el caso en que no hay datos de inicio de sesión
+            Alert.alert('Error', 'No se ha iniciado sesión. Por favor, inicie sesión.');
+            navigation.navigate('Login'); // Redirigir a la pantalla de inicio de sesión
+          }
+        } catch (error) {
+          console.error('Error al obtener el ID del cliente:', error);
+          Alert.alert('Error', 'No se pudo obtener la información del usuario.');
+          navigation.navigate('Login');
+        }
+      };
+      getCustomerIdFromStorage();
+    }, [navigation]);
 
   // Event Handlers
   const handleVehicleTypeChange = (value: string) => {
@@ -73,28 +99,36 @@ const AddVehicleScreen: FC<AddVehicleScreenProps> = ({ navigation }) => {
   // API Request Object Creation
   const createVehicleRequestObject = (
     vehiclePlate: string,
-    selectedVehicleType: string
+    selectedVehicleType: string,
+    customerId: number
   ): CreateVehicleRequest => {
     return {
       plate: vehiclePlate,
       type: selectedVehicleType,
-      customer_id: 1000000001,
+      customer_id: customerId,
     };
   };
 
   // API Call Handler
   const handleAccept = async () => {
-    if (validatePlate()) {
-      const createVehicleRequest = createVehicleRequestObject(vehiclePlate, selectedVehicleType);
-      console.log(createVehicleRequest);
+    if (validatePlate() && customerId) { // Verifica también que customerId no sea nulo
+      setLoading(true); // Inicia la carga
+      const createVehicleRequest = createVehicleRequestObject(vehiclePlate, selectedVehicleType, customerId);
+      console.log('esto se va a amandar',createVehicleRequest);
       try {
         const response = await registerVehicle(createVehicleRequest);
+        setLoading(false); // Detiene la carga, independientemente del resultado
         console.log('Respuesta del servidor:', response.data);
         Alert.alert('Vehículo registrado correctamente');
         navigation.navigate('MyVehiclesScreen');
       } catch (error: any) {
+        setLoading(false);
+        console.error("Error al registrar el vehiculo", error)
         Alert.alert('Error', 'No se pudo registrar el vehículo. Por favor, intenta de nuevo.');
       }
+    } else if (!customerId) {
+        Alert.alert('Error', 'No se ha iniciado sesión. Por favor, inicie sesión.');
+        navigation.navigate('Login');
     }
   };
 
@@ -124,8 +158,14 @@ const AddVehicleScreen: FC<AddVehicleScreenProps> = ({ navigation }) => {
           />
           {plateError && <Text style={styles.error}>{plateError}</Text>}
 
-          <TouchableOpacity style={styles.acceptButton} onPress={handleAccept}>
-            <Text style={styles.buttonText}>ACEPTAR</Text>
+          <TouchableOpacity
+            style={styles.acceptButton}
+            onPress={handleAccept}
+            disabled={loading} // Deshabilita el botón durante la carga
+          >
+            <Text style={styles.buttonText}>
+              {loading ? 'Registrando...' : 'ACEPTAR'} {/* Muestra un texto diferente durante la carga */}
+            </Text>
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.cancelButton} onPress={() => navigation.goBack()}>

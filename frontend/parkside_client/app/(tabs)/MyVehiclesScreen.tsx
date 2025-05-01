@@ -8,7 +8,7 @@ import {
     Alert,
 } from 'react-native';
 import ScreenLayout from '../layouts/ScreenLayout';
-
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios, { AxiosResponse } from 'axios';
 import { SearchVehiclesRequest } from '../../models/vehicle_models';
 
@@ -23,6 +23,25 @@ const getVehicles = async (customerId: number): Promise<AxiosResponse<SearchVehi
     } catch (error: any) {
         console.error('Error al obtener los vehículos:', error);
         throw error; // Re-lanza el error para que el componente lo maneje
+    }
+};
+
+// API Service para eliminar vehículo
+interface DeleteVehicleRequest {
+    customer_id: number;
+    plate: string;
+}
+
+const deleteVehicle = async (deleteRequest: DeleteVehicleRequest): Promise<AxiosResponse<any>> => {
+    try {
+        const response = await axios.delete(
+            'http://127.0.0.1:8000/api/v1/vehicle/delete-vehicle-{plate}',
+            { data: deleteRequest } // Envuelve deleteRequest dentro de la propiedad 'data'
+        );
+        return response;
+    } catch (error: any) {
+        console.error('Error al eliminar el vehículo:', error);
+        throw error;
     }
 };
 
@@ -49,59 +68,97 @@ const MyVehiclesScreen: FC<MyVehiclesScreenProps> = ({ navigation }) => {
     const [selectedId, setSelectedId] = useState<string | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [customerId, setCustomerId] = useState<number | null>(null);
+
+    // Obtener el customer_id del AsyncStorage
+    useEffect(() => {
+        const getCustomerIdFromStorage = async () => {
+            try {
+                const storedData = await AsyncStorage.getItem('loginData');
+                if (storedData) {
+                    const { id } = JSON.parse(storedData);
+                    setCustomerId(id);
+                } else {
+                    // Manejar el caso en que no hay datos de inicio de sesión
+                    Alert.alert('Error', 'No se ha iniciado sesión. Por favor, inicie sesión.');
+                    navigation.navigate('Login'); // Redirigir a la pantalla de inicio de sesión
+                }
+            } catch (error) {
+                console.error('Error al obtener el ID del cliente:', error);
+                Alert.alert('Error', 'No se pudo obtener la información del usuario.');
+                navigation.navigate('Login');
+            } finally {
+                setLoading(false); // Asegúrate de que loading se establece en false aquí también
+            }
+        };
+        setLoading(true); // Inicia la carga al intentar obtener el ID
+        getCustomerIdFromStorage();
+    }, [navigation]);
 
     useEffect(() => {
         const fetchVehicles = async () => {
-            setLoading(true);
-            setError(null);
-            try {
-                const response = await getVehicles(1000000001);
+            if (customerId) {
+                setLoading(true);
+                setError(null);
+                try {
+                    const response = await getVehicles(customerId);
 
-                if (response.data && response.data.vehicles) {
-                    const mappedVehicles = response.data.vehicles.map((v, index) => ({
-                        id: `${index + 1}`, // Generamos un ID secuencial localmente
-                        Tipo: v.type,
-                        Placa: v.plate,
-                        Documento: '1000000001', // Como no viene de la API, lo dejamos fijo
-                    }));
-                    setVehicles(mappedVehicles);
-                } else {
-                    setError('Error al recibir la lista de vehículos.');
+                    if (response.data && response.data.vehicles) {
+                        const mappedVehicles = response.data.vehicles.map((v, index) => ({
+                            id: `${index + 1}`, // Generamos un ID secuencial localmente
+                            Tipo: v.type,
+                            Placa: v.plate,
+                            Documento: customerId.toString(), // Usamos el customerId obtenido
+                        }));
+                        setVehicles(mappedVehicles);
+                    } else {
+                        setError('Error al recibir la lista de vehículos.');
+                    }
+                } catch (err: any) {
+                    setError(`Error al conectar con la API: ${err.message}`);
+                } finally {
+                    setLoading(false);
                 }
-            } catch (err: any) {
-                setError(`Error al conectar con la API: ${err.message}`);
-            } finally {
-                setLoading(false);
             }
         };
 
-        fetchVehicles();
-    }, []); // Se ejecuta solo una vez al montar el componente
+        // Llama a fetchVehicles solo si customerId tiene un valor
+        if (customerId) {
+            fetchVehicles();
+        }
+    }, [customerId]); // Se vuelve a ejecutar si customerId cambia
 
     const handleAddVehicle = () => {
         navigation.navigate('AddVehicle');
     };
 
-    const handleDelete = () => {
+    const handleDelete = async () => {
         const selectedVehicle = vehicles.find((v) => v.id === selectedId);
-        console.log("peroo")
-        alert("seguro?")
-        if (selectedVehicle)
-            Alert.alert(
-                'Eliminar Vehículo',
-                `¿Estás seguro de eliminar el vehículo con placa ${selectedVehicle.Placa}?`,
-                [
-                    { text: 'Cancelar', style: 'cancel' },
-                    {
-                        text: 'Sí, eliminar',
-                        onPress: () => {
-                            setVehicles(vehicles.filter((v) => v.id !== selectedId));
-                            setSelectedId(null);
-                            Alert.alert('Vehículo eliminado', 'Se ha eliminado correctamente.');
-                        },
-                    },
-                ]
-            );
+        if (selectedVehicle && customerId) {
+            setLoading(true);
+            setError(null);
+            try {
+                const deleteRequest: DeleteVehicleRequest = {
+                    customer_id: customerId, // Usamos el customerId del estado
+                    plate: selectedVehicle.Placa,
+                };
+
+                console.log('esto seria lo que se manda', deleteRequest);
+                await deleteVehicle(deleteRequest);
+                // Si la eliminación es exitosa, actualiza la lista localmente
+                setVehicles(vehicles.filter((v) => v.id !== selectedId));
+                setSelectedId(null);
+                Alert.alert('Vehículo eliminado', 'Se ha eliminado correctamente.');
+            } catch (err: any) {
+                console.error(`Error al eliminar el vehículo: ${err.message}`);
+                setError(`Error al eliminar el vehículo: ${err.message}`);
+                Alert.alert('Error', 'No se pudo eliminar el vehículo. Por favor, intenta de nuevo.');
+            } finally {
+                setLoading(false);
+            }
+        } else {
+            Alert.alert('Advertencia', 'Por favor, selecciona un vehículo para eliminar.');
+        }
     };
 
     const renderItem = ({ item }: { item: Vehicle }) => {

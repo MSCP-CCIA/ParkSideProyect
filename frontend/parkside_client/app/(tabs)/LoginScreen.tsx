@@ -1,4 +1,4 @@
-import React, { useState, FC } from 'react';
+import React, { useState, FC, useEffect } from 'react';
 import { Alert } from 'react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import AuthLayout from '../layouts/AuthLayout';
@@ -6,9 +6,16 @@ import AuthTitle from '../../components/auth/AuthTitle';
 import InputField from '../../components/common/InputField';
 import Button from '../../components/common/Button';
 import LinkText from '../../components/common/LinkText';
+import axios, { AxiosResponse } from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+interface LoginResponse {
+  id: number;
+  token: string;
+}
 
 interface LoginScreenProps {
-  navigation: NativeStackNavigationProp<any>; // Ajusta 'any' con tu tipo de navegación
+  navigation: NativeStackNavigationProp<any>; // Adjust 'any' with your navigation type
 }
 
 const LoginScreen: FC<LoginScreenProps> = ({ navigation }) => {
@@ -16,13 +23,25 @@ const LoginScreen: FC<LoginScreenProps> = ({ navigation }) => {
   const [password, setPassword] = useState<string>('');
   const [emailError, setEmailError] = useState<string | null>(null);
   const [passwordError, setPasswordError] = useState<string | null>(null);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [loginError, setLoginError] = useState<string | null>(null);
 
   const validarCorreo = (correo: string): boolean => {
     const regex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     return regex.test(correo);
   };
 
-  const handleLogin = () => {
+  const saveLoginData = async (data: LoginResponse) => {
+    try {
+      const jsonValue = JSON.stringify(data);
+      await AsyncStorage.setItem('loginData', jsonValue);
+      console.log('Datos de login guardados en AsyncStorage');
+    } catch (e) {
+      console.error('Error al guardar los datos de login:', e);
+    }
+  };
+
+  const handleLogin = async () => {
     let isValid = true;
 
     if (!email) {
@@ -46,15 +65,36 @@ const LoginScreen: FC<LoginScreenProps> = ({ navigation }) => {
     }
 
     if (isValid) {
-      console.log('Iniciando sesión con:', email, password);
-      navigation.navigate('MainMenu');
+      setLoading(true);
+      setLoginError(null);
+      try {
+        const loginData = {
+          email: email,
+          password: password,
+        };
+
+        const response: AxiosResponse<LoginResponse> = await axios.post(
+          'http://127.0.0.1:8000/api/v1/login/',
+          loginData
+        );
+
+        setLoading(false);
+        console.log('Respuesta del login:', response.data);
+        await saveLoginData(response.data);
+        navigation.navigate('MainMenu'); // Navigate to the next screen after successful login
+      } catch (error: any) {
+        setLoading(false);
+        console.error('Error al iniciar sesión:', error.response?.data || error.message);
+        setLoginError(error.response?.data?.message || 'Error al iniciar sesión. Por favor, intenta de nuevo.');
+        Alert.alert('Error', error.response?.data?.message || 'No se pudo iniciar sesión.');
+      }
     } else {
       Alert.alert('Error', 'Por favor, corrige los errores en los campos.');
     }
   };
 
   const handleForgotPassword = () => {
-    navigation.navigate('ChangePassword')
+    navigation.navigate('ChangePassword');
   };
 
   const handleRegister = () => {
@@ -62,32 +102,32 @@ const LoginScreen: FC<LoginScreenProps> = ({ navigation }) => {
   };
 
   return (
-      <AuthLayout>
-        <AuthTitle />
-        <InputField
-            label="Correo"
-            placeholder="example@email.com"
-            value={email}
-            onChangeText={setEmail}
-            keyboardType="email-address"
-            type="email"
-            maxLength={100}
-            errorMessage={emailError}
-        />
-        <InputField
-            label="Contraseña"
-            placeholder="Introduce tu contraseña"
-            value={password}
-            onChangeText={setPassword}
-            secureTextEntry={true}
-            type="password"
-            maxLength={50}
-            errorMessage={passwordError}
-        />
-        <Button title="INICIAR SESIÓN" onPress={handleLogin} style={{ marginBottom: 16 }} />
-        <LinkText title="He olvidado mi contraseña" onPress={handleForgotPassword} style={{ marginBottom: 8 }} />
-        <LinkText title="¿No tienes cuenta? Regístrate" onPress={handleRegister} />
-      </AuthLayout>
+    <AuthLayout>
+      <AuthTitle />
+      <InputField
+        label="Correo"
+        placeholder="example@email.com"
+        value={email}
+        onChangeText={setEmail}
+        keyboardType="email-address"
+        type="email"
+        maxLength={100}
+        errorMessage={emailError}
+      />
+      <InputField
+        label="Contraseña"
+        placeholder="Introduce tu contraseña"
+        value={password}
+        onChangeText={setPassword}
+        secureTextEntry={true}
+        type="password"
+        maxLength={50}
+        errorMessage={passwordError}
+      />
+      <Button title="INICIAR SESIÓN" onPress={handleLogin} style={{ marginBottom: 16 }} />
+      <LinkText title="He olvidado mi contraseña" onPress={handleForgotPassword} style={{ marginBottom: 8 }} />
+      <LinkText title="¿No tienes cuenta? Regístrate" onPress={handleRegister} />
+    </AuthLayout>
   );
 };
 
