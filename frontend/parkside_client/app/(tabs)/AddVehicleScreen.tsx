@@ -6,37 +6,50 @@ import {
   TouchableOpacity,
   KeyboardAvoidingView,
   Platform,
-  Alert
+  Alert,
 } from 'react-native';
+
+// Layout
 import ScreenLayout from '../layouts/ScreenLayout';
+
+// Components
 import ValidatedTextInput from '../../components/common/ValidatedTextInput';
 import Dropdown from '../../components/common/Dropdown';
+
+// Models
 import { CreateVehicleRequest } from '../../models/vehicle_models';
-import axios from 'axios';
+
+// API Services
+import { registerVehicle } from '../../core/register_vehicle';
+
+// Props Interface
 interface AddVehicleScreenProps {
   navigation: any;
 }
 
 const AddVehicleScreen: FC<AddVehicleScreenProps> = ({ navigation }) => {
+  // State Hooks
   const [selectedVehicleType, setSelectedVehicleType] = useState<string>('');
   const [vehiclePlate, setVehiclePlate] = useState('');
   const [plateError, setPlateError] = useState<string | null>(null);
 
+  // Data
   const vehicleTypes = ['Carro', 'Motocicleta'];
 
+  // Event Handlers
   const handleVehicleTypeChange = (value: string) => {
     setSelectedVehicleType(value);
-    setPlateError(null); // Limpiar error al cambiar tipo
+    setPlateError(null); // Clear error on type change
   };
 
   const handleVehiclePlateChange = (text: string) => {
     const upper = text.toUpperCase().slice(0, 6);
     setVehiclePlate(upper);
-    setPlateError(null); // Limpiar error al escribir
+    setPlateError(null); // Clear error on text change
   };
 
+  // Validation
   const validatePlate = (): boolean => {
-    let valid = true;
     if (!selectedVehicleType) {
       setPlateError('Selecciona un tipo de vehículo primero.');
       return false;
@@ -48,74 +61,79 @@ const AddVehicleScreen: FC<AddVehicleScreenProps> = ({ navigation }) => {
 
     if (selectedVehicleType === 'Carro' && !regexCarro.test(plate)) {
       setPlateError('La placa debe tener el formato ABC123.');
-      valid = false;
+      return false;
     } else if (selectedVehicleType === 'Motocicleta' && !regexMoto.test(plate)) {
       setPlateError('La placa debe tener el formato ABC12D.');
-      valid = false;
+      return false;
     }
 
-    return valid;
+    return true;
   };
 
+  // API Request Object Creation
+  const createVehicleRequestObject = (
+    vehiclePlate: string,
+    selectedVehicleType: string
+  ): CreateVehicleRequest => {
+    return {
+      plate: vehiclePlate,
+      type: selectedVehicleType,
+      customer_id: 1000000001,
+    };
+  };
+
+  // API Call Handler
   const handleAccept = async () => {
     if (validatePlate()) {
-      const createVehicleRequest: CreateVehicleRequest = {
-        plate: vehiclePlate,
-        type: selectedVehicleType,
-        customer_id: 12345,
-      };
+      const createVehicleRequest = createVehicleRequestObject(vehiclePlate, selectedVehicleType);
+      console.log(createVehicleRequest);
       try {
-        // Enviar la petición POST usando axios
-        const response = await axios.post('http://127.0.0.1:8000/register-vehicle/', createVehicleRequest); // Reemplazar 'URL_DEL_ENDPOINT'
+        const response = await registerVehicle(createVehicleRequest);
         console.log('Respuesta del servidor:', response.data);
         Alert.alert('Vehículo registrado correctamente');
-        navigation.goBack();
-
+        navigation.navigate('MyVehiclesScreen');
       } catch (error: any) {
-        console.error('Error al registrar el vehículo:', error);
         Alert.alert('Error', 'No se pudo registrar el vehículo. Por favor, intenta de nuevo.');
       }
-      console.log('Vehículo agregado:', {selectedVehicleType, vehiclePlate});
-      Alert.alert('Vehículo registrado correctamente');
-      navigation.goBack();
     }
   };
 
+  // Render
   return (
-      <ScreenLayout title="Agregar Vehículo" navigation={navigation}>
-        <KeyboardAvoidingView
-            style={styles.container}
-            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-            keyboardVerticalOffset={Platform.OS === 'ios' ? 40 : 0}
-        >
-          <View style={styles.formContainer}>
-            <Dropdown
-                label="Tipo"
-                value={selectedVehicleType}
-                items={vehicleTypes}
-                onValueChange={handleVehicleTypeChange}
-            />
+    <ScreenLayout title="Agregar Vehículo" navigation={navigation}>
+      <KeyboardAvoidingView
+        style={styles.container}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 40 : 0}
+      >
+        <View style={styles.formContainer}>
+          <Dropdown
+            label="Tipo"
+            value={selectedVehicleType}
+            items={vehicleTypes}
+            onValueChange={handleVehicleTypeChange}
+          />
 
-            <ValidatedTextInput
-                label="Placa"
-                placeholder="ABC123 / ABC12D"
-                value={vehiclePlate}
-                onChangeText={handleVehiclePlateChange}
-                keyboardType="default"
-                style={styles.input}
-            />
-            {plateError && <Text style={styles.error}>{plateError}</Text>}
+          <ValidatedTextInput
+            label="Placa"
+            placeholder="ABC123 / ABC12D"
+            value={vehiclePlate}
+            onChangeText={handleVehiclePlateChange}
+            keyboardType="default"
+            style={styles.input}
+          />
+          {plateError && <Text style={styles.error}>{plateError}</Text>}
 
-            <TouchableOpacity style={styles.acceptButton} onPress={handleAccept}>
-              <Text style={styles.buttonText}>ACEPTAR</Text>
-            </TouchableOpacity>
+          <TouchableOpacity style={styles.acceptButton} onPress={handleAccept}>
+            <Text style={styles.buttonText}>ACEPTAR</Text>
+          </TouchableOpacity>
 
-            <TouchableOpacity style={styles.cancelButton} onPress={() => navigation.goBack()}>
-              <Text style={styles.buttonText}>CANCELAR</Text>
-            </TouchableOpacity>
-          </View>
-        </KeyboardAvoidingView>
-      </ScreenLayout>
+          <TouchableOpacity style={styles.cancelButton} onPress={() => navigation.goBack()}>
+            <Text style={styles.buttonText}>CANCELAR</Text>
+          </TouchableOpacity>
+        </View>
+      </KeyboardAvoidingView>
+    </ScreenLayout>
   );
 };
 

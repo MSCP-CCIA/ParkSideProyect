@@ -36,10 +36,10 @@ def add_vehicle(vehicle: Vehicle):
 
 
 if __name__ == "__main__":
-    # get_all_vehicles()
+    get_all_vehicles()
 
-    # vehicle = Vehicle(plate="AAA123", type="Carro", customer_id=1000000001)
-    # add_vehicle(vehicle)
+    #vehicle = Vehicle(plate="AAA123", type="Carro", customer_id=1000000001)
+    #add_vehicle(vehicle)
 
-    print(get_vehicle_by_plate("AAA333", 1000000002))
+    #print(get_vehicle_by_plate("AAA333", 1000000002))
 

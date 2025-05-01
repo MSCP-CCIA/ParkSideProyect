@@ -22,11 +22,4 @@ class Customer(SQLModel, table=True):
     cards: List["Card"] = Relationship(back_populates="customer")
     vehicles: List["Vehicle"] = Relationship(back_populates="customer")
 
-# Utilidad para crear un Customer desde entrada
-def create_customer_model_from_customercreate(customer_in) -> Customer:
-    return Customer(
-        full_name=customer_in.full_name,
-        email=customer_in.email,
-        password_hash=get_hash(customer_in.password),
-        parking_id=customer_in.parking_id,
-    )
+

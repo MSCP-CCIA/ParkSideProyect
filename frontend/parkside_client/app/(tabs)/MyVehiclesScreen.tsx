@@ -1,4 +1,4 @@
-import React, { FC, useState } from 'react';
+import React, { FC, useState, useEffect } from 'react';
 import {
     View,
     Text,
@@ -9,24 +9,74 @@ import {
 } from 'react-native';
 import ScreenLayout from '../layouts/ScreenLayout';
 
+import axios, { AxiosResponse } from 'axios';
+import { SearchVehiclesRequest } from '../../models/vehicle_models';
+
+// API Service
+const getVehicles = async (customerId: number): Promise<AxiosResponse<SearchVehiclesRequest>> => {
+    try {
+        const response = await axios.post(
+            'http://127.0.0.1:8000/api/v1/vehicle/get-vehicles', // Reemplaza con la URL de tu API
+            { "customer_id": customerId }
+        );
+        return response;
+    } catch (error: any) {
+        console.error('Error al obtener los vehículos:', error);
+        throw error; // Re-lanza el error para que el componente lo maneje
+    }
+};
+
 interface MyVehiclesScreenProps {
     navigation: any;
 }
 
+interface VehicleResponse {
+    vehicles: {
+        type: string;
+        plate: string;
+    }[];
+}
+
 interface Vehicle {
-    id: string;
+    id: string; // Mantenemos el id para la FlatList, será generado localmente
     Tipo: string;
     Placa: string;
-    Documento: string;
+    Documento: string; // Mantenemos el Documento aunque no venga de la API
 }
 
 const MyVehiclesScreen: FC<MyVehiclesScreenProps> = ({ navigation }) => {
-    const [vehicles, setVehicles] = useState<Vehicle[]>([
-        { id: '1', Tipo: 'Moto', Placa: 'INL34H', Documento: '1036362895' },
-        { id: '2', Tipo: 'Carro', Placa: 'KQZ983', Documento: '1036362895' },
-    ]);
-
+    const [vehicles, setVehicles] = useState<Vehicle[]>([]);
     const [selectedId, setSelectedId] = useState<string | null>(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+
+    useEffect(() => {
+        const fetchVehicles = async () => {
+            setLoading(true);
+            setError(null);
+            try {
+                const response = await getVehicles(1000000001);
+
+                if (response.data && response.data.vehicles) {
+                    const mappedVehicles = response.data.vehicles.map((v, index) => ({
+                        id: `${index + 1}`, // Generamos un ID secuencial localmente
+                        Tipo: v.type,
+                        Placa: v.plate,
+                        Documento: '1000000001', // Como no viene de la API, lo dejamos fijo
+                    }));
+                    setVehicles(mappedVehicles);
+                } else {
+                    setError('Error al recibir la lista de vehículos.');
+                }
+            } catch (err: any) {
+                setError(`Error al conectar con la API: ${err.message}`);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchVehicles();
+    }, []); // Se ejecuta solo una vez al montar el componente
 
     const handleAddVehicle = () => {
         navigation.navigate('AddVehicle');
@@ -34,24 +84,24 @@ const MyVehiclesScreen: FC<MyVehiclesScreenProps> = ({ navigation }) => {
 
     const handleDelete = () => {
         const selectedVehicle = vehicles.find((v) => v.id === selectedId);
-
-        if (!selectedVehicle) return;
-
-        Alert.alert(
-            'Eliminar Vehículo',
-            `¿Estás seguro de eliminar el vehículo con placa ${selectedVehicle.Placa}?`,
-            [
-                { text: 'Cancelar', style: 'cancel' },
-                {
-                    text: 'Sí, eliminar',
-                    onPress: () => {
-                        setVehicles(vehicles.filter((v) => v.id !== selectedId));
-                        setSelectedId(null);
-                        Alert.alert('Vehículo eliminado', 'Se ha eliminado correctamente.');
+        console.log("peroo")
+        alert("seguro?")
+        if (selectedVehicle)
+            Alert.alert(
+                'Eliminar Vehículo',
+                `¿Estás seguro de eliminar el vehículo con placa ${selectedVehicle.Placa}?`,
+                [
+                    { text: 'Cancelar', style: 'cancel' },
+                    {
+                        text: 'Sí, eliminar',
+                        onPress: () => {
+                            setVehicles(vehicles.filter((v) => v.id !== selectedId));
+                            setSelectedId(null);
+                            Alert.alert('Vehículo eliminado', 'Se ha eliminado correctamente.');
+                        },
                     },
-                },
-            ]
-        );
+                ]
+            );
     };
 
     const renderItem = ({ item }: { item: Vehicle }) => {
@@ -70,6 +120,26 @@ const MyVehiclesScreen: FC<MyVehiclesScreenProps> = ({ navigation }) => {
             </TouchableOpacity>
         );
     };
+
+    if (loading) {
+        return (
+            <ScreenLayout title="Mis Vehículos" navigation={navigation}>
+                <View style={styles.container}>
+                    <Text style={styles.loading}>Cargando vehículos...</Text>
+                </View>
+            </ScreenLayout>
+        );
+    }
+
+    if (error) {
+        return (
+            <ScreenLayout title="Mis Vehículos" navigation={navigation}>
+                <View style={styles.container}>
+                    <Text style={styles.error}>{error}</Text>
+                </View>
+            </ScreenLayout>
+        );
+    }
 
     return (
         <ScreenLayout title="Mis Vehículos" navigation={navigation}>
@@ -192,6 +262,18 @@ const styles = StyleSheet.create({
         color: 'white',
         fontSize: 16,
         fontWeight: 'bold',
+    },
+    loading: {
+        fontSize: 18,
+        textAlign: 'center',
+        marginTop: 40,
+        color: 'blue',
+    },
+    error: {
+        fontSize: 18,
+        textAlign: 'center',
+        marginTop: 40,
+        color: 'red',
     },
 });
 
