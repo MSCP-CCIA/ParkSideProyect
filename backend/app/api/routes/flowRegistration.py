@@ -14,14 +14,9 @@ def entry_register(session: SessionDep, json: EntryVehicleRequest) -> Message:
     try:
         vehicle = get_customer_vehicle(session=session, json=json)
         if vehicle:
-            entry_datetime = datetime.utcnow()
-            register = EntryVehicleResponse(
-                entry_datetime=entry_datetime,
-                exit_datetime=None,
-                plate=json.plate
-            )
-            create_parking_registration(session=session,json=register)
+            create_parking_registration(session=session,json=json)
             return Message(message="Registro de parqueo creado exitosamente")
+        return Message(message="El vehículo no existe")
     except Exception as e:
         raise HTTPException(
             status_code=400,
@@ -29,22 +24,16 @@ def entry_register(session: SessionDep, json: EntryVehicleRequest) -> Message:
         )
 
 @router.post("/exit-register/", response_model=Message)
-def entry_register(session: SessionDep, json: EntryVehicleRequest) -> Message:
+def exit_register(session: SessionDep, json: EntryVehicleRequest) -> Message:
     try:
         vehicle = get_customer_vehicle(session=session, json=json)
         if vehicle:
-            entry_datetime = datetime.utcnow()
-            register = EntryVehicleResponse(
-                entry_datetime=entry_datetime,
-                exit_datetime=None,
-                plate=json.plate
-            )
-            create_parking_registration(session=session,json=register)
-            return Message(message="Registro de parqueo creado exitosamente")
+            update_parking_registration(session=session,json=json)
+            return Message(message="Actualización de parqueo realizada exitosamente")
     except Exception as e:
         raise HTTPException(
             status_code=400,
-            detail="Error inesperado al registrar el vehículo"
+            detail="Error inesperado al actualizar el registro de parqueo"
         )
 
 

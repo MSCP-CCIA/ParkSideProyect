@@ -21,9 +21,8 @@ class ParkingRegistration(SQLModel, table=True):
 class EntryVehicleRequest(BaseModel):
     plate: str
 
-class EntryVehicleResponse(BaseModel):
-    id: int
+class EntryVehicle(BaseModel):
     entry_datetime: datetime
-    exit_datetime: None
+    exit_datetime: datetime
     plate: str
 
