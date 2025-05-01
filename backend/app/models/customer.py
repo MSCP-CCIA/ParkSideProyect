@@ -49,3 +49,12 @@ class SearchCustomerRequest(BaseModel):
 class SearchCustomerResponse(BaseModel):
     id: int
     token: str
+
+class SearchMyInformationRequest(BaseModel):
+    id: int
+
+class SearchMyInformationResponse(BaseModel):
+    id: int
+    full_name: str
+    email: str
+    password_hash: str

@@ -57,6 +57,23 @@ def login(session: SessionDep, json: SearchCustomerRequest) -> SearchCustomerRes
     )
 
 
+@router.post("/me/", response_model=SearchMyInformationResponse)
+def get_me(session: SessionDep, json: SearchMyInformationRequest) -> SearchMyInformationResponse:
+    try:
+        customer = get_customer_by_id(session=session, json=json)
+        return SearchMyInformationResponse(
+            id=customer.id,
+            full_name=customer.full_name,
+            email=customer.email,
+            password_hash=customer.password_hash
+        )
+    except Exception as e:
+        raise HTTPException(
+            status_code=400,
+            detail="Error inesperado al registrar el usuario"
+        )
+
+
 @router.post("/update-customer/", response_model=Message)
 def update_card(session: SessionDep, json: UpdateCustomerRequest) -> Message:
     try:

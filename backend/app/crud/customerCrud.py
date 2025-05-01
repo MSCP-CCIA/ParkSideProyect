@@ -53,6 +53,12 @@ def update_user(*, session: Session, json: UpdateCustomerRequest) -> Customer:
         )
 
 
+def get_customer_by_id(*, session: Session, json: SearchMyInformationRequest) -> Customer:
+    statement = select(Customer).where(Customer.id == json.id)
+    session_customer = session.exec(statement).first()
+    return session_customer
+
+
 def get_customer_by_email(*, session: Session, email: str) -> Customer | None:
     statement = select(Customer).where(Customer.email == email)
     session_customer = session.exec(statement).first()
