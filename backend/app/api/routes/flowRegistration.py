@@ -10,8 +10,9 @@ router = APIRouter(prefix="/flow", tags=["flowRegistration"])
 
 
 @router.post("/entry-register/", response_model=Message)
-def entry_register(session: SessionDep, json: EntryVehicleRequest) -> Message:
+def entry_register(session: SessionDep, json: EntryVehicleRequest | dict) -> Message:
     try:
+        print(json)
         vehicle = get_customer_vehicle(session=session, json=json)
         if vehicle:
             create_parking_registration(session=session,json=json)
@@ -30,6 +31,7 @@ def exit_register(session: SessionDep, json: EntryVehicleRequest) -> Message:
         if vehicle:
             update_parking_registration(session=session,json=json)
             return Message(message="Actualización de parqueo realizada exitosamente")
+        return Message(message="Actualización de parqueo realizada exitosamente")
     except Exception as e:
         raise HTTPException(
             status_code=400,

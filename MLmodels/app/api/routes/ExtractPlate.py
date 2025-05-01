@@ -23,15 +23,15 @@ async def extract_plate(file: UploadFile = File(...),)-> Message:
         if result:
             async with httpx.AsyncClient() as client:
                 response = await client.post(
-                    "http://localhost:8000/flow/entry-register/",
-                    json={"plate": result}
+                    "http://localhost:8000/api/v1/flow/entry-register/",
+                    json={"plate": result},
                 )
             if response.status_code != 200:
                 raise HTTPException(
                     status_code=response.status_code,
                     detail=f"Error al registrar la placa: {response.text}"
                 )
-            return Message(message=response.json())
+            return Message(message="Placa enviada exitosamente")
         else:
             raise HTTPException(status_code=422, detail="No se pudo reconocer la placa")
     except Exception as e:
