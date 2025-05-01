@@ -20,20 +20,38 @@ class Card(SQLModel, table=True):
     customer: "Customer" = Relationship(back_populates="cards")
 
 
-class CreateCardRequest(BaseModel):
-    card_number: str
+class CreateCardRequest1(BaseModel):
+    card_number: int
     full_name_customer: str
     month: int
     year: int
-    cvc: str
+    cvc: int
+    card_type: str
+    customer_id: int
+
+class UpdateCardRequest(BaseModel):
+    card_number_hash: str
+    full_name_customer: str
+    month: int
+    year: int
+    cvc: int
+    card_type: str
+    customer_id: int
+
+class CreateCardRequest2(BaseModel):
+    card_number_hash: str
+    full_name_customer: str
+    cvc_code_hash: str
+    expiration_date: date
+    card_type: str
     customer_id: int
 
 class SearchCardRequest(BaseModel):
-    card_number: int
+    card_number_hash: str
     customer_id: int
 
 class SearchCardResponse(BaseModel):
-    card_number: int
+    card_number_hash: str
     full_name_customer: str
     month: int
     year: int
@@ -44,13 +62,6 @@ class SearchCardsRequest(BaseModel):
 class SearchCardsResponse(BaseModel):
     cards: List[SearchCardResponse]
 
-class UpdateCardRequest(BaseModel):
-    full_name_customer: str
-    month: int
-    year: int
-    cvc: int
-    customer_id: int
-
 class DeleteCardRequest(BaseModel):
-    card_number: int
+    card_number_hash: str
     customer_id: int

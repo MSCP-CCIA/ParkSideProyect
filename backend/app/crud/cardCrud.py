@@ -1,11 +1,10 @@
 from fastapi import HTTPException, status
 from sqlmodel import Session, select
 from app.models.card import *
-from app.api.deps import transform_card_create_model
-from app.core.security import encrypt_value
+from app.api.deps import transform_card_create_model, transform_card_update_model
 
 
-def create_card(*, session: Session, json: CreateCardRequest) -> Card:
+def create_card(*, session: Session, json: CreateCardRequest1) -> Card:
     try:
         json = transform_card_create_model(json)
         db_obj = Card.model_validate(
@@ -24,10 +23,11 @@ def create_card(*, session: Session, json: CreateCardRequest) -> Card:
         )
 
 
-def get_card(*, session: Session, json: SearchCardRequest) -> Card:
+def get_card_crud(*, session: Session, json: SearchCardRequest) -> Card:
     try:
         statement = select(Card).where(
-            (Card.card_number_hash == encrypt_value(str(json.card_number))) & (Card.customer_id == json.customer_id)
+            (Card.card_number_hash == json.card_number_hash) &
+            (Card.customer_id == json.customer_id)
         )
         card = session.exec(statement).first()
         if not card:
@@ -45,37 +45,69 @@ def get_card(*, session: Session, json: SearchCardRequest) -> Card:
         )
 
 
-def get_cards(*, session: Session, json: SearchCardsRequest) -> List[Card]:
+def get_cards_crud(*, session: Session, json: SearchCardsRequest) -> List[Card]:
     try:
         statement = select(Card).where(Card.customer_id == json.customer_id)
-        vehicles = session.exec(statement).all()
-        if not vehicles:
+        cards = session.exec(statement).all()
+        if not cards:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
-                detail="No se encontraron vehículos para este cliente"
+                detail="No se encontraron tarjetas para este cliente"
             )
-        return vehicles
+        return cards
     except HTTPException:
         raise
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error al obtener los vehículos: {str(e)}"
+            detail=f"Error al obtener las tarjetas: {str(e)}"
         )
 
-"""
-def delete_customer_vehicle(*, session: Session, json: DeleteVehicleRequest) -> bool:
+
+def update_card_crud(*, session: Session, json: UpdateCardRequest) -> Card:
     try:
-        statement = select(Vehicle).where(
-            (Vehicle.plate == json.plate) & (Vehicle.customer_id == json.customer_id)
+        json = transform_card_update_model(json)
+        statement = select(Card).where(
+            (Card.card_number_hash == json.card_number_hash) &
+            (Card.customer_id == json.customer_id)
         )
-        vehicle = session.exec(statement).first()
-        if not vehicle:
+        card = session.exec(statement).first()
+        print(card)
+        if not card:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
-                detail="Vehículo no encontrado para eliminar"
+                detail="Tarjeta no encontrada"
             )
-        session.delete(vehicle)
+        update_data = json.model_dump(exclude_unset=True, exclude={"card_number", "customer_id"})
+        for field, value in update_data.items():
+            setattr(card, field, value)
+        session.add(card)
+        session.commit()
+        session.refresh(card)
+        return card
+    except HTTPException:
+        raise
+    except Exception as e:
+        session.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error al actualizar la tarjeta: {str(e)}"
+        )
+
+
+def delete_card_crud(*, session: Session, json: DeleteCardRequest) -> bool:
+    try:
+        statement = select(Card).where(
+            (Card.card_number_hash == json.card_number_hash) &
+            (Card.customer_id == json.customer_id)
+        )
+        card = session.exec(statement).first()
+        if not card:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Tarjeta no encontrada para eliminar"
+            )
+        session.delete(card)
         session.commit()
         return True
     except HTTPException:
@@ -83,6 +115,5 @@ def delete_customer_vehicle(*, session: Session, json: DeleteVehicleRequest) -> 
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error al eliminar el vehículo: {str(e)}"
+            detail=f"Error al eliminar la tarjeta: {str(e)}"
         )
-"""

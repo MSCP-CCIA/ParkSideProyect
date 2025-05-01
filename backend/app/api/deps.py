@@ -1,4 +1,5 @@
 from collections.abc import Generator
+from datetime import date
 from typing import Annotated
 
 import jwt
@@ -11,8 +12,8 @@ from sqlmodel import Session
 from app.core import security
 from app.core.config import settings
 from app.core.db import engine
-from app.models.card import CreateCardRequest
-from app.core.security import encrypt_value, decrypt_value
+from app.models.card import CreateCardRequest1, CreateCardRequest2, UpdateCardRequest
+from app.core.security import hash_card_number
 
 from app.schemas.token import TokenPayload
 from app.models.customer import Customer as User
@@ -63,7 +64,22 @@ def get_current_active_superuser(current_user: CurrentUser) -> User:
     return current_user
 
 
-def transform_card_create_model(json: CreateCardRequest) -> CreateCardRequest:
-    json.card_number = encrypt_value(json.card_number)
-    json.cvc = encrypt_value(json.cvc)
-    return json
+def transform_card_create_model(json: CreateCardRequest1) -> CreateCardRequest2:
+    return CreateCardRequest2(
+        card_number_hash=hash_card_number(str(json.card_number)),
+        full_name_customer=json.full_name_customer,
+        cvc_code_hash=hash_card_number(str(json.cvc)),
+        expiration_date=date(json.year, json.month, 1),
+        card_type=json.card_type,
+        customer_id=json.customer_id
+    )
+
+def transform_card_update_model(json: UpdateCardRequest) -> CreateCardRequest2:
+    return CreateCardRequest2(
+        card_number_hash=json.card_number_hash,
+        full_name_customer=json.full_name_customer,
+        cvc_code_hash=hash_card_number(str(json.cvc)),
+        expiration_date=date(json.year, json.month, 1),
+        card_type=json.card_type,
+        customer_id=json.customer_id
+    )

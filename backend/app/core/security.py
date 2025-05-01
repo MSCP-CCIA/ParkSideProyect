@@ -4,6 +4,8 @@ from cryptography.fernet import Fernet, InvalidToken
 from passlib.context import CryptContext
 from app.core.config import settings
 import jwt
+import hashlib
+
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
@@ -25,6 +27,10 @@ def verify_hash(plain_txt: str, hashed_txt: str) -> bool:
 
 def get_hash(plain_txt: str) -> str:
     return pwd_context.hash(plain_txt)
+
+def hash_card_number(card_number: str) -> str:
+    end = card_number[-4:]
+    return hashlib.sha256(card_number.encode()).hexdigest() + end
 
 def encrypt_value(value: str) -> str:
     return fernet.encrypt(value.encode()).decode()
