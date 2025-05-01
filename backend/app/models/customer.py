@@ -2,7 +2,7 @@ import uuid
 from typing import TYPE_CHECKING, Optional, List
 from sqlalchemy import BigInteger, Column
 from sqlmodel import Field, Relationship, SQLModel
-from app.core.security import get_password_hash
+from app.core.security import get_hash
 
 if TYPE_CHECKING:
     from app.models.parking import Parking
@@ -27,6 +27,6 @@ def create_customer_model_from_customercreate(customer_in) -> Customer:
     return Customer(
         full_name=customer_in.full_name,
         email=customer_in.email,
-        password_hash=get_password_hash(customer_in.password),
+        password_hash=get_hash(customer_in.password),
         parking_id=customer_in.parking_id,
     )

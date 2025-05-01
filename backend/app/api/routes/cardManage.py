@@ -1,52 +1,79 @@
-from fastapi import APIRouter, HTTPException, Depends
-from sqlmodel import select, Session
-from typing import List
-from datetime import datetime
-from cryptography.fernet import Fernet
-
-from app.api.deps import SessionDep, CurrentUser
-from app.schemas.card import CardCreate, TransactionCreate, TransactionResponse, CardPublic
-from app.schemas.common import Message
-from app.models.card import Card
-from app.models.customer import Customer
-from app.core.config import settings
+from fastapi import APIRouter
+from app.models.message import Message
+from app.crud.cardCrud import *
+from app.api.deps import SessionDep
+from app.core.security import encrypt_value, decrypt_value
 
 router = APIRouter(prefix="/cards", tags=["cards"])
 
-fernet = Fernet(settings.SECRET_KEY.encode())
 
-# Helpers
-def encrypt_value(value: str) -> str:
-    return fernet.encrypt(value.encode()).decode()
-
-def decrypt_value(value: str) -> str:
-    return fernet.decrypt(value.encode()).decode()
-
-
-@router.post("/register", response_model=CardPublic)
-def register_card(card_in: CardCreate, session: SessionDep, current_user: CurrentUser):
-    """
-    Register a new card linked to the current customer.
-    """
-    db_card = Card(
-        card_number_hash=encrypt_value(card_in.card_number),
-        full_name_customer=card_in.cardholder_name,
-        cvc_code_hash=encrypt_value(card_in.cvv),
-        expiration_date=card_in.expiration_date,
-        card_type=card_in.card_type,
-        customer_id=current_user.id,
-    )
-    session.add(db_card)
-    session.commit()
-    session.refresh(db_card)
-    return db_card
+@router.post("/register-card/", response_model=Message)
+def register_vehicle(session: SessionDep, json: CreateCardRequest) -> Message:
+    try:
+        create_card(session=session, json=json)
+        return Message(message="Registro de tarjeta exitoso")
+    except Exception as e:
+        raise HTTPException(
+            status_code=400,
+            detail="Error inesperado al registrar la tarjeta"
+        )
 
 
-@router.get("/", response_model=List[CardPublic])
-def list_cards(session: SessionDep, current_user: CurrentUser):
-    """
-    List all cards of the current customer.
-    """
-    statement = select(Card).where(Card.customer_id == current_user.id)
-    cards = session.exec(statement).all()
-    return cards
+@router.post("/get-card", response_model=SearchCardResponse)
+def get_card(session: SessionDep, json: SearchCardRequest) -> SearchCardResponse:
+    try:
+        card = get_card(session=session, json=json)
+        if not card:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Tarjeta no encontrada"
+            )
+        return SearchCardResponse(
+            card_number=int(decrypt_value(card.card_number_hash)),
+            full_name_customer=card.full_name_customer,
+            month=card.expiration_date.month,
+            year=card.expiration_date.year
+        )
+    except Exception as e:
+        raise HTTPException(
+            status_code=400,
+            detail="Error inesperado al buscar el vehiclo"
+        )
+
+
+@router.post("/get-cards", response_model=SearchCardsResponse)
+def get_cards(session: SessionDep, json: SearchCardsRequest) -> SearchCardsResponse:
+    try:
+        vehicles = get_customer_vehicles(session=session, json=json)
+        if not vehicles:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Vehículos no encontrados"
+            )
+        vehicles_response = [
+            SearchVehicleResponse(
+                plate=vehicle.plate,
+                type=vehicle.type
+            )
+            for vehicle in vehicles
+        ]
+        return SearchCardsResponse(vehicles=vehicles_response)
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error inesperado al buscar los vehículos: {str(e)}"
+        )
+
+"""
+@router.delete("/delete-vehicle-{plate}", response_model=Message)
+def delete_vehicle(session: SessionDep, json: DeleteVehicleRequest):
+    try:
+        if delete_customer_vehicle(session=session, json=json):
+            return Message(message="Vehiculo eliminado correctamente")
+        return Message(message="El vehiculo no ha sido eliminado")
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Vehículo no encontrado"
+        )
+"""

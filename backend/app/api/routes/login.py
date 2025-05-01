@@ -9,7 +9,7 @@ from app import crud
 from app.api.deps import CurrentUser, SessionDep, get_current_active_superuser
 from app.core import security
 from app.core.config import settings
-from app.core.security import get_password_hash
+from app.core.security import get_hash
 from app.schemas.login import Message, NewPassword, Token
 from app.schemas.customer import CustomerPublic
 from app.utils import (
@@ -93,7 +93,7 @@ def reset_password(session: SessionDep, body: NewPassword) -> Message:
     elif not user.is_active:
         raise HTTPException(status_code=400, detail="Inactive user")
 
-    hashed_password = get_password_hash(password=body.new_password)
+    hashed_password = get_hash(password=body.new_password)
     user.password_hash = hashed_password
     session.add(user)
     session.commit()

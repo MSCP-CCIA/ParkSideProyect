@@ -4,7 +4,7 @@ from fastapi.testclient import TestClient
 from sqlmodel import Session
 
 from app.core.config import settings
-from app.core.security import verify_password
+from app.core.security import verify_hash
 from app.crud import create_user
 from app.models import UserCreate
 from app.tests.utils.user import user_authentication_headers
@@ -99,7 +99,7 @@ def test_reset_password(client: TestClient, db: Session) -> None:
     assert r.json() == {"message": "Password updated successfully"}
 
     db.refresh(user)
-    assert verify_password(new_password, user.hashed_password)
+    assert verify_hash(new_password, user.hashed_password)
 
 
 def test_reset_password_invalid_token(

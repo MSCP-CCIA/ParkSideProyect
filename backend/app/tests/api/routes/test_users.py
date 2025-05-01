@@ -6,7 +6,7 @@ from sqlmodel import Session, select
 
 from app import crud
 from app.core.config import settings
-from app.core.security import verify_password
+from app.core.security import verify_hash
 from app.models import User, UserCreate
 from app.tests.utils.utils import random_email, random_lower_string
 
@@ -212,7 +212,7 @@ def test_update_password_me(
     user_db = db.exec(user_query).first()
     assert user_db
     assert user_db.email == settings.FIRST_SUPERUSER
-    assert verify_password(new_password, user_db.hashed_password)
+    assert verify_hash(new_password, user_db.hashed_password)
 
     # Revert to the old password to keep consistency in test
     old_data = {
@@ -227,7 +227,7 @@ def test_update_password_me(
     db.refresh(user_db)
 
     assert r.status_code == 200
-    assert verify_password(settings.FIRST_SUPERUSER_PASSWORD, user_db.hashed_password)
+    assert verify_hash(settings.FIRST_SUPERUSER_PASSWORD, user_db.hashed_password)
 
 
 def test_update_password_me_incorrect_password(
@@ -301,7 +301,7 @@ def test_register_user(client: TestClient, db: Session) -> None:
     assert user_db
     assert user_db.email == username
     assert user_db.full_name == full_name
-    assert verify_password(password, user_db.hashed_password)
+    assert verify_hash(password, user_db.hashed_password)
 
 
 def test_register_user_already_exists_error(client: TestClient) -> None:

@@ -18,7 +18,7 @@ def register_vehicle(session: SessionDep, json: CreateVehicleRequest) -> Message
         )
 
 
-@router.post("/{customer}/get-vehicle-{plate}", response_model=SearchVehicleResponse)
+@router.post("/get-vehicle-{plate}", response_model=SearchVehicleResponse)
 def get_vehicle(session: SessionDep, json: SearchVehicleRequest) -> SearchVehicleResponse:
     try:
         vehicle = get_customer_vehicle(session=session, json=json)
@@ -38,7 +38,7 @@ def get_vehicle(session: SessionDep, json: SearchVehicleRequest) -> SearchVehicl
         )
 
 
-@router.post("/{customer_id}/get-vehicles", response_model=SearchVehiclesResponse)
+@router.post("/get-vehicles", response_model=SearchVehiclesResponse)
 def get_vehicles(session: SessionDep, json: SearchVehiclesRequest) -> SearchVehiclesResponse:
     try:
         vehicles = get_customer_vehicles(session=session, json=json)
@@ -62,7 +62,7 @@ def get_vehicles(session: SessionDep, json: SearchVehiclesRequest) -> SearchVehi
         )
 
 
-@router.delete("/{customer_id}/delete-vehicle-{plate}", response_model=Message)
+@router.delete("/delete-vehicle-{plate}", response_model=Message)
 def delete_vehicle(session: SessionDep, json: DeleteVehicleRequest):
     try:
         if delete_customer_vehicle(session=session, json=json):
@@ -73,4 +73,3 @@ def delete_vehicle(session: SessionDep, json: DeleteVehicleRequest):
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Vehículo no encontrado"
         )
-

@@ -1,15 +1,15 @@
 from datetime import datetime, timedelta, timezone
 from typing import Any
-
-import jwt
+from cryptography.fernet import Fernet, InvalidToken
 from passlib.context import CryptContext
-
 from app.core.config import settings
+import jwt
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-
 ALGORITHM = "HS256"
+
+fernet = Fernet(settings.SECRET_KEY.encode())
 
 
 def create_access_token(subject: str | Any, expires_delta: timedelta) -> str:
@@ -19,9 +19,18 @@ def create_access_token(subject: str | Any, expires_delta: timedelta) -> str:
     return encoded_jwt
 
 
-def verify_password(plain_password: str, hashed_password: str) -> bool:
-    return pwd_context.verify(plain_password, hashed_password)
+def verify_hash(plain_txt: str, hashed_txt: str) -> bool:
+    return pwd_context.verify(plain_txt, hashed_txt)
 
 
-def get_password_hash(password: str) -> str:
-    return pwd_context.hash(password)
+def get_hash(plain_txt: str) -> str:
+    return pwd_context.hash(plain_txt)
+
+def encrypt_value(value: str) -> str:
+    return fernet.encrypt(value.encode()).decode()
+
+def decrypt_value(value: str) -> str:
+    try:
+        return fernet.decrypt(value).decode()
+    except InvalidToken:
+        raise ValueError("El valor no pudo ser descifrado: token inválido.")

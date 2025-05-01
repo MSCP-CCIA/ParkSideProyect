@@ -11,7 +11,7 @@ from app.api.deps import (
     get_current_active_superuser,
 )
 from app.core.config import settings
-from app.core.security import get_password_hash, verify_password
+from app.core.security import get_hash, verify_hash
 from app.utils import generate_new_account_email, send_email
 from app.models.customer import Customer
 from app.schemas.customer import CustomerCreate, CustomerUpdate, CustomerPublic, CustomerRegister
@@ -109,11 +109,11 @@ def update_customer_password_me(
     """
     Update own customer password.
     """
-    if not verify_password(body["current_password"], current_user.password_hash):
+    if not verify_hash(body["current_password"], current_user.password_hash):
         raise HTTPException(status_code=400, detail="Incorrect current password")
     if body["current_password"] == body["new_password"]:
         raise HTTPException(status_code=400, detail="New password must be different")
-    current_user.password_hash = get_password_hash(body["new_password"])
+    current_user.password_hash = get_hash(body["new_password"])
     session.add(current_user)
     session.commit()
     return Message(message="Password updated successfully")

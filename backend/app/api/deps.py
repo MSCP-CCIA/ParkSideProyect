@@ -11,6 +11,8 @@ from sqlmodel import Session
 from app.core import security
 from app.core.config import settings
 from app.core.db import engine
+from app.models.card import CreateCardRequest
+from app.core.security import encrypt_value, decrypt_value
 
 from app.schemas.token import TokenPayload
 from app.models.customer import Customer as User
@@ -59,3 +61,9 @@ def get_current_active_superuser(current_user: CurrentUser) -> User:
             status_code=403, detail="The user doesn't have enough privileges"
         )
     return current_user
+
+
+def transform_card_create_model(json: CreateCardRequest) -> CreateCardRequest:
+    json.card_number = encrypt_value(json.card_number)
+    json.cvc = encrypt_value(json.cvc)
+    return json
