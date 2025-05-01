@@ -40,7 +40,7 @@ Esto construirá y levantará todos los contenedores necesarios. Cada servicio s
 - Cliente: [http://localhost:8081](http://localhost:8081)
 - Admin: [http://localhost:8082](http://localhost:8082)
 - Backend API: [http://localhost:8000/docs](http://localhost:8000/docs)
-- IA: [http://localhost:8001](http://localhost:8001/docs)
+- IA: [http://localhost:8001/docs](http://localhost:8001/docs)
 
 ---
 
