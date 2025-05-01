@@ -47,7 +47,9 @@ Esto construirá y levantará todos los contenedores necesarios. Cada servicio s
 ### 4. Ejecutar el script simulate_event.py desde el contenedor
 
 Una vez que los contenedores estén levantados, puedes ejecutar el script simulate_event.py (que está en el directorio Utils) dentro del contenedor que corresponde al servicio de IA. Sigue estos pasos:
+
 **1. Acceder al contenedor del servicio de IA**
+
 Identifica el nombre del contenedor del servicio de IA (por ejemplo, my-fastapi-app) con el siguiente comando:
 ```sh
 docker ps
@@ -60,11 +62,12 @@ Por ejemplo:
 ```
 docker exec -it my-fastapi-app /bin/bash
 ```
+
 **2. Ejecutar el script simulate_event.py**
 
 Una vez dentro del contenedor, navega al directorio donde se encuentra el script:
 ```
-cd /MLmodels/Utils  # Ajusta la ruta si es necesario
+cd /MLmodels/Utils 
 ```
 Luego, ejecuta el script usando poetry:
 ```
