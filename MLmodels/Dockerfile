@@ -5,17 +5,20 @@ RUN apt-get update && apt-get install -y \
     libgl1 \
     git \
     curl \
-    && rm -rf /var/lib/apt/lists/*
+&& rm -rf /var/lib/apt/lists/*
 
-ENV POETRY_VERSION=1.8.2
-RUN curl -sSL https://install.python-poetry.org | python3 - \
-    && ln -s /root/.local/bin/poetry /usr/local/bin/poetry
+# 2) Instala Poetry vía pip
+RUN pip install --no-cache-dir poetry
 
 WORKDIR /MLmodels
 
 COPY . ./
 
-RUN poetry install --no-root
+# 3) Copia pyproject.toml y poetry.lock desde backend/
+COPY MLmodels/pyproject.toml MLmodels/poetry.lock ./
+
+RUN poetry config virtualenvs.create false \
+ && poetry install --no-root --no-interaction --no-ansi
 
 EXPOSE 8001
 

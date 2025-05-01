@@ -42,8 +42,8 @@ services:
 
   mlmodels:
     build:
-      context: ./MLmodels
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: MLmodels/Dockerfile
     container_name: mlmodels
     ports:
       - "8001:8001"
