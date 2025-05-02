@@ -24,6 +24,11 @@ COPY MLmodels/pyproject.toml MLmodels/poetry.lock ./
 RUN poetry config virtualenvs.create false \
  && poetry install --no-root --no-interaction --no-ansi
 
+# 6) Instala OpenCV headless y EasyOCR
+RUN pip install --no-cache-dir \
+    opencv-python-headless \
+    easyocr
+
 # 3) Necesitas OpenCV
 RUN pip install --no-cache-dir opencv-python-headless
 
