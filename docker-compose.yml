@@ -36,9 +36,7 @@ services:
       - backend
     ports:
       - "8081:8081"
-    # Si quieres live-reload:
-    # volumes:
-    #   - ./frontend/parkside_client:/app
+
 
   mlmodels:
     build:
@@ -47,13 +45,6 @@ services:
     container_name: mlmodels
     ports:
       - "8001:8001"
-    # Si tu MLmodels necesita hablar con la base de datos o backend:
-    # depends_on:
-    #   - parkside-db
-    #   - backend
-    # Y si lee alguna variable de entorno:
-    # env_file:
-    #   - .env
 
 volumes:
   db_data:
