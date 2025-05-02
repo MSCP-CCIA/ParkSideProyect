@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from MLmodels.app.api.routes.ExtractPlate import router
+from app.api.routes.ExtractPlate import router
 
 app = FastAPI()
 

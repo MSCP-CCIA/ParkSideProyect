@@ -1,3 +1,5 @@
+# MLmodels/Dockerfile
+
 FROM python:3.11-slim
 
 RUN apt-get update && apt-get install -y \
@@ -5,21 +7,32 @@ RUN apt-get update && apt-get install -y \
     libgl1 \
     git \
     curl \
-&& rm -rf /var/lib/apt/lists/*
+  && rm -rf /var/lib/apt/lists/*
 
-# 2) Instala Poetry vía pip
 RUN pip install --no-cache-dir poetry
 
-WORKDIR /MLmodels
+ENV POETRY_HTTP_MAX_RETRIES=5 \
+    POETRY_HTTP_TIMEOUT=120 \
+    PYTHONPATH=/app
 
-COPY . ./
+WORKDIR /app
 
-# 3) Copia pyproject.toml y poetry.lock desde backend/
+# 1) Copia solo pyproject.toml y poetry.lock (para cachear)
 COPY MLmodels/pyproject.toml MLmodels/poetry.lock ./
 
+# 2) Instala deps sin virtualenv
 RUN poetry config virtualenvs.create false \
  && poetry install --no-root --no-interaction --no-ansi
 
+# 3) Necesitas OpenCV
+RUN pip install --no-cache-dir opencv-python-headless
+
+# 4) Copia la aplicación
+COPY MLmodels/app ./app
+
+# 6) copia también la carpeta Inference dentro de `app`
+COPY MLmodels/Inference ./app/Inference
+
 EXPOSE 8001
 
-CMD ["poetry", "run", "uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8001"]
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8001"]

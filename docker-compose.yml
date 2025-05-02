@@ -35,7 +35,7 @@ services:
     depends_on:
       - backend
     ports:
-      - "19006:19006"
+      - "8081:8081"
     # Si quieres live-reload:
     # volumes:
     #   - ./frontend/parkside_client:/app

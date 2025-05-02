@@ -1,5 +1,5 @@
-from MLmodels.Inference.CharacterExtraction import characterExtraction
-from MLmodels.Inference.PlateDetection import DetectPlate
+from app.Inference.CharacterExtraction import characterExtraction
+from app.Inference.PlateDetection import DetectPlate
 import re
 import os
 
