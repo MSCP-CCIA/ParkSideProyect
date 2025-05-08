@@ -36,6 +36,14 @@ services:
       - backend
     ports:
       - "8081:8081"
-
+  parkside-admin:
+    build:
+      context: .
+      dockerfile: frontend/parkside_admin/Dockerfile
+    container_name: parkside-admin
+    depends_on:
+      - backend
+    ports:
+      - "8082:8082"
 volumes:
   db_data:

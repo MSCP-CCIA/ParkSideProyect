@@ -17,4 +17,4 @@ COPY frontend/parkside_client /app
 EXPOSE 8081
  
 # Usa el CLI moderno que viene con el paquete expo
-CMD ["npx", "expo", "start", "--web"]
+CMD ["npx", "expo", "start", "--web", "--port", "8081", "--non-interactive"]
