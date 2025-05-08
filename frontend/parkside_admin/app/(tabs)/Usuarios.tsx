@@ -20,7 +20,7 @@ const headers = [
     { label: 'Nombre', key: 'nombre' },
     { label: 'Tipo Documento', key: 'tipoDocumento' },
     { label: 'Correo', key: 'correo' },
-    { label: 'Rol', key: 'rol' },
+    { label: 'Estado', key: 'estado' },
 ];
 
 const usuarios = [
@@ -29,21 +29,21 @@ const usuarios = [
         nombre: 'Juan Valdés',
         tipoDocumento: 'Cédula',
         correo: 'juan@gmail.com',
-        rol: 'Usuario',
+        estado: 'Activo',
     },
     {
         numeroDocumento: '518386954',
         nombre: 'Manuel Castro',
         tipoDocumento: 'Tarjeta Identidad',
         correo: 'manuC@outlook.com',
-        rol: 'Empleado',
+        estado: 'Activo',
     },
     {
         numeroDocumento: '1000041257',
         nombre: 'Andres Hurtado',
         tipoDocumento: 'Cédula Extranjera',
         correo: 'andy@usa.edu.co',
-        rol: 'Administrador',
+        estado: 'Inactivo',
     },
 ];
 

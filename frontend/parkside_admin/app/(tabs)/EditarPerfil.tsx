@@ -72,13 +72,6 @@ const EditarPerfil = () => {
                     editable={false}
                     style={styles.disabledInput}
                 />
-                <ValidatedTextInput
-                    label="Rol"
-                    value={rol}
-                    onChangeText={() => {}}
-                    editable={false}
-                    style={styles.disabledInput}
-                />
 
                 {/* Campos editables */}
                 <ValidatedTextInput
