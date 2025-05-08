@@ -17,17 +17,11 @@ def authenticate_employee(*, session: Session, json: SearchEmployeeRequest) -> E
     if not hash_password(json.password) != employee.password_hash:
         return None
     return employee
-
+"""
 def get_all_customers(session: Session) -> list[Customer]:
-    """
-    Retorna todos los Customer.
-    """
     return session.exec(select(Customer)).all()
 
 def update_customer_status(session: Session, customer_id: int, is_active: bool) -> Customer:
-    """
-    Actualiza el campo is_active de un Customer.
-    """
     cust = session.get(Customer, customer_id)
     if not cust:
         raise HTTPException(status_code=404, detail="Customer not found")
@@ -36,3 +30,4 @@ def update_customer_status(session: Session, customer_id: int, is_active: bool) 
     session.commit()
     session.refresh(cust)
     return cust
+"""

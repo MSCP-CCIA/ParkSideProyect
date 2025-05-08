@@ -27,15 +27,12 @@ def login_employee(session: SessionDep, json: SearchEmployeeRequest) -> SearchEm
         token=access_token
     )
 
-
+"""
 @router.get("/customers/")
 def list_customers(
     session: SessionDep,
     _: SuperuserEmployee,
 ):
-    """
-    Lista todos los Customer (solo accesible para Employees con rol admin).
-    """
     return get_all_customers(session)
 
 
@@ -46,11 +43,6 @@ def change_customer_status(
     _: SuperuserEmployee,
     is_active: bool = Form(...),
 ):
-    """
-    Cambia el campo `is_active` de un Customer.
-    Form-urlencoded:
-      - is_active: true|false
-    """
     cust = update_customer_status(
         session=session,
         customer_id=customer_id,
@@ -61,3 +53,4 @@ def change_customer_status(
         "customer_id": cust.id,
         "is_active": cust.is_active,
     }
+"""
