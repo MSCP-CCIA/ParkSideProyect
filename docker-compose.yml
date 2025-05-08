@@ -37,14 +37,5 @@ services:
     ports:
       - "8081:8081"
 
-
-  mlmodels:
-    build:
-      context: .
-      dockerfile: MLmodels/Dockerfile
-    container_name: mlmodels
-    ports:
-      - "8001:8001"
-
 volumes:
   db_data:
