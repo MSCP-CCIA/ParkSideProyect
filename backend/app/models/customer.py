@@ -11,6 +11,7 @@ if TYPE_CHECKING:
 # Modelo de base de datos
 class Customer(SQLModel, table=True):
     id: int = Field(sa_column=Column(BigInteger, primary_key=True))
+    #
     full_name: str = Field(index=True)
     email: str = Field(index=True)
     password_hash: str
@@ -23,6 +24,7 @@ class Customer(SQLModel, table=True):
 
 class CreateCustomerRequest1(BaseModel):
     id: int
+    #
     full_name: str
     email: str
     password: str
@@ -31,6 +33,7 @@ class CreateCustomerRequest1(BaseModel):
 
 class CreateCustomerRequest2(BaseModel):
     id: int
+    #
     full_name: str
     email: str
     password_hash: str
@@ -49,6 +52,20 @@ class SearchCustomerRequest(BaseModel):
 class SearchCustomerResponse(BaseModel):
     id: int
     token: str
+
+class SearchCustomersRequest(BaseModel):
+    email: str
+    password: str
+
+class SearchCustomers(BaseModel):
+    id: int
+    full_name: str
+    #
+    email: str
+    is_active: bool
+
+class SearchCustomersResponse(BaseModel):
+    customers: List[SearchCustomers]
 
 class SearchMyInformationRequest(BaseModel):
     id: int

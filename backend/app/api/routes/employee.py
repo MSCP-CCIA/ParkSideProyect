@@ -1,44 +1,31 @@
-# app/api/routes/employee.py
-
 from datetime import timedelta
-
-from fastapi import APIRouter, HTTPException, Form, Depends
-from sqlmodel import Session
-
+from fastapi import APIRouter
 from app.api.deps import SessionDep, SuperuserEmployee
-from app.crud.employeeCrud import (
-    authenticate_employee,
-    get_all_customers,
-    update_customer_status,
-)
+from app.crud.employeeCrud import *
 from app.core.security import create_access_token
 from app.core.config import settings
 
 router = APIRouter(prefix="/employee", tags=["employee"])
 
 
-@router.post("/login/")
-def login_employee(
-    session: SessionDep,
-    email: str = Form(...),
-    password: str = Form(...),
-):
-    """
-    Login de Employee (admin) aceptando x-www-form-urlencoded:
-      - email
-      - password
-    """
-    emp = authenticate_employee(session, email, password)
-    if not emp:
-        raise HTTPException(status_code=400, detail="Incorrect email or password")
-    if not emp.is_active:
-        raise HTTPException(status_code=400, detail="Inactive employee")
-
-    token = create_access_token(
-        subject=emp.id,
-        expires_delta=timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES),
+@router.post("/login/", response_model=SearchEmployeeResponse)
+def login_employee(session: SessionDep, json: SearchEmployeeRequest) -> SearchEmployeeResponse:
+    employee = authenticate_employee(session=session, json=json)
+    if not employee:
+        raise HTTPException(
+            status_code=400,
+            detail="Incorrect email or password"
+        )
+    elif not employee.is_active:
+        raise HTTPException(
+            status_code=400,
+            detail="Inactive user"
+        )
+    access_token = create_access_token(subject=employee.id, expires_delta=timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES))
+    return SearchEmployeeResponse(
+        id=employee.id,
+        token=access_token
     )
-    return {"access_token": token, "token_type": "bearer"}
 
 
 @router.get("/customers/")

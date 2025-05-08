@@ -1,28 +1,12 @@
 from datetime import timedelta
-from typing import Annotated, Any
-
 from fastapi import APIRouter, Depends, HTTPException
-from fastapi.responses import HTMLResponse
-from fastapi.security import OAuth2PasswordRequestForm
-
-from app import crud
 from app.api.deps import CurrentUser, SessionDep, get_current_active_superuser
-from app.core import security
 from app.core.config import settings
-from app.core.security import get_hash
 from app.schemas.login import Message, NewPassword, Token
-from app.schemas.customer import CustomerPublic
-from app.utils import (
-    generate_password_reset_token,
-    generate_reset_password_email,
-    send_email,
-    verify_password_reset_token,
-)
-from app.models.customer import *
 from app.crud.customerCrud import *
 from app.core.security import create_access_token
 
-router = APIRouter(tags=["login"])
+router = APIRouter(prefix="/customer", tags=["login"])
 
 
 @router.post("/register/", response_model=Message)
@@ -38,8 +22,8 @@ def register(session: SessionDep, json: CreateCustomerRequest1) -> Message:
 
 
 @router.post("/login/", response_model=SearchCustomerResponse)
-def login(session: SessionDep, json: SearchCustomerRequest) -> SearchCustomerResponse:
-    customer = authenticate(session=session, json=json)
+def login_customer(session: SessionDep, json: SearchCustomerRequest) -> SearchCustomerResponse:
+    customer = authenticate_customer(session=session, json=json)
     if not customer:
         raise HTTPException(
             status_code=400,
@@ -71,6 +55,33 @@ def get_me(session: SessionDep, json: SearchMyInformationRequest) -> SearchMyInf
         raise HTTPException(
             status_code=400,
             detail="Error inesperado al registrar el usuario"
+        )
+
+
+@router.post("", response_model=SearchCustomersResponse)
+def get_rates(session: SessionDep, json: SearchCustomersRequest) -> SearchCustomersResponse:
+    try:
+        customers = get_historical_rates(session=session, json=json)
+        if not customers:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Historico de tarifas no encontrado"
+            )
+        customers_response = [
+            SearchCustomers(
+                id=customer.id,
+                full_name=customer.full_name,
+                #
+                email=customer.email,
+                is_active=customer.is_active
+            )
+            for customer in customers
+        ]
+        return SearchCustomersResponse(customers=customers_response)
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error inesperado al buscar los vehículos: {str(e)}"
         )
 
 

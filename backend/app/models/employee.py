@@ -1,5 +1,4 @@
-# app/models/employee.py
-
+from pydantic import BaseModel
 from sqlalchemy import Column, BigInteger
 from sqlmodel import Field, Relationship, SQLModel
 from typing import TYPE_CHECKING, List
@@ -20,3 +19,11 @@ class Employee(SQLModel, table=True):
 
     parking: "Parking" = Relationship(back_populates="employees")
     payments: List["Payment"] = Relationship(back_populates="employee")
+
+class SearchEmployeeRequest(BaseModel):
+    email: str
+    password: str
+
+class SearchEmployeeResponse(BaseModel):
+    id: int
+    token: str

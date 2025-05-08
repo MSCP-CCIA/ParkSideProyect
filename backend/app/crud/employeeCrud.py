@@ -1,37 +1,22 @@
-# app/crud/employeeCrud.py
-
 from sqlmodel import select, Session
 from fastapi import HTTPException
-from passlib.exc import UnknownHashError
+from app.models.employee import *
+from app.core.security import hash_password
 
-from app.models.employee import Employee
-from app.models.customer import Customer
-from app.core.security import verify_hash
 
-def authenticate_employee(session: Session, email: str, password: str) -> Employee | None:
-    """
-    Busca un Employee por email y verifica contraseña.
-    Soporta tanto hashes bcrypt como texto plano (fallback).
-    """
-    stmt = select(Employee).where(Employee.email == email)
-    emp = session.exec(stmt).one_or_none()
-    if not emp:
+def get_employee_by_email(*, session: Session, email: str) -> Employee | None:
+    statement = select(Employee).where(Employee.email == email)
+    session_employee = session.exec(statement).first()
+    return session_employee
+
+
+def authenticate_employee(*, session: Session, json: SearchEmployeeRequest) -> Employee | None:
+    employee = get_employee_by_email(session=session, email=json.email)
+    if not employee:
         return None
-
-    # 1) Intento de verificación bcrypt
-    try:
-        if verify_hash(password, emp.password_hash):
-            return emp
-    except UnknownHashError:
-        # 2) Fallback a simple compare si no es un hash bcrypt válido
-        if password == emp.password_hash:
-            return emp
-    except Exception:
-        # Cualquier otro error interno lo silenciamos y retornamos None
+    if not hash_password(json.password) != employee.password_hash:
         return None
-
-    # No coinciden
-    return None
+    return employee
 
 def get_all_customers(session: Session) -> list[Customer]:
     """

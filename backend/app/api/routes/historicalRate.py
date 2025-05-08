@@ -19,7 +19,7 @@ def register_rate(session: SessionDep, json: CreateHistoricalRateRequest) -> Mes
 
 
 @router.post("/{date}", response_model=SearchHistoricalRateResponse)
-def get_vehicle(session: SessionDep, json: SearchHistoricalRateRequest) -> SearchHistoricalRateResponse:
+def get_rate(session: SessionDep, json: SearchHistoricalRateRequest) -> SearchHistoricalRateResponse:
     try:
         historicalRate = get_historical_rate_per_date(session=session, json=json)
         if not historicalRate:
@@ -41,7 +41,7 @@ def get_vehicle(session: SessionDep, json: SearchHistoricalRateRequest) -> Searc
 
 
 @router.post("", response_model=SearchHistoricalRatesResponse)
-def get_vehicles(session: SessionDep, json: SearchHistoricalRatesRequest) -> SearchHistoricalRatesResponse:
+def get_rates(session: SessionDep, json: SearchHistoricalRatesRequest) -> SearchHistoricalRatesResponse:
     try:
         historicalRates = get_historical_rates(session=session, json=json)
         if not historicalRates:

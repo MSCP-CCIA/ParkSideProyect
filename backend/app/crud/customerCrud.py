@@ -1,14 +1,13 @@
 from fastapi import HTTPException, status
 from sqlmodel import Session, select
 from app.core.security import hash_password
-from app.api.deps import hash_password_dep
+from app.api.deps import transform_customer_hash_password
 from app.models.customer import *
 
 
 def create_user(*, session: Session, json: CreateCustomerRequest1) -> Customer:
     try:
-        json = hash_password_dep(json)
-        print(json)
+        json = transform_customer_hash_password(json)
         db_obj = Customer.model_validate(
             json
         )
@@ -65,10 +64,29 @@ def get_customer_by_email(*, session: Session, email: str) -> Customer | None:
     return session_customer
 
 
-def authenticate(*, session: Session, json: SearchCustomerRequest) -> Customer | None:
+def authenticate_customer(*, session: Session, json: SearchCustomerRequest) -> Customer | None:
     customer = get_customer_by_email(session=session, email=json.email)
     if not customer:
         return None
     if not hash_password(json.password) != customer.password_hash:
         return None
     return customer
+
+
+def get_historical_rates(*, session: Session, json: SearchCustomersRequest) -> List[Customer]:
+    try:
+        statement = select(Customer).where(Customer.parking_id == json.parking_id)
+        customers = session.exec(statement).all()
+        if not customers:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="No se encontraron usuarios"
+            )
+        return customers
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error al obtener los usuarios: {str(e)}"
+        )

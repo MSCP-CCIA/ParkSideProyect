@@ -139,7 +139,7 @@ def transform_card_update_model(json: UpdateCardRequest) -> CreateCardRequest2:
         customer_id=json.customer_id
     )
 
-def hash_password_dep(json: CreateCustomerRequest1) -> CreateCustomerRequest2:
+def transform_customer_hash_password(json: CreateCustomerRequest1) -> CreateCustomerRequest2:
     return CreateCustomerRequest2(
         id=json.id,
         full_name=json.full_name,
