@@ -58,7 +58,7 @@ def get_me(session: SessionDep, json: SearchMyInformationRequest) -> SearchMyInf
         )
 
 
-@router.post("", response_model=SearchCustomersResponse)
+@router.post("/get-all/", response_model=SearchCustomersResponse)
 def get_rates(session: SessionDep, json: SearchCustomersRequest) -> SearchCustomersResponse:
     try:
         customers = get_historical_rates(session=session, json=json)
