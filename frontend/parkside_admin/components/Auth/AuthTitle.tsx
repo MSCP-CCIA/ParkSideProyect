@@ -11,7 +11,7 @@ const AuthTitle: FC<AuthTitleProps> = () => {
                 style={styles.icon}
                 resizeMode="contain"
             />
-            <Text style={styles.title}>Bienvenido</Text>
+            <Text style={styles.title}>Bienvenido Admin</Text>
             <Text style={styles.subtitle}>Inicia sesión en ParkSide</Text>
         </View>
     );
