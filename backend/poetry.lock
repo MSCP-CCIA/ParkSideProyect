@@ -1195,6 +1195,24 @@ files = [
 ]
 
 [[package]]
+name = "mercadopago"
+version = "2.3.0"
+description = "Mercadopago SDK module for Payments integration"
+optional = false
+python-versions = ">=3.7"
+groups = ["main"]
+files = [
+    {file = "mercadopago-2.3.0-py3-none-any.whl", hash = "sha256:2502cb005ab90343d60e577107b422daeff27511f85c45a7bf0784ac2083f2c7"},
+    {file = "mercadopago-2.3.0.tar.gz", hash = "sha256:8537e9de5d987b545841b05bb35675553b22e661b96ffc4fb178ffba846ff2d7"},
+]
+
+[package.dependencies]
+requests = "*"
+
+[package.extras]
+testing = ["unittest"]
+
+[[package]]
 name = "more-itertools"
 version = "10.6.0"
 description = "More routines for operating on iterables, beyond itertools"
@@ -3270,4 +3288,4 @@ files = [
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.10,<4.0"
-content-hash = "6e5c4d7c81bd00994e356eeaf6cc855c7e35a6af2ae1460dd8c45c1096e40e61"
+content-hash = "4b74ec07cf7386605aafff28412e9d9da864cdd10a392b2767ce958117280ff3"
