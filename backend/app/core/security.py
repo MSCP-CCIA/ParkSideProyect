@@ -5,6 +5,8 @@ from passlib.context import CryptContext
 from app.core.config import settings
 import jwt
 import hashlib
+from cryptography.fernet import Fernet, InvalidToken
+import os
 
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -44,3 +46,40 @@ def decrypt_value(value: str) -> str:
         return fernet.decrypt(value).decode()
     except InvalidToken:
         raise ValueError("El valor no pudo ser descifrado: token inválido.")
+
+
+# ================= Clave Fernet =================
+#   - Debe ser una cadena Base64 de 32 bytes.
+#   - Genera una sola vez: Fernet.generate_key().decode()
+FERNET_KEY = os.environ["SECRET_KEYF"]
+fernet = Fernet(FERNET_KEY.encode())
+
+# ============== Funciones de tarjeta ============
+
+def encrypt_cardf(pan: str) -> str:
+    """
+    Devuelve un token con formato:
+        <first4>:<ciphertext>:<last4>
+    """
+    first4 = pan[:4]
+    last4  = pan[-4:]
+    ciphertext_b64 = fernet.encrypt(pan.encode()).decode()
+    return f"{first4}:{ciphertext_b64}:{last4}"
+
+def decrypt_cardf(token: str) -> str:
+    """
+    Recibe el string devuelto por encrypt_card y
+    devuelve el PAN en texto claro.
+    """
+    try:
+        first4, ciphertext_b64, last4 = token.split(":")
+    except ValueError:
+        raise ValueError("Token malformado")
+
+    pan = fernet.decrypt(ciphertext_b64.encode()).decode()
+
+    # Defensa extra: comprobar coherencia
+    if not (pan.startswith(first4) and pan.endswith(last4)):
+        raise InvalidToken("Incongruencia en los dígitos visibles")
+
+    return pan
