@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 from sqlmodel import Field, Relationship, SQLModel
-from typing import TYPE_CHECKING, Optional, List
+from typing import TYPE_CHECKING, List
 
 if TYPE_CHECKING:
     from app.models.historicalRate import HistoricalRate

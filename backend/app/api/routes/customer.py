@@ -6,7 +6,7 @@ from app.schemas.login import Message, NewPassword, Token
 from app.crud.customerCrud import *
 from app.core.security import create_access_token
 
-router = APIRouter(prefix="/customer", tags=["login"])
+router = APIRouter(prefix="/customer", tags=["customer"])
 
 
 @router.post("/register/", response_model=Message)
@@ -41,8 +41,8 @@ def login_customer(session: SessionDep, json: SearchCustomerRequest) -> SearchCu
     )
 
 
-@router.post("/me/", response_model=SearchMyInformationResponse)
-def get_me(session: SessionDep, json: SearchMyInformationRequest) -> SearchMyInformationResponse:
+@router.post("/info/", response_model=SearchMyInformationResponse)
+def get_info(session: SessionDep, json: SearchMyInformationRequest) -> SearchMyInformationResponse:
     try:
         customer = get_customer_by_id(session=session, json=json)
         return SearchMyInformationResponse(
@@ -59,13 +59,13 @@ def get_me(session: SessionDep, json: SearchMyInformationRequest) -> SearchMyInf
 
 
 @router.post("/get-all/", response_model=SearchCustomersResponse)
-def get_rates(session: SessionDep, json: SearchCustomersRequest) -> SearchCustomersResponse:
+def get_all(session: SessionDep, json: SearchCustomersRequest) -> SearchCustomersResponse:
     try:
-        customers = get_historical_rates(session=session, json=json)
+        customers = get_all_customers(session=session, json=json)
         if not customers:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
-                detail="Historico de tarifas no encontrado"
+                detail="No se encontraron registros en la base de datos"
             )
         customers_response = [
             SearchCustomers(
@@ -81,17 +81,28 @@ def get_rates(session: SessionDep, json: SearchCustomersRequest) -> SearchCustom
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error inesperado al buscar los vehículos: {str(e)}"
+            detail=f"Error inesperado al buscar los usuarios: {str(e)}"
         )
 
 
 @router.post("/update-customer/", response_model=Message)
-def update_card(session: SessionDep, json: UpdateCustomerRequest) -> Message:
+def update_customer(session: SessionDep, json: UpdateCustomerRequest) -> Message:
     try:
         update_user(session=session, json=json)
-        return Message(message="Actualización de usuario exitoso")
+        return Message(message="Actualización de usuario exitosa")
     except Exception as e:
         raise HTTPException(
             status_code=400,
             detail="Error inesperado al actualizar el usuario"
+        )
+
+@router.post("/update-customer-state/", response_model=Message)
+def update_customer_state(session: SessionDep, json: UpdateCustomerStateRequest) -> Message:
+    try:
+        update_customer_state_crud(session=session, json=json)
+        return Message(message="Actualización de estado exitosa")
+    except Exception as e:
+        raise HTTPException(
+            status_code=400,
+            detail="Error inesperado al actualizar el estado"
         )

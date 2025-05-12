@@ -54,8 +54,7 @@ class SearchCustomerResponse(BaseModel):
     token: str
 
 class SearchCustomersRequest(BaseModel):
-    email: str
-    password: str
+    employee_id: int
 
 class SearchCustomers(BaseModel):
     id: int
@@ -75,3 +74,7 @@ class SearchMyInformationResponse(BaseModel):
     full_name: str
     email: str
     password_hash: str
+
+class UpdateCustomerStateRequest(BaseModel):
+    employee_id: int
+    customer_id: int

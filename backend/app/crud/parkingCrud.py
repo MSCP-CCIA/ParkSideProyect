@@ -1,19 +1,14 @@
 from fastapi import HTTPException, status
 from sqlmodel import Session, select
 from app.models.parking import *
-from app.models.employee import Employee
+from app.api.deps import get_parking_employee
 
 
 def get_parking(*, session: Session, json: SearchParkingRequest) -> Parking:
     try:
-        employee = session.exec(select(Employee).where(Employee.id == json.employee_id)).first()
-        if not employee:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Empleado no encontrado"
-            )
+        parking_id = get_parking_employee(session=session, employee_id=json.employee_id)
         statement = select(Parking).where(
-            (Parking.id == employee.parking_id)
+            (Parking.id == parking_id)
         )
         parking = session.exec(statement).first()
         if not parking:

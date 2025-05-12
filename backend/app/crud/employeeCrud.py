@@ -1,5 +1,5 @@
 from sqlmodel import select, Session
-from fastapi import HTTPException
+from fastapi import HTTPException, status
 from app.models.employee import *
 from app.core.security import hash_password
 
@@ -17,17 +17,29 @@ def authenticate_employee(*, session: Session, json: SearchEmployeeRequest) -> E
     if not hash_password(json.password) != employee.password_hash:
         return None
     return employee
-"""
-def get_all_customers(session: Session) -> list[Customer]:
-    return session.exec(select(Customer)).all()
 
-def update_customer_status(session: Session, customer_id: int, is_active: bool) -> Customer:
-    cust = session.get(Customer, customer_id)
-    if not cust:
-        raise HTTPException(status_code=404, detail="Customer not found")
-    cust.is_active = is_active
-    session.add(cust)
-    session.commit()
-    session.refresh(cust)
-    return cust
-"""
+
+def update_employee_crud(*, session: Session, json: UpdateEmployeeRequest) -> Employee:
+    try:
+        statement = select(Employee).where(Employee.id == json.id)
+        employee = session.exec(statement).first()
+        if not employee:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Empleado no encontrado"
+            )
+        update_data = json.model_dump(exclude_unset=True, exclude={"id"})
+        for field, value in update_data.items():
+            setattr(employee, field, value)
+        session.add(employee)
+        session.commit()
+        session.refresh(employee)
+        return employee
+    except HTTPException:
+        raise
+    except Exception as e:
+        session.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error al actualizar el empleado: {str(e)}"
+        )

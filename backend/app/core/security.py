@@ -47,7 +47,7 @@ def decrypt_value(value: str) -> str:
     except InvalidToken:
         raise ValueError("El valor no pudo ser descifrado: token inválido.")
 
-
+"""
 # ================= Clave Fernet =================
 #   - Debe ser una cadena Base64 de 32 bytes.
 #   - Genera una sola vez: Fernet.generate_key().decode()
@@ -57,20 +57,16 @@ fernet = Fernet(FERNET_KEY.encode())
 # ============== Funciones de tarjeta ============
 
 def encrypt_cardf(pan: str) -> str:
-    """
     Devuelve un token con formato:
         <first4>:<ciphertext>:<last4>
-    """
     first4 = pan[:4]
     last4  = pan[-4:]
     ciphertext_b64 = fernet.encrypt(pan.encode()).decode()
     return f"{first4}:{ciphertext_b64}:{last4}"
 
 def decrypt_cardf(token: str) -> str:
-    """
     Recibe el string devuelto por encrypt_card y
     devuelve el PAN en texto claro.
-    """
     try:
         first4, ciphertext_b64, last4 = token.split(":")
     except ValueError:
@@ -83,3 +79,4 @@ def decrypt_cardf(token: str) -> str:
         raise InvalidToken("Incongruencia en los dígitos visibles")
 
     return pan
+"""

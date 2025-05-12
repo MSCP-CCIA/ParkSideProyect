@@ -20,19 +20,32 @@ class CreateVehicleRequest(BaseModel):
     type: str
     customer_id: int
 
-class SearchVehicleRequest(BaseModel):
+class SearchCustomerVehicleRequest(BaseModel):
     plate: str
     customer_id: int
 
-class SearchVehicleResponse(BaseModel):
+class SearchCustomerVehicleResponse(BaseModel):
     type: str
     plate: str
 
-class SearchVehiclesRequest(BaseModel):
+class SearchCustomerVehiclesRequest(BaseModel):
     customer_id: int
 
 class SearchVehiclesResponse(BaseModel):
-    vehicles: List[SearchVehicleResponse]
+    vehicles: List[SearchCustomerVehicleResponse]
+
+class SearchAllCustomersVehiclesRequest(BaseModel):
+    employee_id: int
+
+class SearchAllCustomersVehicles(BaseModel):
+    customer_id: int
+    full_name: str
+    vehicle_type: str
+    email: str
+    plate: str
+
+class SearchAllCustomersVehiclesResponse(BaseModel):
+    vehicles: List[SearchAllCustomersVehicles]
 
 class DeleteVehicleRequest(BaseModel):
     customer_id: int

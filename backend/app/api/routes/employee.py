@@ -4,6 +4,7 @@ from app.api.deps import SessionDep, SuperuserEmployee
 from app.crud.employeeCrud import *
 from app.core.security import create_access_token
 from app.core.config import settings
+from app.models.message import Message
 
 router = APIRouter(prefix="/employee", tags=["employee"])
 
@@ -27,30 +28,14 @@ def login_employee(session: SessionDep, json: SearchEmployeeRequest) -> SearchEm
         token=access_token
     )
 
-"""
-@router.get("/customers/")
-def list_customers(
-    session: SessionDep,
-    _: SuperuserEmployee,
-):
-    return get_all_customers(session)
 
-
-@router.patch("/customers/{customer_id}/status/")
-def change_customer_status(
-    customer_id: int,
-    session: SessionDep,
-    _: SuperuserEmployee,
-    is_active: bool = Form(...),
-):
-    cust = update_customer_status(
-        session=session,
-        customer_id=customer_id,
-        is_active=is_active,
-    )
-    return {
-        "message": "Customer status updated",
-        "customer_id": cust.id,
-        "is_active": cust.is_active,
-    }
-"""
+@router.post("/update-employee/", response_model=Message)
+def update_employee(session: SessionDep, json: UpdateEmployeeRequest) -> Message:
+    try:
+        update_employee_crud(session=session, json=json)
+        return Message(message="Actualización de empleado exitosa")
+    except Exception as e:
+        raise HTTPException(
+            status_code=400,
+            detail="Error inesperado al actualizar el empleado"
+        )

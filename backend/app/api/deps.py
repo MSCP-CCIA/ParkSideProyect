@@ -9,13 +9,14 @@ from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from jwt.exceptions import InvalidTokenError
 from pydantic import ValidationError
-from sqlmodel import Session
+from sqlmodel import Session, select
 
 from app.core import security
 from app.core.config import settings
 from app.core.db import engine
 from app.models.card import CreateCardRequest1, CreateCardRequest2, UpdateCardRequest
 from app.models.customer import CreateCustomerRequest1, CreateCustomerRequest2, Customer as User
+from app.models.employee import Employee
 from app.schemas.token import TokenPayload
 
 # --- Nuestras tablas ---
@@ -34,7 +35,7 @@ SessionDep = Annotated[Session, Depends(get_db)]
 # 2) OAuth2 para Clientes (Customer)
 # -------------------------------------------------------------------
 reusable_oauth2 = OAuth2PasswordBearer(
-    tokenUrl=f"{settings.API_V1_STR}/login/access-token"
+    tokenUrl=f"{settings.API_V1_STR}/customer/login"
 )
 TokenDep = Annotated[str, Depends(reusable_oauth2)]
 
@@ -115,6 +116,15 @@ def get_current_active_employee_superuser(
     return current_employee
 
 SuperuserEmployee = Annotated[EmployeeModel, Depends(get_current_active_employee_superuser)]
+
+def get_parking_employee(session: Session, employee_id: int) -> int:
+    employee = session.exec(select(Employee).where(Employee.id == employee_id)).first()
+    if not employee:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Empleado no encontrado"
+        )
+    return employee.parking_id
 
 # -------------------------------------------------------------------
 # 4) Transformadores / helpers existentes

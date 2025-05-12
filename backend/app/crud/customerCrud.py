@@ -3,6 +3,7 @@ from sqlmodel import Session, select
 from app.core.security import hash_password
 from app.api.deps import transform_customer_hash_password
 from app.models.customer import *
+from app.api.deps import get_parking_employee
 
 
 def create_user(*, session: Session, json: CreateCustomerRequest1) -> Customer:
@@ -73,9 +74,10 @@ def authenticate_customer(*, session: Session, json: SearchCustomerRequest) -> C
     return customer
 
 
-def get_historical_rates(*, session: Session, json: SearchCustomersRequest) -> List[Customer]:
+def get_all_customers(*, session: Session, json: SearchCustomersRequest) -> List[Customer]:
     try:
-        statement = select(Customer).where(Customer.parking_id == json.parking_id)
+        parking_id = get_parking_employee(session=session, employee_id=json.employee_id)
+        statement = select(Customer).where(Customer.parking_id == parking_id)
         customers = session.exec(statement).all()
         if not customers:
             raise HTTPException(
@@ -89,4 +91,29 @@ def get_historical_rates(*, session: Session, json: SearchCustomersRequest) -> L
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Error al obtener los usuarios: {str(e)}"
+        )
+
+
+def update_customer_state_crud(*, session: Session, json: UpdateCustomerStateRequest) -> Customer:
+    try:
+        parking_id = get_parking_employee(session=session, employee_id=json.employee_id)
+        statement = select(Customer).where((Customer.id == json.customer_id) & (Customer.parking_id == parking_id))
+        customer = session.exec(statement).first()
+        if not customer:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Usuario no encontrado"
+            )
+        setattr(customer, 'is_active', False if customer.is_active else True)
+        session.add(customer)
+        session.commit()
+        session.refresh(customer)
+        return customer
+    except HTTPException:
+        raise
+    except Exception as e:
+        session.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error al actualizar el usuario: {str(e)}"
         )

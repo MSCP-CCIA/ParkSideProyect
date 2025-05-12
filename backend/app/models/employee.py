@@ -27,3 +27,7 @@ class SearchEmployeeRequest(BaseModel):
 class SearchEmployeeResponse(BaseModel):
     id: int
     token: str
+
+class UpdateEmployeeRequest(BaseModel):
+    id: int
+    full_name: str

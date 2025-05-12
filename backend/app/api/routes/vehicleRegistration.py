@@ -18,8 +18,8 @@ def register_vehicle(session: SessionDep, json: CreateVehicleRequest) -> Message
         )
 
 
-@router.post("/get-vehicle-{plate}", response_model=SearchVehicleResponse)
-def get_vehicle(session: SessionDep, json: SearchVehicleRequest) -> SearchVehicleResponse:
+@router.post("/get-vehicle-{plate}", response_model=SearchCustomerVehicleResponse)
+def get_vehicle(session: SessionDep, json: SearchCustomerVehicleRequest) -> SearchCustomerVehicleResponse:
     try:
         vehicle = get_customer_vehicle(session=session, json=json)
         if not vehicle:
@@ -27,7 +27,7 @@ def get_vehicle(session: SessionDep, json: SearchVehicleRequest) -> SearchVehicl
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="Vehículo no encontrado"
             )
-        return SearchVehicleResponse(
+        return SearchCustomerVehicleResponse(
             type = vehicle.type,
             plate = vehicle.plate
         )
@@ -38,8 +38,8 @@ def get_vehicle(session: SessionDep, json: SearchVehicleRequest) -> SearchVehicl
         )
 
 
-@router.post("/get-vehicles", response_model=SearchVehiclesResponse)
-def get_vehicles(session: SessionDep, json: SearchVehiclesRequest) -> SearchVehiclesResponse:
+@router.post("/get-customer-vehicles", response_model=SearchVehiclesResponse)
+def get_vehicles(session: SessionDep, json: SearchCustomerVehiclesRequest) -> SearchVehiclesResponse:
     try:
         vehicles = get_customer_vehicles(session=session, json=json)
         if not vehicles:
@@ -48,13 +48,24 @@ def get_vehicles(session: SessionDep, json: SearchVehiclesRequest) -> SearchVehi
                 detail="Vehículos no encontrados"
             )
         vehicles_response = [
-            SearchVehicleResponse(
+            SearchCustomerVehicleResponse(
                 plate=vehicle.plate,
                 type=vehicle.type
             )
             for vehicle in vehicles
         ]
         return SearchVehiclesResponse(vehicles=vehicles_response)
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error inesperado al buscar los vehículos: {str(e)}"
+        )
+
+
+@router.post("/get-all-customers-vehicles", response_model=SearchAllCustomersVehiclesResponse)
+def get_customer_vehicles(session: SessionDep, json: SearchAllCustomersVehiclesRequest) -> SearchAllCustomersVehiclesResponse:
+    try:
+        return get_all_customer_vehicles(session=session, json=json)
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
