@@ -13,7 +13,7 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 ALGORITHM = "HS256"
 
-fernet = Fernet(settings.SECRET_KEY.encode())
+fernet = Fernet(settings.SECRET_KEYF.encode())
 
 
 def create_access_token(subject: str | Any, expires_delta: timedelta) -> str:
