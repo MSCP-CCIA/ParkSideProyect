@@ -15,6 +15,10 @@ class Vehicle(SQLModel, table=True):
     customer: "Customer" = Relationship(back_populates="vehicles")
     parking_registrations: List["ParkingRegistration"] = Relationship(back_populates="vehicle")
 
+# ------------------------- Customer Actions ------------------------- #
+
+# Create Vehicle
+
 class CreateVehicleRequest(BaseModel):
     plate: str
     type: str
@@ -24,6 +28,8 @@ class SearchCustomerVehicleRequest(BaseModel):
     plate: str
     customer_id: int
 
+# Get 1 Customer's Vehicle
+
 class SearchCustomerVehicleResponse(BaseModel):
     type: str
     plate: str
@@ -31,8 +37,18 @@ class SearchCustomerVehicleResponse(BaseModel):
 class SearchCustomerVehiclesRequest(BaseModel):
     customer_id: int
 
+# Get All Customer's Vehicles
+
 class SearchVehiclesResponse(BaseModel):
     vehicles: List[SearchCustomerVehicleResponse]
+
+class DeleteVehicleRequest(BaseModel):
+    customer_id: int
+    plate: str
+
+# ------------------------- Employee Actions ------------------------- #
+
+# Get All Customers' Vehicles -> Need update Get All Customer's Vehicles
 
 class SearchAllCustomersVehiclesRequest(BaseModel):
     employee_id: int
@@ -47,6 +63,17 @@ class SearchAllCustomersVehicles(BaseModel):
 class SearchAllCustomersVehiclesResponse(BaseModel):
     vehicles: List[SearchAllCustomersVehicles]
 
-class DeleteVehicleRequest(BaseModel):
-    customer_id: int
+# Search Registrations for Entry and Exit
+
+class SearchRegistrationsByPlateRequest(BaseModel):
     plate: str
+
+class SearchRegistrationsByPlate(BaseModel):
+    customer_id: int
+    customer_full_name: str
+    vehicle_type: str
+    customer_email: str
+    vehicle_plate: str
+
+class SearchRegistrationsByPlateResponse(BaseModel):
+    registrations: List[SearchRegistrationsByPlate]

@@ -19,6 +19,9 @@ class Card(SQLModel, table=True):
 
     customer: "Customer" = Relationship(back_populates="cards")
 
+# ------------------------- Customer Actions ------------------------- #
+
+# Register a new card
 
 class CreateCardRequest1(BaseModel):
     card_number: int
@@ -29,6 +32,8 @@ class CreateCardRequest1(BaseModel):
     card_type: str
     customer_id: int
 
+# Update card
+
 class UpdateCardRequest(BaseModel):
     card_number_hash: str
     full_name_customer: str
@@ -38,13 +43,17 @@ class UpdateCardRequest(BaseModel):
     card_type: str
     customer_id: int
 
-class CreateCardRequest2(BaseModel):
+# Json Transformation for Register a new card and Update a card
+
+class CreateOrUpdateCardRequest(BaseModel):
     card_number_hash: str
     full_name_customer: str
     cvc_code_hash: str
     expiration_date: date
     card_type: str
     customer_id: int
+
+# Search a customer's card
 
 class SearchCardRequest(BaseModel):
     card_number_hash: str
@@ -56,11 +65,15 @@ class SearchCardResponse(BaseModel):
     month: int
     year: int
 
+# Search all customer's cards
+
 class SearchCardsRequest(BaseModel):
     customer_id: int
 
 class SearchCardsResponse(BaseModel):
     cards: List[SearchCardResponse]
+
+# Delete a customer's card
 
 class DeleteCardRequest(BaseModel):
     card_number_hash: str

@@ -5,6 +5,7 @@ from app.api.deps import SessionDep
 
 router = APIRouter(prefix="/vehicle", tags=["vehicleRegistration"])
 
+# ------------------------- Customer Actions ------------------------- #
 
 @router.post("/register-vehicle/", response_model=Message)
 def register_vehicle(session: SessionDep, json: CreateVehicleRequest) -> Message:
@@ -62,17 +63,6 @@ def get_vehicles(session: SessionDep, json: SearchCustomerVehiclesRequest) -> Se
         )
 
 
-@router.post("/get-all-customers-vehicles", response_model=SearchAllCustomersVehiclesResponse)
-def get_customer_vehicles(session: SessionDep, json: SearchAllCustomersVehiclesRequest) -> SearchAllCustomersVehiclesResponse:
-    try:
-        return get_all_customer_vehicles(session=session, json=json)
-    except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error inesperado al buscar los vehículos: {str(e)}"
-        )
-
-
 @router.delete("/delete-vehicle-{plate}", response_model=Message)
 def delete_vehicle(session: SessionDep, json: DeleteVehicleRequest):
     try:
@@ -83,4 +73,16 @@ def delete_vehicle(session: SessionDep, json: DeleteVehicleRequest):
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Vehículo no encontrado"
+        )
+
+# ------------------------- Employee Actions ------------------------- #
+
+@router.post("/get-all-customers-vehicles", response_model=SearchAllCustomersVehiclesResponse)
+def get_customer_vehicles(session: SessionDep, json: SearchAllCustomersVehiclesRequest) -> SearchAllCustomersVehiclesResponse:
+    try:
+        return get_all_customer_vehicles(session=session, json=json)
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error inesperado al buscar los vehículos: {str(e)}"
         )

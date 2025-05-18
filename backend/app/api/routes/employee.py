@@ -1,6 +1,6 @@
 from datetime import timedelta
 from fastapi import APIRouter
-from app.api.deps import SessionDep, SuperuserEmployee
+from app.api.deps import SessionDep
 from app.crud.employeeCrud import *
 from app.core.security import create_access_token
 from app.core.config import settings
@@ -8,6 +8,7 @@ from app.models.message import Message
 
 router = APIRouter(prefix="/employee", tags=["employee"])
 
+# ------------------------- Employee Actions ------------------------- #
 
 @router.post("/login/", response_model=SearchEmployeeResponse)
 def login_employee(session: SessionDep, json: SearchEmployeeRequest) -> SearchEmployeeResponse:

@@ -3,6 +3,8 @@ from sqlmodel import Session, select
 from app.models.parkingRegistration import *
 from app.models.vehicle import Vehicle
 
+# ------------------------- ML Actions ------------------------- #
+
 def get_customer_vehicle(*, session: Session, json: EntryVehicleRequest) -> Vehicle:
     try:
         statement = select(Vehicle).where(

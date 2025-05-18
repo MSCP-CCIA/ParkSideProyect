@@ -2,6 +2,7 @@ from fastapi import HTTPException, status
 from sqlmodel import Session, select
 from app.models.historicalRate import *
 
+# ------------------------- Employee Actions ------------------------- #
 
 def create_rate(*, session: Session, json: CreateHistoricalRateRequest) -> HistoricalRate:
     try:

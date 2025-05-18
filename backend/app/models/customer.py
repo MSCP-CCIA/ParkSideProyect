@@ -22,6 +22,10 @@ class Customer(SQLModel, table=True):
     cards: List["Card"] = Relationship(back_populates="customer")
     vehicles: List["Vehicle"] = Relationship(back_populates="customer")
 
+# ------------------------- Customer Actions ------------------------- #
+
+# Create Customer
+
 class CreateCustomerRequest1(BaseModel):
     id: int
     #
@@ -40,10 +44,14 @@ class CreateCustomerRequest2(BaseModel):
     is_active: bool = True
     parking_id: int = 1
 
+# Update Customer
+
 class UpdateCustomerRequest(BaseModel):
     id: int
     full_name: str
     #password: str
+
+# Search Customer (Login)
 
 class SearchCustomerRequest(BaseModel):
     email: str
@@ -52,6 +60,21 @@ class SearchCustomerRequest(BaseModel):
 class SearchCustomerResponse(BaseModel):
     id: int
     token: str
+
+# Get Customer Information
+
+class SearchMyInformationRequest(BaseModel):
+    id: int
+
+class SearchMyInformationResponse(BaseModel):
+    id: int
+    full_name: str
+    email: str
+    password_hash: str
+
+# ------------------------- Employee Actions ------------------------- #
+
+# Get all Customers -> Need Update Get Customer by ID
 
 class SearchCustomersRequest(BaseModel):
     employee_id: int
@@ -66,14 +89,7 @@ class SearchCustomers(BaseModel):
 class SearchCustomersResponse(BaseModel):
     customers: List[SearchCustomers]
 
-class SearchMyInformationRequest(BaseModel):
-    id: int
-
-class SearchMyInformationResponse(BaseModel):
-    id: int
-    full_name: str
-    email: str
-    password_hash: str
+# Update Customer State
 
 class UpdateCustomerStateRequest(BaseModel):
     employee_id: int

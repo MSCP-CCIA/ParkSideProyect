@@ -14,7 +14,7 @@ from sqlmodel import Session, select
 from app.core import security
 from app.core.config import settings
 from app.core.db import engine
-from app.models.card import CreateCardRequest1, CreateCardRequest2, UpdateCardRequest
+from app.models.card import CreateCardRequest1, CreateOrUpdateCardRequest, UpdateCardRequest
 from app.models.customer import CreateCustomerRequest1, CreateCustomerRequest2, Customer as User
 from app.models.employee import Employee
 from app.schemas.token import TokenPayload
@@ -129,8 +129,8 @@ def get_parking_employee(session: Session, employee_id: int) -> int:
 # -------------------------------------------------------------------
 # 4) Transformadores / helpers existentes
 # -------------------------------------------------------------------
-def transform_card_create_model(json: CreateCardRequest1) -> CreateCardRequest2:
-    return CreateCardRequest2(
+def transform_card_create_model(json: CreateCardRequest1) -> CreateOrUpdateCardRequest:
+    return CreateOrUpdateCardRequest(
         card_number_hash=security.hash_card_number(str(json.card_number)),
         full_name_customer=json.full_name_customer,
         cvc_code_hash=security.hash_card_number(str(json.cvc)),
@@ -139,8 +139,8 @@ def transform_card_create_model(json: CreateCardRequest1) -> CreateCardRequest2:
         customer_id=json.customer_id
     )
 
-def transform_card_update_model(json: UpdateCardRequest) -> CreateCardRequest2:
-    return CreateCardRequest2(
+def transform_card_update_model(json: UpdateCardRequest) -> CreateOrUpdateCardRequest:
+    return CreateOrUpdateCardRequest(
         card_number_hash=json.card_number_hash,
         full_name_customer=json.full_name_customer,
         cvc_code_hash=security.hash_card_number(str(json.cvc)),

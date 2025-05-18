@@ -4,6 +4,7 @@ from app.models.vehicle import *
 from app.models.customer import Customer
 from app.api.deps import get_parking_employee
 
+# ------------------------- Customer Actions ------------------------- #
 
 def create_vehicle(*, session: Session, json: CreateVehicleRequest) -> Vehicle:
     try:
@@ -62,6 +63,33 @@ def get_customer_vehicles(*, session: Session, json: SearchCustomerVehiclesReque
             detail=f"Error al obtener los vehículos: {str(e)}"
         )
 
+
+def delete_customer_vehicle(*, session: Session, json: DeleteVehicleRequest) -> bool:
+    try:
+        statement = select(Vehicle).where(
+            (Vehicle.plate == json.plate) & (Vehicle.customer_id == json.customer_id)
+        )
+        vehicle = session.exec(statement).first()
+        if not vehicle:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Vehículo no encontrado para eliminar"
+            )
+        session.delete(vehicle)
+        session.commit()
+        return True
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error al eliminar el vehículo: {str(e)}"
+        )
+
+
+# ------------------------- Employee Actions ------------------------- #
+
+
 def get_all_customer_vehicles(*, session: Session, json: SearchAllCustomersVehiclesRequest) -> SearchAllCustomersVehiclesResponse:
     try:
         parking_id = get_parking_employee(session=session, employee_id=json.employee_id)
@@ -93,24 +121,20 @@ def get_all_customer_vehicles(*, session: Session, json: SearchAllCustomersVehic
         )
 
 
-def delete_customer_vehicle(*, session: Session, json: DeleteVehicleRequest) -> bool:
+def get_registrations_by_plate_crud(*, session: Session, json: SearchRegistrationsByPlateRequest) -> SearchRegistrationsByPlateResponse:
     try:
-        statement = select(Vehicle).where(
-            (Vehicle.plate == json.plate) & (Vehicle.customer_id == json.customer_id)
-        )
+        statement = select(Vehicle).where((Vehicle.plate == json.plate))
         vehicle = session.exec(statement).first()
         if not vehicle:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
-                detail="Vehículo no encontrado para eliminar"
+                detail="Vehículo no encontrado"
             )
-        session.delete(vehicle)
-        session.commit()
-        return True
+        return vehicle
     except HTTPException:
         raise
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error al eliminar el vehículo: {str(e)}"
+            detail=f"Error al obtener el vehículo: {str(e)}"
         )

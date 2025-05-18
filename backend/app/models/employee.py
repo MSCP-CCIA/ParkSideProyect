@@ -20,6 +20,10 @@ class Employee(SQLModel, table=True):
     parking: "Parking" = Relationship(back_populates="employees")
     payments: List["Payment"] = Relationship(back_populates="employee")
 
+# ------------------------- Employee Actions ------------------------- #
+
+# Login
+
 class SearchEmployeeRequest(BaseModel):
     email: str
     password: str
@@ -27,6 +31,8 @@ class SearchEmployeeRequest(BaseModel):
 class SearchEmployeeResponse(BaseModel):
     id: int
     token: str
+
+# Update Employee Info
 
 class UpdateEmployeeRequest(BaseModel):
     id: int

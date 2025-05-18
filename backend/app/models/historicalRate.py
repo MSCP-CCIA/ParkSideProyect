@@ -16,11 +16,17 @@ class HistoricalRate(SQLModel, table=True):
     parking_id: int = Field(foreign_key="parking.id")
     parking: "Parking" = Relationship(back_populates="historical_rates")
 
+# ------------------------- Employee Actions ------------------------- #
+
+# Create new Rate
+
 class CreateHistoricalRateRequest(BaseModel):
     car_rate: int
     motorbike_rate: int
     start_date: date
     parking_id: int
+
+# Search 1 Rate in the DB
 
 class SearchHistoricalRateRequest(BaseModel):
     start_date: date
@@ -31,6 +37,8 @@ class SearchHistoricalRateResponse(BaseModel):
     motorbike_rate: int
     start_date: date
     end_date: date | None
+
+# Search All Rates in the DB
 
 class SearchHistoricalRatesRequest(BaseModel):
     parking_id: int

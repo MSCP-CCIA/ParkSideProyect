@@ -1,13 +1,14 @@
 from datetime import timedelta
-from fastapi import APIRouter, Depends, HTTPException
-from app.api.deps import CurrentUser, SessionDep, get_current_active_superuser
+from fastapi import APIRouter
+from app.api.deps import SessionDep
 from app.core.config import settings
-from app.schemas.login import Message, NewPassword, Token
+from app.schemas.login import Message
 from app.crud.customerCrud import *
 from app.core.security import create_access_token
 
 router = APIRouter(prefix="/customer", tags=["customer"])
 
+# ------------------------- Customer Actions ------------------------- #
 
 @router.post("/register/", response_model=Message)
 def register(session: SessionDep, json: CreateCustomerRequest1) -> Message:
@@ -58,6 +59,21 @@ def get_info(session: SessionDep, json: SearchMyInformationRequest) -> SearchMyI
         )
 
 
+@router.post("/update-customer/", response_model=Message)
+def update_customer(session: SessionDep, json: UpdateCustomerRequest) -> Message:
+    try:
+        update_user(session=session, json=json)
+        return Message(message="Actualización de usuario exitosa")
+    except Exception as e:
+        raise HTTPException(
+            status_code=400,
+            detail="Error inesperado al actualizar el usuario"
+        )
+
+
+# ------------------------- Employee Actions ------------------------- #
+
+
 @router.post("/get-all/", response_model=SearchCustomersResponse)
 def get_all(session: SessionDep, json: SearchCustomersRequest) -> SearchCustomersResponse:
     try:
@@ -84,17 +100,6 @@ def get_all(session: SessionDep, json: SearchCustomersRequest) -> SearchCustomer
             detail=f"Error inesperado al buscar los usuarios: {str(e)}"
         )
 
-
-@router.post("/update-customer/", response_model=Message)
-def update_customer(session: SessionDep, json: UpdateCustomerRequest) -> Message:
-    try:
-        update_user(session=session, json=json)
-        return Message(message="Actualización de usuario exitosa")
-    except Exception as e:
-        raise HTTPException(
-            status_code=400,
-            detail="Error inesperado al actualizar el usuario"
-        )
 
 @router.post("/update-customer-state/", response_model=Message)
 def update_customer_state(session: SessionDep, json: UpdateCustomerStateRequest) -> Message:

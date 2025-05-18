@@ -5,6 +5,7 @@ from app.api.deps import transform_customer_hash_password
 from app.models.customer import *
 from app.api.deps import get_parking_employee
 
+# ------------------------- Customer Actions ------------------------- #
 
 def create_user(*, session: Session, json: CreateCustomerRequest1) -> Customer:
     try:
@@ -17,10 +18,8 @@ def create_user(*, session: Session, json: CreateCustomerRequest1) -> Customer:
         session.refresh(db_obj)
         return db_obj
     except HTTPException as e:
-        print("xd")
         raise
     except Exception as e:
-        print("xd2")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Error al crear el usuario: {str(e)}"
@@ -73,6 +72,7 @@ def authenticate_customer(*, session: Session, json: SearchCustomerRequest) -> C
         return None
     return customer
 
+# ------------------------- Employee Actions ------------------------- #
 
 def get_all_customers(*, session: Session, json: SearchCustomersRequest) -> List[Customer]:
     try:

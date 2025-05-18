@@ -1,4 +1,3 @@
-import uuid
 from datetime import datetime
 from typing import Optional, TYPE_CHECKING
 
@@ -18,6 +17,10 @@ class ParkingRegistration(SQLModel, table=True):
     vehicle: "Vehicle" = Relationship(back_populates="parking_registrations")
     payment: Optional["Payment"] = Relationship(back_populates="parking_registration")
 
+# ------------------------- ML Actions ------------------------- #
+
+# Register a vehicle by reading the plate
+
 class EntryVehicleRequest(BaseModel):
     plate: str
 
@@ -25,4 +28,3 @@ class EntryVehicle(BaseModel):
     entry_datetime: datetime
     exit_datetime: datetime
     plate: str
-

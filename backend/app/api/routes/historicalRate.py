@@ -5,6 +5,7 @@ from app.api.deps import SessionDep
 
 router = APIRouter(prefix="/historicalRate", tags=["historicalRate"])
 
+# ------------------------- Employee Actions ------------------------- #
 
 @router.post("/register-rate/", response_model=Message)
 def register_rate(session: SessionDep, json: CreateHistoricalRateRequest) -> Message:
