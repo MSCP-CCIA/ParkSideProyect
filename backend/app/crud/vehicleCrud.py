@@ -91,11 +91,11 @@ def delete_customer_vehicle(*, session: Session, json: DeleteVehicleRequest) -> 
 # ------------------------- Employee Actions ------------------------- #
 
 
-def get_all_customer_vehicles_crud(*, session: Session, json: SearchAllCustomersVehiclesRequest) -> SearchAllCustomersVehiclesResponse:
+def get_all_customer_vehicles_crud(*, session: Session, json: SearchAllCustomerVehiclesRequest) -> SearchAllCustomerVehiclesResponse:
     try:
         parking_id = get_parking_employee(session=session, employee_id=json.employee_id)
         statement = (select(Customer.id, Customer.full_name, Vehicle.type, Customer.email, Vehicle.plate)
-                     .join(Customer).where(Customer.parking_id == parking_id))
+                     .join(Customer).where((Customer.id == json.customer_id) & (Customer.parking_id == parking_id)))
         response = session.exec(statement).all()
         if not response:
             raise HTTPException(
@@ -103,7 +103,7 @@ def get_all_customer_vehicles_crud(*, session: Session, json: SearchAllCustomers
                 detail="No se encontraron vehículos para este cliente"
             )
         full_response = [
-            SearchAllCustomersVehicles(
+            SearchAllCustomerVehicles(
                 customer_id=i.id,
                 full_name=i.full_name,
                 vehicle_type=i.type,
@@ -112,7 +112,7 @@ def get_all_customer_vehicles_crud(*, session: Session, json: SearchAllCustomers
             )
             for i in response
         ]
-        return SearchAllCustomersVehiclesResponse(vehicles=full_response)
+        return SearchAllCustomerVehiclesResponse(vehicles=full_response)
     except HTTPException:
         raise
     except Exception as e:

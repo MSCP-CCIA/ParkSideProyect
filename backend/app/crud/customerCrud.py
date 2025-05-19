@@ -74,11 +74,11 @@ def authenticate_customer(*, session: Session, json: SearchCustomerRequest) -> C
 
 # ------------------------- Employee Actions ------------------------- #
 
-def get_all_customers(*, session: Session, json: SearchCustomersRequest) -> List[Customer]:
+def get_customer_by_id_crud(*, session: Session, json: SearchCustomerByIdRequest) -> Customer:
     try:
         parking_id = get_parking_employee(session=session, employee_id=json.employee_id)
-        statement = select(Customer).where(Customer.parking_id == parking_id)
-        customers = session.exec(statement).all()
+        statement = select(Customer).where((Customer.id == json.customer_id) & (Customer.parking_id == parking_id))
+        customers = session.exec(statement).first()
         if not customers:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,

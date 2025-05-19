@@ -49,21 +49,21 @@ class DeleteVehicleRequest(BaseModel):
 
 # ------------------------- Employee Actions ------------------------- #
 
-# Get All Customers' Vehicles -> Need update Get All Customer's Vehicles
+# Get All Customer's Vehicles
 
-class SearchAllCustomersVehiclesRequest(BaseModel):
+class SearchAllCustomerVehiclesRequest(BaseModel):
     employee_id: int
-    # customer_id
+    customer_id: int
 
-class SearchAllCustomersVehicles(BaseModel):
+class SearchAllCustomerVehicles(BaseModel):
     customer_id: int
     full_name: str
     vehicle_type: str
     email: str
     plate: str
 
-class SearchAllCustomersVehiclesResponse(BaseModel):
-    vehicles: List[SearchAllCustomersVehicles]
+class SearchAllCustomerVehiclesResponse(BaseModel):
+    vehicles: List[SearchAllCustomerVehicles]
 
 # Search Registrations for Entry and Exit
 

@@ -74,20 +74,18 @@ class SearchMyInformationResponse(BaseModel):
 
 # ------------------------- Employee Actions ------------------------- #
 
-# Get all Customers -> Need Update Get Customer by ID
+# Get Customer by ID
 
-class SearchCustomersRequest(BaseModel):
+class SearchCustomerByIdRequest(BaseModel):
     employee_id: int
+    customer_id: int
 
-class SearchCustomers(BaseModel):
+class SearchCustomersResponse(BaseModel):
     id: int
     full_name: str
     #
     email: str
     is_active: bool
-
-class SearchCustomersResponse(BaseModel):
-    customers: List[SearchCustomers]
 
 # Update Customer State
 

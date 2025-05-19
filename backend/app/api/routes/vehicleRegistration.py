@@ -59,7 +59,7 @@ def get_vehicles(session: SessionDep, json: SearchCustomerVehiclesRequest) -> Se
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error inesperado al buscar los vehículos: {str(e)}"
+            detail=f"Error inesperado al buscar los vehículos"
         )
 
 
@@ -77,14 +77,14 @@ def delete_vehicle(session: SessionDep, json: DeleteVehicleRequest) -> Message:
 
 # ------------------------- Employee Actions ------------------------- #
 
-@router.post("/get-all-customers-vehicles", response_model=SearchAllCustomersVehiclesResponse)
-def get_all_customer_vehicles(session: SessionDep, json: SearchAllCustomersVehiclesRequest) -> SearchAllCustomersVehiclesResponse:
+@router.post("/get-all-customers-vehicles", response_model=SearchAllCustomerVehiclesResponse)
+def get_all_customer_vehicles(session: SessionDep, json: SearchAllCustomerVehiclesRequest) -> SearchAllCustomerVehiclesResponse:
     try:
         return get_all_customer_vehicles_crud(session=session, json=json)
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error inesperado al buscar los vehículos: {str(e)}"
+            detail=f"Error inesperado al buscar los vehículos para este cliente"
         )
 
 
@@ -95,7 +95,7 @@ def get_vehicle_by_plate_entry(session: SessionDep, json: SearchRegistrationByPl
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error inesperado al buscar el vehículo: {str(e)}"
+            detail=f"Error inesperado al buscar el vehículo"
         )
 
 """

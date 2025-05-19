@@ -74,26 +74,22 @@ def update_customer(session: SessionDep, json: UpdateCustomerRequest) -> Message
 # ------------------------- Employee Actions ------------------------- #
 
 
-@router.post("/get-all/", response_model=SearchCustomersResponse)
-def get_all(session: SessionDep, json: SearchCustomersRequest) -> SearchCustomersResponse:
+@router.post("/get-customer-by-id/", response_model=SearchCustomersResponse)
+def get_customer_by_id(session: SessionDep, json: SearchCustomerByIdRequest) -> SearchCustomersResponse:
     try:
-        customers = get_all_customers(session=session, json=json)
-        if not customers:
+        customer = get_customer_by_id_crud(session=session, json=json)
+        if not customer:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="No se encontraron registros en la base de datos"
             )
-        customers_response = [
-            SearchCustomers(
-                id=customer.id,
-                full_name=customer.full_name,
-                #
-                email=customer.email,
-                is_active=customer.is_active
-            )
-            for customer in customers
-        ]
-        return SearchCustomersResponse(customers=customers_response)
+        return SearchCustomersResponse(
+            id=customer.id,
+            full_name=customer.full_name,
+            #
+            email=customer.email,
+            is_active=customer.is_active
+        )
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
