@@ -11,20 +11,20 @@ if TYPE_CHECKING:
 class ParkingRegistration(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     entry_datetime: datetime = Field(default_factory=datetime.now)
-    exit_datetime: datetime = Field(default_factory=None)
+    exit_datetime: datetime | None = Field(default_factory=None)
     plate: str = Field(foreign_key="vehicle.plate")
 
     vehicle: "Vehicle" = Relationship(back_populates="parking_registrations")
     payment: Optional["Payment"] = Relationship(back_populates="parking_registration")
 
-# ------------------------- ML Actions ------------------------- #
+# ------------------------- ML and Employee Actions ------------------------- #
 
-# Register a vehicle by reading the plate
+# Register or Update a parking record by reading the plate or employee
 
-class EntryVehicleRequest(BaseModel):
+class EntryOrUpdateVehicleRequest(BaseModel):
     plate: str
 
 class EntryVehicle(BaseModel):
     entry_datetime: datetime
-    exit_datetime: datetime
+    exit_datetime: datetime | None
     plate: str

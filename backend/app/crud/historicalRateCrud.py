@@ -1,5 +1,5 @@
 from fastapi import HTTPException, status
-from sqlmodel import Session, select
+from sqlmodel import Session, select, desc
 from app.models.historicalRate import *
 
 # ------------------------- Employee Actions ------------------------- #
@@ -60,7 +60,9 @@ def get_historical_rate_per_date(*, session: Session, json: SearchHistoricalRate
 
 def get_historical_rates(*, session: Session, json: SearchHistoricalRatesRequest) -> List[HistoricalRate]:
     try:
-        statement = select(HistoricalRate).where(HistoricalRate.parking_id == json.parking_id)
+        statement = (select(HistoricalRate)
+                     .where(HistoricalRate.parking_id == json.parking_id)
+                     .order_by(desc(HistoricalRate.start_date)))
         historicalRates = session.exec(statement).all()
         if not historicalRates:
             raise HTTPException(

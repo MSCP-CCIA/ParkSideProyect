@@ -1,12 +1,10 @@
 from datetime import datetime, timedelta, timezone
 from typing import Any
-from cryptography.fernet import Fernet, InvalidToken
 from passlib.context import CryptContext
 from app.core.config import settings
 import jwt
 import hashlib
 from cryptography.fernet import Fernet, InvalidToken
-import os
 
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")

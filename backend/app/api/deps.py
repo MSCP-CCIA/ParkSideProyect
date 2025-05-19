@@ -9,13 +9,15 @@ from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from jwt.exceptions import InvalidTokenError
 from pydantic import ValidationError
-from sqlmodel import Session, select
+from sqlmodel import Session, select, desc
 
 from app.core import security
 from app.core.config import settings
 from app.core.db import engine
 from app.models.card import CreateCardRequest1, CreateOrUpdateCardRequest, UpdateCardRequest
 from app.models.customer import CreateCustomerRequest1, CreateCustomerRequest2, Customer as User
+from app.models.parkingRegistration import ParkingRegistration
+from app.models.payment import Payment
 from app.models.employee import Employee
 from app.schemas.token import TokenPayload
 

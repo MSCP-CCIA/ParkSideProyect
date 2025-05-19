@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import TYPE_CHECKING, List
 
 from pydantic import BaseModel
@@ -24,11 +25,11 @@ class CreateVehicleRequest(BaseModel):
     type: str
     customer_id: int
 
+# Get 1 Customer's Vehicle
+
 class SearchCustomerVehicleRequest(BaseModel):
     plate: str
     customer_id: int
-
-# Get 1 Customer's Vehicle
 
 class SearchCustomerVehicleResponse(BaseModel):
     type: str
@@ -52,6 +53,7 @@ class DeleteVehicleRequest(BaseModel):
 
 class SearchAllCustomersVehiclesRequest(BaseModel):
     employee_id: int
+    # customer_id
 
 class SearchAllCustomersVehicles(BaseModel):
     customer_id: int
@@ -65,15 +67,30 @@ class SearchAllCustomersVehiclesResponse(BaseModel):
 
 # Search Registrations for Entry and Exit
 
-class SearchRegistrationsByPlateRequest(BaseModel):
+class SearchRegistrationByPlateRequest(BaseModel):
+    employee_id: int
     plate: str
 
-class SearchRegistrationsByPlate(BaseModel):
+class SearchRegistrationByPlateResponse(BaseModel):
     customer_id: int
     customer_full_name: str
     vehicle_type: str
     customer_email: str
     vehicle_plate: str
 
-class SearchRegistrationsByPlateResponse(BaseModel):
-    registrations: List[SearchRegistrationsByPlate]
+# Get Occupation Report for Employee
+
+class SearchOccupationReportRequest(BaseModel):
+    employee_id: int
+    plate: str
+
+class SearchOccupationReport(BaseModel):
+    plate: str
+    customer_full_name: str
+    entry_date: str
+    entry_time: str
+    exit_date: str | None
+    exit_time: str | None
+
+class SearchOccupationReportResponse(BaseModel):
+    occupation_report: List[SearchOccupationReport]
