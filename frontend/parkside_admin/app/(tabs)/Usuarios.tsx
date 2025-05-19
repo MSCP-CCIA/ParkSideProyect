@@ -8,12 +8,9 @@ import {
     ScrollView,
     Alert,
 } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
-import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import DashboardLayout from '../layouts/DashboardLayout';
 import ReusableTable from '../../components/common/ReusableTable';
-import FloatingActionsButton from '../../components/Button +/FloatingActionsButton';
-import RefreshButton from '../../components/common/RefreshButton'; // 🔵 Agregado
+import RefreshButton from '../../components/common/RefreshButton';
 
 const headers = [
     { label: 'Número de Documento', key: 'numeroDocumento' },
@@ -48,29 +45,15 @@ const usuarios = [
 ];
 
 const Usuarios = () => {
-    const navigation = useNavigation<NativeStackNavigationProp<any>>();
-
-    const handleCreateUser = () => {
-        navigation.navigate('CrearUsuario');
-    };
-
-    const handleBlock = (nombre: string) => {
+    const handleToggleState = (nombre: string) => {
         Alert.alert(
-            'Usuario bloqueado',
-            `El usuario ${nombre} ha sido bloqueado correctamente.`,
+            'Cambio de estado',
+            `Se ha activado o desactivado el usuario ${nombre}.`,
             [{ text: 'Aceptar' }]
         );
     };
 
-    const handleDeactivate = (nombre: string) => {
-        Alert.alert(
-            'Usuario desactivado',
-            `El usuario ${nombre} ha sido desactivado correctamente.`,
-            [{ text: 'Aceptar' }]
-        );
-    };
-
-    const handleRefresh = () => {
+    const handleSearch = () => {
         console.log('Refrescando usuarios...');
     };
 
@@ -81,27 +64,25 @@ const Usuarios = () => {
 
                 <View style={styles.searchContainer}>
                     <TextInput
-                        placeholder="Buscar por Número de Documento, Nombre, Correo, Rol"
+                        placeholder="Buscar por Número de Documento"
                         style={styles.searchInput}
                     />
-                    <RefreshButton onPress={handleRefresh} />
+                    <RefreshButton onPress={handleSearch} />
                 </View>
 
                 <ReusableTable
                     headers={headers}
                     data={usuarios}
                     renderActions={(row, index) => (
-                        <FloatingActionsButton
-                            onBlock={() => handleBlock(row.nombre)}
-                            onDeactivate={() => handleDeactivate(row.nombre)}
-                        />
+                        <TouchableOpacity
+                            style={styles.actionButton}
+                            onPress={() => handleToggleState(row.nombre)}
+                        >
+                            <Text style={styles.actionButtonText}>Activar / Desactivar</Text>
+                        </TouchableOpacity>
                     )}
                     noDataText="No hay usuarios registrados."
                 />
-
-                <TouchableOpacity style={styles.createButton} onPress={handleCreateUser}>
-                    <Text style={styles.createButtonText}>Crear nuevo usuario</Text>
-                </TouchableOpacity>
             </ScrollView>
         </DashboardLayout>
     );
@@ -128,15 +109,13 @@ const styles = StyleSheet.create({
         backgroundColor: '#fff',
         marginRight: 10,
     },
-    createButton: {
-        marginTop: 24,
+    actionButton: {
         backgroundColor: '#1976D2',
-        borderRadius: 8,
-        paddingVertical: 12,
-        paddingHorizontal: 20,
-        alignSelf: 'center',
+        paddingVertical: 6,
+        paddingHorizontal: 12,
+        borderRadius: 20,
     },
-    createButtonText: {
+    actionButtonText: {
         color: '#fff',
         fontWeight: 'bold',
     },

@@ -35,7 +35,7 @@ const RegistroSalida = () => {
 
                 <View style={styles.searchContainer}>
                     <TextInput
-                        placeholder="Buscar por Número de Documento, Nombre, Placa"
+                        placeholder="Buscar por Placa del vehiculo"
                         style={styles.searchInput}
                     />
                     <RefreshButton onPress={() => console.log('Refrescar datos')} />

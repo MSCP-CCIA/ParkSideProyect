@@ -27,7 +27,7 @@ const InfoVehiculos = () => {
 
                 <View style={styles.searchContainer}>
                     <TextInput
-                        placeholder="Buscar por Número de Documento, Nombre, Placa o tipo de vehículo"
+                        placeholder="Buscar por Número de Documento"
                         style={styles.searchInput}
                     />
                     <RefreshButton onPress={() => console.log('Refrescar datos')} />

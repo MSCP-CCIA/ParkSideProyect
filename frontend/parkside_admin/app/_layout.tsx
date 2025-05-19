@@ -3,7 +3,6 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import Login from '../app/(tabs)/Login';
 import ChangePassword from '../app/(tabs)/ChangePassword';
 import Usuarios from '../app/(tabs)/Usuarios';
-import CrearUsuario from "@/app/(tabs)/CrearUsuario";
 import EditarPerfil from "@/app/(tabs)/EditarPerfil";
 import Reportes from "@/app/(tabs)/Reportes";
 import RegistroEntrada from "@/app/(tabs)/RegistroEntrada";
@@ -17,7 +16,6 @@ type RootStackParamList = {
     Login: undefined;
     ChangePassword: undefined;
     Usuarios: undefined;
-    CrearUsuario: undefined;
     EditarPerfil: undefined;
     Reportes: undefined;
     RegistroEntrada: undefined;
@@ -39,7 +37,6 @@ const App = () => {
                 <Stack.Screen name="ChangePassword" component={ChangePassword} options={{ headerShown: false }} />
                 <Stack.Screen name="Usuarios" component={Usuarios} options={{ headerShown: false }} />
                 <Stack.Screen name="InfoVehiculos" component={InfoVehiculos} options={{ headerShown: false }} />
-                <Stack.Screen name="CrearUsuario" component={CrearUsuario} options={{ headerShown: false }} />
                 <Stack.Screen name="EditarPerfil" component={EditarPerfil} options={{ headerShown: false }} />
                 <Stack.Screen name="Reportes" component={Reportes} options={{ headerShown: false }} />
                 <Stack.Screen name="RegistroEntrada" component={RegistroEntrada} options={{ headerShown: false }} />
