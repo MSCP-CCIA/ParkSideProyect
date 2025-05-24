@@ -11,6 +11,7 @@ import InfoVehiculos from "@/app/(tabs)/InfoVehiculos";
 import Parqueadero from "@/app/(tabs)/Parqueadero";
 import Tarifas from "@/app/(tabs)/Tarifas";
 import CrearTarifas from "@/app/(tabs)/CrearTarifas";
+import { WebSocketAlertProvider } from '@/context/WebSocketAlertContext';
 
 type RootStackParamList = {
     Login: undefined;
@@ -24,14 +25,13 @@ type RootStackParamList = {
     Parqueadero: undefined;
     Tarifas: undefined;
     CrearTarifas: undefined;
-
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 const App = () => {
     return (
-
+        <WebSocketAlertProvider>
             <Stack.Navigator>
                 <Stack.Screen name="Login" component={Login} options={{ headerShown: false }} />
                 <Stack.Screen name="ChangePassword" component={ChangePassword} options={{ headerShown: false }} />
@@ -44,9 +44,8 @@ const App = () => {
                 <Stack.Screen name="Parqueadero" component={Parqueadero} options={{ headerShown: false }} />
                 <Stack.Screen name="Tarifas" component={Tarifas} options={{ headerShown: false }} />
                 <Stack.Screen name="CrearTarifas" component={CrearTarifas} options={{ headerShown: false }} />
-
-
             </Stack.Navigator>
+        </WebSocketAlertProvider>
     );
 };
 

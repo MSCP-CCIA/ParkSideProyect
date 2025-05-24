@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
     View,
     Text,
@@ -6,11 +6,11 @@ import {
     TextInput,
     TouchableOpacity,
     ScrollView,
-    Alert,
 } from 'react-native';
 import DashboardLayout from '../layouts/DashboardLayout';
 import ReusableTable from '../../components/common/ReusableTable';
 import RefreshButton from '../../components/common/RefreshButton';
+import CustomAlert from '../../components/common/CustomAlert';
 
 const headers = [
     { label: 'Número de Documento', key: 'numeroDocumento' },
@@ -45,12 +45,18 @@ const usuarios = [
 ];
 
 const Usuarios = () => {
-    const handleToggleState = (nombre: string) => {
-        Alert.alert(
-            'Cambio de estado',
-            `Se ha activado o desactivado el usuario ${nombre}.`,
-            [{ text: 'Aceptar' }]
-        );
+    const [alertVisible, setAlertVisible] = useState(false);
+    const [alertMessage, setAlertMessage] = useState('');
+
+    const showAlert = (message: string) => {
+        setAlertMessage(message);
+        setAlertVisible(true);
+    };
+
+    const handleToggleState = (nombre: string, estado: string) => {
+        const nuevoEstado = estado === 'Activo' ? 'desactivado' : 'activado';
+        showAlert(`Usuario ${nombre} ha sido ${nuevoEstado}.`);
+        // Espacio para la lógica real para cambiar el estado
     };
 
     const handleSearch = () => {
@@ -76,7 +82,7 @@ const Usuarios = () => {
                     renderActions={(row, index) => (
                         <TouchableOpacity
                             style={styles.actionButton}
-                            onPress={() => handleToggleState(row.nombre)}
+                            onPress={() => handleToggleState(row.nombre, row.estado)}
                         >
                             <Text style={styles.actionButtonText}>Activar / Desactivar</Text>
                         </TouchableOpacity>
@@ -84,6 +90,12 @@ const Usuarios = () => {
                     noDataText="No hay usuarios registrados."
                 />
             </ScrollView>
+
+            <CustomAlert
+                message={alertMessage}
+                visible={alertVisible}
+                onHide={() => setAlertVisible(false)}
+            />
         </DashboardLayout>
     );
 };
