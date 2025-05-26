@@ -1,21 +1,16 @@
 from datetime import datetime, timedelta, timezone
-<<<<<<< HEAD
 from typing import Any, Optional
 from cryptography.fernet import Fernet, InvalidToken
 from fastapi import HTTPException
-=======
 from typing import Any
->>>>>>> ba56bcba978a675c0aa481e3ab595d112aa240ac
 from passlib.context import CryptContext
 from app.core.config import settings
 import jwt
 import hashlib
 from cryptography.fernet import Fernet, InvalidToken
-<<<<<<< HEAD
 import os
 from jose import JWTError, jwt
-=======
->>>>>>> ba56bcba978a675c0aa481e3ab595d112aa240ac
+
 
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
