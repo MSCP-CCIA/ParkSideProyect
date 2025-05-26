@@ -1,12 +1,21 @@
 from datetime import datetime, timedelta, timezone
-from typing import Any
+<<<<<<< HEAD
+from typing import Any, Optional
 from cryptography.fernet import Fernet, InvalidToken
+from fastapi import HTTPException
+=======
+from typing import Any
+>>>>>>> ba56bcba978a675c0aa481e3ab595d112aa240ac
 from passlib.context import CryptContext
 from app.core.config import settings
 import jwt
 import hashlib
 from cryptography.fernet import Fernet, InvalidToken
+<<<<<<< HEAD
 import os
+from jose import JWTError, jwt
+=======
+>>>>>>> ba56bcba978a675c0aa481e3ab595d112aa240ac
 
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -16,11 +25,21 @@ ALGORITHM = "HS256"
 fernet = Fernet(settings.SECRET_KEYF.encode())
 
 
-def create_access_token(subject: str | Any, expires_delta: timedelta) -> str:
-    expire = datetime.now(timezone.utc) + expires_delta
-    to_encode = {"exp": expire, "sub": str(subject)}
-    encoded_jwt = jwt.encode(to_encode, settings.SECRET_KEY, algorithm=ALGORITHM)
-    return encoded_jwt
+def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
+    to_encode = data.copy()
+    expire = datetime.utcnow() + (expires_delta or timedelta(minutes=15))
+    to_encode.update({"exp": expire})
+    return jwt.encode(to_encode, settings.SECRET_KEY, algorithm=ALGORITHM)
+
+def decode_token(token: str):
+    try:
+        payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[ALGORITHM])
+        username: str = payload.get("sub")
+        if not username:
+            raise HTTPException(status_code=401, detail="Invalid token")
+        return username
+    except JWTError:
+        raise HTTPException(status_code=401, detail="Invalid token")
 
 
 def verify_hash(plain_txt: str, hashed_txt: str) -> bool:
