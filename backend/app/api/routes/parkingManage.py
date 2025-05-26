@@ -4,6 +4,7 @@ from app.api.deps import SessionDep
 
 router = APIRouter(prefix="/parking", tags=["parkingManage"])
 
+# ------------------------- Employee Actions ------------------------- #
 
 @router.post("/get-parking", response_model=SearchParkingResponse)
 def get_vehicle(session: SessionDep, json: SearchParkingRequest) -> SearchParkingResponse:

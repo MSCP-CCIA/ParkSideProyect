@@ -5,6 +5,7 @@ from app.api.deps import SessionDep
 
 router = APIRouter(prefix="/vehicle", tags=["vehicleRegistration"])
 
+# ------------------------- Customer Actions ------------------------- #
 
 @router.post("/register-vehicle/", response_model=Message)
 def register_vehicle(session: SessionDep, json: CreateVehicleRequest) -> Message:
@@ -18,7 +19,7 @@ def register_vehicle(session: SessionDep, json: CreateVehicleRequest) -> Message
         )
 
 
-@router.post("/get-vehicle-{plate}", response_model=SearchCustomerVehicleResponse)
+@router.post("/get-vehicle", response_model=SearchCustomerVehicleResponse)
 def get_vehicle(session: SessionDep, json: SearchCustomerVehicleRequest) -> SearchCustomerVehicleResponse:
     try:
         vehicle = get_customer_vehicle(session=session, json=json)
@@ -58,23 +59,12 @@ def get_vehicles(session: SessionDep, json: SearchCustomerVehiclesRequest) -> Se
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error inesperado al buscar los vehículos: {str(e)}"
+            detail=f"Error inesperado al buscar los vehículos"
         )
 
 
-@router.post("/get-all-customers-vehicles", response_model=SearchAllCustomersVehiclesResponse)
-def get_customer_vehicles(session: SessionDep, json: SearchAllCustomersVehiclesRequest) -> SearchAllCustomersVehiclesResponse:
-    try:
-        return get_all_customer_vehicles(session=session, json=json)
-    except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error inesperado al buscar los vehículos: {str(e)}"
-        )
-
-
-@router.delete("/delete-vehicle-{plate}", response_model=Message)
-def delete_vehicle(session: SessionDep, json: DeleteVehicleRequest):
+@router.delete("/delete-vehicle", response_model=Message)
+def delete_vehicle(session: SessionDep, json: DeleteVehicleRequest) -> Message:
     try:
         if delete_customer_vehicle(session=session, json=json):
             return Message(message="Vehiculo eliminado correctamente")
@@ -83,4 +73,49 @@ def delete_vehicle(session: SessionDep, json: DeleteVehicleRequest):
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Vehículo no encontrado"
+        )
+
+# ------------------------- Employee Actions ------------------------- #
+
+@router.post("/get-all-customers-vehicles", response_model=SearchAllCustomerVehiclesResponse)
+def get_all_customer_vehicles(session: SessionDep, json: SearchAllCustomerVehiclesRequest) -> SearchAllCustomerVehiclesResponse:
+    try:
+        return get_all_customer_vehicles_crud(session=session, json=json)
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error inesperado al buscar los vehículos para este cliente"
+        )
+
+
+@router.post("/get-vehicle-by-plate-entry", response_model=SearchRegistrationByPlateResponse)
+def get_vehicle_by_plate_entry(session: SessionDep, json: SearchRegistrationByPlateRequest) -> SearchRegistrationByPlateResponse:
+    try:
+        return get_registrations_by_plate_entry_crud(session=session, json=json)
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error inesperado al buscar el vehículo"
+        )
+
+"""
+@router.post("/get-vehicle-by-plate-exit", response_model=SearchRegistrationByPlateResponse)
+def get_vehicle_by_plate_entry(session: SessionDep, json: SearchRegistrationByPlateRequest) -> SearchRegistrationByPlateResponse:
+    try:
+        return get_registrations_by_plate_exit_crud(session=session, json=json)
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error inesperado al buscar el vehículo: {str(e)}"
+        )
+"""
+
+@router.post("/get-occupation-report", response_model=SearchOccupationReportResponse)
+def get_occupation_report(session: SessionDep, json: SearchOccupationReportRequest) -> SearchOccupationReportResponse:
+    try:
+        return get_occupation_report_crud(session=session, json=json)
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error inesperado al obtener el reporte"
         )

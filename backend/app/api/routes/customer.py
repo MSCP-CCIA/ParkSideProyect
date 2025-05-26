@@ -1,13 +1,14 @@
 from datetime import timedelta
-from fastapi import APIRouter, Depends, HTTPException
-from app.api.deps import CurrentUser, SessionDep, get_current_active_superuser
+from fastapi import APIRouter
+from app.api.deps import SessionDep
 from app.core.config import settings
-from app.schemas.login import Message, NewPassword, Token
+from app.schemas.login import Message
 from app.crud.customerCrud import *
 from app.core.security import create_access_token
 
 router = APIRouter(prefix="/customer", tags=["customer"])
 
+# ------------------------- Customer Actions ------------------------- #
 
 @router.post("/register/", response_model=Message)
 def register(session: SessionDep, json: CreateCustomerRequest1) -> Message:
@@ -58,33 +59,6 @@ def get_info(session: SessionDep, json: SearchMyInformationRequest) -> SearchMyI
         )
 
 
-@router.post("/get-all/", response_model=SearchCustomersResponse)
-def get_all(session: SessionDep, json: SearchCustomersRequest) -> SearchCustomersResponse:
-    try:
-        customers = get_all_customers(session=session, json=json)
-        if not customers:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="No se encontraron registros en la base de datos"
-            )
-        customers_response = [
-            SearchCustomers(
-                id=customer.id,
-                full_name=customer.full_name,
-                #
-                email=customer.email,
-                is_active=customer.is_active
-            )
-            for customer in customers
-        ]
-        return SearchCustomersResponse(customers=customers_response)
-    except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error inesperado al buscar los usuarios: {str(e)}"
-        )
-
-
 @router.post("/update-customer/", response_model=Message)
 def update_customer(session: SessionDep, json: UpdateCustomerRequest) -> Message:
     try:
@@ -95,6 +69,33 @@ def update_customer(session: SessionDep, json: UpdateCustomerRequest) -> Message
             status_code=400,
             detail="Error inesperado al actualizar el usuario"
         )
+
+
+# ------------------------- Employee Actions ------------------------- #
+
+
+@router.post("/get-customer-by-id/", response_model=SearchCustomersResponse)
+def get_customer_by_id(session: SessionDep, json: SearchCustomerByIdRequest) -> SearchCustomersResponse:
+    try:
+        customer = get_customer_by_id_crud(session=session, json=json)
+        if not customer:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="No se encontraron registros en la base de datos"
+            )
+        return SearchCustomersResponse(
+            id=customer.id,
+            full_name=customer.full_name,
+            #
+            email=customer.email,
+            is_active=customer.is_active
+        )
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error inesperado al buscar los usuarios: {str(e)}"
+        )
+
 
 @router.post("/update-customer-state/", response_model=Message)
 def update_customer_state(session: SessionDep, json: UpdateCustomerStateRequest) -> Message:

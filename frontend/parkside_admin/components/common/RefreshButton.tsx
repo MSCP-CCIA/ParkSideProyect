@@ -8,7 +8,7 @@ interface RefreshButtonProps {
 const RefreshButton: React.FC<RefreshButtonProps> = ({ onPress }) => {
     return (
         <TouchableOpacity style={styles.button} onPress={onPress}>
-            <Text style={styles.text}>REFRESCAR</Text>
+            <Text style={styles.text}>BUSCAR</Text>
         </TouchableOpacity>
     );
 };

@@ -3,6 +3,7 @@ from sqlmodel import Session, select
 from app.models.card import *
 from app.api.deps import transform_card_create_model, transform_card_update_model
 
+# ------------------------- Customer Actions ------------------------- #
 
 def create_card(*, session: Session, json: CreateCardRequest1) -> Card:
     try:

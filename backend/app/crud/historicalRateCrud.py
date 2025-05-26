@@ -1,14 +1,17 @@
 from fastapi import HTTPException, status
-from sqlmodel import Session, select
+from sqlmodel import Session, select, desc
 from app.models.historicalRate import *
+from app.api.deps import get_parking_employee
 
+# ------------------------- Employee Actions ------------------------- #
 
 def create_rate(*, session: Session, json: CreateHistoricalRateRequest) -> HistoricalRate:
     try:
+        parking_id = get_parking_employee(session=session, employee_id=json.employee_id)
         statement = select(HistoricalRate).where(
-            (HistoricalRate.parking_id == json.parking_id) &
-            (HistoricalRate.end_date.is_(None))
-        ).order_by(HistoricalRate.start_date.desc())
+            (HistoricalRate.parking_id == parking_id) &
+            (HistoricalRate.end_date == None)
+        ).order_by(desc(HistoricalRate.start_date))
 
         previous_rate = session.exec(statement).first()
         if previous_rate:
@@ -21,7 +24,14 @@ def create_rate(*, session: Session, json: CreateHistoricalRateRequest) -> Histo
                     detail="La fecha de las nuevas tarifas debe ser mayor a la fecha de inicio de las últimas tarifas."
                 )
 
-        db_obj = HistoricalRate.model_validate(json)
+        db_obj = HistoricalRate.model_validate(
+            CreateHistoricalRate(
+                car_rate=json.car_rate,
+                motorbike_rate=json.motorbike_rate,
+                start_date=json.start_date,
+                parking_id=parking_id
+            )
+        )
         session.add(db_obj)
         session.commit()
         session.refresh(db_obj)
@@ -38,14 +48,15 @@ def create_rate(*, session: Session, json: CreateHistoricalRateRequest) -> Histo
 
 def get_historical_rate_per_date(*, session: Session, json: SearchHistoricalRateRequest) -> HistoricalRate:
     try:
+        parking_id = get_parking_employee(session=session, employee_id=json.employee_id)
         statement = select(HistoricalRate).where(
-            (HistoricalRate.parking_id == json.parking_id) & (HistoricalRate.start_date == json.start_date)
+            (HistoricalRate.parking_id == parking_id) & (HistoricalRate.start_date == json.start_date)
         )
         historicalRate = session.exec(statement).first()
         if not historicalRate:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
-                detail="Vehículo no encontrado"
+                detail="Tarifa histórica no encontrada"
             )
         return historicalRate
     except HTTPException:
@@ -53,13 +64,16 @@ def get_historical_rate_per_date(*, session: Session, json: SearchHistoricalRate
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error al obtener el vehículo: {str(e)}"
+            detail=f"Error al obtener la tafifa histórica: {str(e)}"
         )
 
 
 def get_historical_rates(*, session: Session, json: SearchHistoricalRatesRequest) -> List[HistoricalRate]:
     try:
-        statement = select(HistoricalRate).where(HistoricalRate.parking_id == json.parking_id)
+        parking_id = get_parking_employee(session=session, employee_id=json.employee_id)
+        statement = (select(HistoricalRate)
+                     .where(HistoricalRate.parking_id == parking_id)
+                     .order_by(desc(HistoricalRate.start_date)))
         historicalRates = session.exec(statement).all()
         if not historicalRates:
             raise HTTPException(

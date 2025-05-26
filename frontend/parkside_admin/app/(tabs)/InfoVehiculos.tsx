@@ -1,25 +1,59 @@
-import React from 'react';
-import { View, Text, StyleSheet, TextInput, ScrollView } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import {
+    View,
+    Text,
+    StyleSheet,
+    TextInput,
+    ScrollView,
+    Alert,
+} from 'react-native';
 import DashboardLayout from '../layouts/DashboardLayout';
 import ReusableTable from '../../components/common/ReusableTable';
 import RefreshButton from '../../components/common/RefreshButton';
+import { SearchAllCustomerVehicles } from '../../Models/vehicleModels';
+import { getAllCustomerVehicles } from '../../api/getAllCustomerVehicles';
 
 const headers = [
-    { label: 'Número de Documento', key: 'numeroDocumento' },
-    { label: 'Nombre', key: 'nombre' },
-    { label: 'Tipo Vehículo', key: 'tipoVehiculo' },
-    { label: 'Correo', key: 'correo' },
-    { label: 'Placa', key: 'placa' },
-];
-
-const data = [
-    { numeroDocumento: '1054785687', nombre: 'Juan Valdés', tipoVehiculo: 'Carro', correo: 'juan@gmail.com', placa: 'INL065' },
-    { numeroDocumento: '518386954', nombre: 'Manuel Castro', tipoVehiculo: 'Moto', correo: 'manuC@outlook.com', placa: 'AGB56D' },
-    { numeroDocumento: '1000041257', nombre: 'Andres Hurtado', tipoVehiculo: 'Carro', correo: 'andy@usa.edu.co', placa: 'KQZ459' },
-    { numeroDocumento: '1054785687', nombre: 'Juan Valdés', tipoVehiculo: 'Moto', correo: 'juan@gmail.com', placa: 'EZP46E' },
+    { label: 'Número de Documento', key: 'customer_id' },
+    { label: 'Nombre', key: 'full_name' },
+    { label: 'Tipo Vehículo', key: 'vehicle_type' },
+    { label: 'Correo', key: 'email' },
+    { label: 'Placa', key: 'plate' },
 ];
 
 const InfoVehiculos = () => {
+    const [vehicles, setVehicles] = useState<SearchAllCustomerVehicles[]>([]);
+    const [loading, setLoading] = useState(false);
+
+    const fetchVehicles = async () => {
+        setLoading(true);
+        try {
+            const response = await getAllCustomerVehicles({
+                employee_id: 1,
+                customer_id: 1,
+            });
+            setVehicles(response.vehicles);
+        } catch (error) {
+            console.error('Error al obtener vehículos:', error);
+            Alert.alert('Error', 'No se pudo obtener la información de los vehículos.');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchVehicles();
+    }, []);
+
+    const mappedData = vehicles.map((v) => ({
+        numeroDocumento: String(v.customer_id),
+        nombre: v.full_name,
+        tipoVehiculo: v.vehicle_type,
+        correo: v.email,
+        placa: v.plate,
+    }));
+
+
     return (
         <DashboardLayout>
             <ScrollView>
@@ -27,21 +61,22 @@ const InfoVehiculos = () => {
 
                 <View style={styles.searchContainer}>
                     <TextInput
-                        placeholder="Buscar por Número de Documento, Nombre, Placa o tipo de vehículo"
+                        placeholder="Buscar por Número de Documento"
                         style={styles.searchInput}
                     />
-                    <RefreshButton onPress={() => console.log('Refrescar datos')} />
+                    <RefreshButton onPress={fetchVehicles} />
                 </View>
 
                 <ReusableTable
                     headers={headers}
-                    data={data}
-                    noDataText="No hay información de vehículos."
+                    data={mappedData}
+                    noDataText={loading ? 'Cargando información...' : 'No hay información de vehículos.'}
                 />
             </ScrollView>
         </DashboardLayout>
     );
 };
+
 
 const styles = StyleSheet.create({
     title: {
