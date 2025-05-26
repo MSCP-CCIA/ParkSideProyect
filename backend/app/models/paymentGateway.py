@@ -7,11 +7,11 @@ if TYPE_CHECKING:
 
 
 class PaymentGateway(SQLModel, table=True):
-    token: Optional[int] = Field(default=None, primary_key=True)
+    token: Optional[str] = Field(default=None, primary_key=True)
     pan: int
     cvc: int
     exp_month: int
     exp_year: int
     card_owner_name: str
 
-    cards: "Card" = Relationship(back_populates="payment_gateway")
+    card: "Card" = Relationship(back_populates="payment_gateway")

@@ -17,7 +17,7 @@ class Card(SQLModel, table=True):
     token: str = Field(foreign_key="payment_gateway.token")
 
     customer: "Customer" = Relationship(back_populates="cards")
-    paymentGateway: "PaymentGateway" = Relationship(back_populates="card")
+    payment_gateway: "PaymentGateway" = Relationship(back_populates="card")
 
 
 # Register a new card
