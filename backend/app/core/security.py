@@ -11,6 +11,8 @@ from cryptography.fernet import Fernet, InvalidToken
 import os
 from jose import JWTError, jwt
 
+
+
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 ALGORITHM = "HS256"
