@@ -5,6 +5,7 @@ from app.api.deps import transform_customer_hash_password
 from app.models.customer import *
 from app.api.deps import get_parking_employee
 
+# ------------------------- Customer Actions ------------------------- #
 
 def create_user(*, session: Session, json: CreateCustomerRequest1) -> Customer:
     try:
@@ -17,10 +18,8 @@ def create_user(*, session: Session, json: CreateCustomerRequest1) -> Customer:
         session.refresh(db_obj)
         return db_obj
     except HTTPException as e:
-        print("xd")
         raise
     except Exception as e:
-        print("xd2")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Error al crear el usuario: {str(e)}"
@@ -73,12 +72,13 @@ def authenticate_customer(*, session: Session, json: SearchCustomerRequest) -> C
         return None
     return customer
 
+# ------------------------- Employee Actions ------------------------- #
 
-def get_all_customers(*, session: Session, json: SearchCustomersRequest) -> List[Customer]:
+def get_customer_by_id_crud(*, session: Session, json: SearchCustomerByIdRequest) -> Customer:
     try:
         parking_id = get_parking_employee(session=session, employee_id=json.employee_id)
-        statement = select(Customer).where(Customer.parking_id == parking_id)
-        customers = session.exec(statement).all()
+        statement = select(Customer).where((Customer.id == json.customer_id) & (Customer.parking_id == parking_id))
+        customers = session.exec(statement).first()
         if not customers:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,

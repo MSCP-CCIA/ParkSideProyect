@@ -22,9 +22,10 @@ const Reportes = () => {
     const ocupacionHeaders = [
         { label: 'Placa del Vehículo', key: 'placa' },
         { label: 'Usuario', key: 'usuario' },
-        { label: 'Fecha', key: 'fecha' },
-        { label: 'Total Horas', key: 'horas' },
-        { label: 'Estado', key: 'estado' },
+        { label: 'FechaEntrada', key: 'fechaEntrada' },
+        { label: 'FechaSalida', key: 'fechaSalida' },
+        { label: 'HoraEntrada', key: 'horaEntrada' },
+        { label: 'HoraSalida', key: 'horaSalida' },
     ];
 
     const pagosData = [
@@ -34,9 +35,9 @@ const Reportes = () => {
     ];
 
     const ocupacionData = [
-        { placa: 'INL073', usuario: 'Juan Valdés', fecha: '7/02/2025', horas: '7', estado: 'Estacionado' },
-        { placa: 'ABC85D', usuario: 'Manuel Castro', fecha: '4/03/2025', horas: '4', estado: 'No registra' },
-        { placa: 'KQZ65E', usuario: 'Andres Hurtado', fecha: '18/03/2025', horas: '2', estado: 'No registra' },
+        { placa: 'INL073', usuario: 'Juan Valdés', fechaEntrada: '7/02/2025', horaEntrada: '7:26 AM', fechaSalida: '7/02/2025',  horaSalida: '2:22 PM' },
+        { placa: 'ABC85D', usuario: 'Manuel Castro', fechaEntrada: '4/03/2025', horaEntrada: '10:15 PM', fechaSalida: '5/03/2025',  horaSalida: '6:16 AM' },
+        { placa: 'KQZ65E', usuario: 'Andres Hurtado', fechaEntrada: '18/03/2025', horaEntrada: '9:42 AM', fechaSalida: '18/03/2025',  horaSalida: '8:40 AM' },
     ];
 
     const handleRefresh = () => {
@@ -67,8 +68,8 @@ const Reportes = () => {
                         <TextInput
                             placeholder={
                                 selectedReport === 'Reporte de pagos'
-                                    ? 'Buscar por Número de Documento, Nombre, Fecha'
-                                    : 'Buscar por Placa del Vehículo, Nombre, Fecha'
+                                    ? 'Buscar por Número de Documento'
+                                    : 'Buscar por Placa del Vehículo'
                             }
                             value={searchText}
                             onChangeText={setSearchText}

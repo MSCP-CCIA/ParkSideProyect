@@ -5,6 +5,7 @@ from app.api.deps import SessionDep
 
 router = APIRouter(prefix="/historicalRate", tags=["historicalRate"])
 
+# ------------------------- Employee Actions ------------------------- #
 
 @router.post("/register-rate/", response_model=Message)
 def register_rate(session: SessionDep, json: CreateHistoricalRateRequest) -> Message:
@@ -18,7 +19,7 @@ def register_rate(session: SessionDep, json: CreateHistoricalRateRequest) -> Mes
         )
 
 
-@router.post("/{date}", response_model=SearchHistoricalRateResponse)
+@router.post("/get-rate-{date}", response_model=SearchHistoricalRateResponse)
 def get_rate(session: SessionDep, json: SearchHistoricalRateRequest) -> SearchHistoricalRateResponse:
     try:
         historicalRate = get_historical_rate_per_date(session=session, json=json)
@@ -40,7 +41,7 @@ def get_rate(session: SessionDep, json: SearchHistoricalRateRequest) -> SearchHi
         )
 
 
-@router.post("", response_model=SearchHistoricalRatesResponse)
+@router.post("/get-all", response_model=SearchHistoricalRatesResponse)
 def get_rates(session: SessionDep, json: SearchHistoricalRatesRequest) -> SearchHistoricalRatesResponse:
     try:
         historicalRates = get_historical_rates(session=session, json=json)

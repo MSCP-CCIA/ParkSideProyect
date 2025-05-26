@@ -19,6 +19,10 @@ class Parking(SQLModel, table=True):
     customers: List["Customer"] = Relationship(back_populates="parking")
     employees: List["Employee"] = Relationship(back_populates="parking")
 
+# ------------------------- Employee Actions ------------------------- #
+
+# Search the parking of the Employee
+
 class SearchParkingRequest(BaseModel):
     employee_id: int
 

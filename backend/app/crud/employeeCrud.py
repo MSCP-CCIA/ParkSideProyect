@@ -3,6 +3,7 @@ from fastapi import HTTPException, status
 from app.models.employee import *
 from app.core.security import hash_password
 
+# ------------------------- Employee Actions ------------------------- #
 
 def get_employee_by_email(*, session: Session, email: str) -> Employee | None:
     statement = select(Employee).where(Employee.email == email)

@@ -1,7 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, TextInput, ScrollView } from 'react-native';
 import DashboardLayout from '../layouts/DashboardLayout';
-import RefreshButton from '../../components/common/RefreshButton';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import ReusableTable from '../../components/common/ReusableTable';
@@ -31,14 +30,6 @@ const Tarifas = () => {
         <DashboardLayout>
             <ScrollView>
                 <Text style={styles.title}>Tarifas</Text>
-
-                <View style={styles.searchContainer}>
-                    <TextInput
-                        placeholder="Buscar por Fecha de inicio o Fecha Fin"
-                        style={styles.searchInput}
-                    />
-                    <RefreshButton onPress={() => console.log('Refrescar tarifas')} />
-                </View>
 
                 <ReusableTable
                     headers={headers}

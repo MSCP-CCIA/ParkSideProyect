@@ -1,9 +1,11 @@
 from fastapi import HTTPException, status
-from sqlmodel import Session, select
+from sqlmodel import Session, select, desc
 from app.models.parkingRegistration import *
 from app.models.vehicle import Vehicle
 
-def get_customer_vehicle(*, session: Session, json: EntryVehicleRequest) -> Vehicle:
+# ------------------------- ML and Employee Actions ------------------------- #
+
+def get_customer_vehicle(*, session: Session, json: EntryOrUpdateVehicleRequest) -> Vehicle:
     try:
         statement = select(Vehicle).where(
             (Vehicle.plate == json.plate)
@@ -23,21 +25,26 @@ def get_customer_vehicle(*, session: Session, json: EntryVehicleRequest) -> Vehi
             detail=f"Error al obtener el vehículo: {str(e)}"
         )
 
-def create_parking_registration(*, session: Session, json: EntryVehicleRequest) -> ParkingRegistration:
+def create_parking_registration(*, session: Session, json: EntryOrUpdateVehicleRequest) -> ParkingRegistration | None:
     try:
-        entry_datetime=datetime.utcnow()
-        register = EntryVehicle(
-            entry_datetime=entry_datetime,
-            exit_datetime=entry_datetime,
-            plate=json.plate
-        )
-        db_obj = ParkingRegistration.model_validate(
-            register
-        )
-        session.add(db_obj)
-        session.commit()
-        session.refresh(db_obj)
-        return db_obj
+        statement = (select(ParkingRegistration)
+                     .where((Vehicle.plate == json.plate))
+                     .order_by(desc(ParkingRegistration.entry_datetime)))
+        parkingRegistration = session.exec(statement).first()
+        if not parkingRegistration or parkingRegistration.exit_datetime is not None:
+            register = EntryVehicle(
+                entry_datetime=datetime.now(),
+                exit_datetime=None,
+                plate=json.plate
+            )
+            db_obj = ParkingRegistration.model_validate(
+                register
+            )
+            session.add(db_obj)
+            session.commit()
+            session.refresh(db_obj)
+            return db_obj
+        return None
     except HTTPException as e:
         raise
     except Exception as e:
@@ -46,11 +53,11 @@ def create_parking_registration(*, session: Session, json: EntryVehicleRequest) 
             detail=f"Error al crear el registro de parqueo: {str(e)}"
         )
 
-def update_parking_registration(*, session: Session, json: EntryVehicleRequest) -> ParkingRegistration:
+def update_parking_registration(*, session: Session, json: EntryOrUpdateVehicleRequest) -> ParkingRegistration:
     try:
         statement = select(ParkingRegistration).where(
             (ParkingRegistration.plate == json.plate) &
-            (ParkingRegistration.entry_datetime == ParkingRegistration.exit_datetime)  # Aún no ha salido
+            (ParkingRegistration.exit_datetime == None)  # Aún no ha salido
         ).order_by(ParkingRegistration.entry_datetime.desc())
         parking_registration = session.exec(statement).first()
         if not parking_registration:
@@ -58,7 +65,7 @@ def update_parking_registration(*, session: Session, json: EntryVehicleRequest) 
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="Registro de parqueo no encontrado o ya cerrado"
             )
-        parking_registration.exit_datetime = datetime.utcnow()
+        parking_registration.exit_datetime = datetime.now()
 
         session.add(parking_registration)
         session.commit()
