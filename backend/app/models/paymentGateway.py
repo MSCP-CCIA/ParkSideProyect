@@ -19,4 +19,3 @@ class PaymentGateway(SQLModel, table=True):
     # «Una pasarela tiene muchas tarjetas»
     cards: List["Card"] = Relationship(back_populates="payment_gateway")
 
-PaymentGateway.update_forward_refs()

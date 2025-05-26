@@ -82,6 +82,3 @@ class DeleteCardRequest(BaseModel):
     card_number_hash: str
     customer_id: int
 
-
-
-Card.update_forward_refs()
