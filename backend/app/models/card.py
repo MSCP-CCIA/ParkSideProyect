@@ -10,14 +10,18 @@ if TYPE_CHECKING:
 
 
 class Card(SQLModel, table=True):
+    __tablename__ = "card"
+
     id: Optional[int] = Field(default=None, primary_key=True)
     card_type: str
     last_four_digits: int
+    # foreign keys
     customer_id: int = Field(foreign_key="customer.id")
     token: str = Field(foreign_key="payment_gateway.token")
 
+    # relaciones
     customer: "Customer" = Relationship(back_populates="cards")
-    paymentGateway: "PaymentGateway" = Relationship(back_populates="card")
+    payment_gateway: "PaymentGateway" = Relationship(back_populates="cards")
 
 
 # Register a new card
@@ -77,3 +81,7 @@ class SearchCardsResponse(BaseModel):
 class DeleteCardRequest(BaseModel):
     card_number_hash: str
     customer_id: int
+
+
+
+Card.update_forward_refs()

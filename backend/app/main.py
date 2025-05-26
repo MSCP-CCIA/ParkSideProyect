@@ -4,6 +4,10 @@ from fastapi.routing import APIRoute
 from starlette.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import JSONResponse
+import app.models.paymentGateway
+import app.models.card
+import app.models.customer
+
 import os
 os.chdir("app/core")
 from app.api.main import api_router

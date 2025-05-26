@@ -35,7 +35,7 @@ def login_customer(session: SessionDep, json: SearchCustomerRequest) -> SearchCu
             status_code=400,
             detail="Inactive user"
         )
-    access_token = create_access_token(subject=customer.id, expires_delta=timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES))
+    access_token = create_access_token(data={"sub": str(customer.id)},expires_delta=timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES))
     return SearchCustomerResponse(
         id=customer.id,
         token=access_token
