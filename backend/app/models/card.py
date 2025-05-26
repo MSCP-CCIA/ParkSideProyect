@@ -6,20 +6,19 @@ from sqlmodel import Field, Relationship, SQLModel
 
 if TYPE_CHECKING:
     from app.models.customer import Customer
+    from app.models.paymentGateway import PaymentGateway
 
 
 class Card(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
-    card_number_hash: str
-    full_name_customer: str
-    cvc_code_hash: str
-    expiration_date: date
     card_type: str
+    last_four_digits: int
     customer_id: int = Field(foreign_key="customer.id")
+    token: str = Field(foreign_key="payment_gateway.token")
 
     customer: "Customer" = Relationship(back_populates="cards")
+    paymentGateway: "PaymentGateway" = Relationship(back_populates="card")
 
-# ------------------------- Customer Actions ------------------------- #
 
 # Register a new card
 

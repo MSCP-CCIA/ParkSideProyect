@@ -11,9 +11,9 @@ if TYPE_CHECKING:
 # Modelo de base de datos
 class Customer(SQLModel, table=True):
     id: int = Field(sa_column=Column(BigInteger, primary_key=True))
-    #
     full_name: str = Field(index=True)
     email: str = Field(index=True)
+    document_type: str
     password_hash: str
     is_active: bool = Field(default=True)
     parking_id: int = Field(foreign_key="parking.id")
