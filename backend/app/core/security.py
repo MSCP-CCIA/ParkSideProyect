@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta, timezone
 from typing import Any
-from cryptography.fernet import Fernet, InvalidToken
+from typing import Tuple
 from passlib.context import CryptContext
 from app.core.config import settings
 import jwt
@@ -12,6 +12,7 @@ import os
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 ALGORITHM = "HS256"
+
 
 fernet = Fernet(settings.SECRET_KEYF.encode())
 
@@ -47,36 +48,41 @@ def decrypt_value(value: str) -> str:
     except InvalidToken:
         raise ValueError("El valor no pudo ser descifrado: token inválido.")
 
-"""
-# ================= Clave Fernet =================
-#   - Debe ser una cadena Base64 de 32 bytes.
-#   - Genera una sola vez: Fernet.generate_key().decode()
-FERNET_KEY = os.environ["SECRET_KEYF"]
-fernet = Fernet(FERNET_KEY.encode())
+
 
 # ============== Funciones de tarjeta ============
 
-def encrypt_cardf(pan: str) -> str:
-    Devuelve un token con formato:
-        <first4>:<ciphertext>:<last4>
-    first4 = pan[:4]
-    last4  = pan[-4:]
-    ciphertext_b64 = fernet.encrypt(pan.encode()).decode()
-    return f"{first4}:{ciphertext_b64}:{last4}"
+# ---------- ENCRIPTAR ----------
+def encrypt_card(pan: str) -> str:
+    """
+    Cifra todo el PAN y devuelve solo el token Fernet (string base64).
+    """
+    return fernet.encrypt(pan.encode()).decode()
 
-def decrypt_cardf(token: str) -> str:
-    Recibe el string devuelto por encrypt_card y
-    devuelve el PAN en texto claro.
+
+# ---------- DESENCRIPTAR ----------
+def decrypt_card(token: str) -> Tuple[str, str]:
+    """
+    Devuelve (pan_completo, primeros4+ultimos4).
+    Soporta tokens nuevos (solo Fernet) y tokens legados first:cipher:last.
+    """
+    # Detectar formato
+    if token.count(":") == 2:                # legado
+        first4, cipher_b64, last4 = token.split(":")
+    else:                                    # nuevo
+        cipher_b64 = token
+        first4 = last4 = None
+
+    # Desencriptar
     try:
-        first4, ciphertext_b64, last4 = token.split(":")
-    except ValueError:
-        raise ValueError("Token malformado")
+        pan = fernet.decrypt(cipher_b64.encode()).decode()
+    except InvalidToken:
+        raise InvalidToken("Token Fernet inválido")
 
-    pan = fernet.decrypt(ciphertext_b64.encode()).decode()
+    # Verificar coherencia si venía first/last
+    if first4 and last4 and not (pan.startswith(first4) and pan.endswith(last4)):
+        raise InvalidToken("Incongruencia dígitos visibles")
 
-    # Defensa extra: comprobar coherencia
-    if not (pan.startswith(first4) and pan.endswith(last4)):
-        raise InvalidToken("Incongruencia en los dígitos visibles")
-
-    return pan
-"""
+    # Generar string con primeros4+ultimos4
+    visible = f"{pan[:4]}{pan[-4:]}"
+    return pan, visible
