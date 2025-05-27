@@ -14,6 +14,7 @@ from sqlmodel import Session, select, desc
 from app.core import security
 from app.core.config import settings
 from app.core.db import engine
+from app.models.paymentGateway import PaymentGateway
 from app.models.card import CreateCardRequest1, CreateOrUpdateCardRequest, UpdateCardRequest
 from app.models.customer import CreateCustomerRequest1, CreateCustomerRequest2, Customer as User
 from app.models.parkingRegistration import ParkingRegistration
@@ -24,12 +25,14 @@ from app.schemas.token import TokenPayload
 # --- Nuestras tablas ---
 from app.models.employee import Employee as EmployeeModel
 
+
 # -------------------------------------------------------------------
 # 1) Dependencia genérica de DB
 # -------------------------------------------------------------------
 def get_db() -> Generator[Session, None, None]:
     with Session(engine) as session:
         yield session
+
 
 SessionDep = Annotated[Session, Depends(get_db)]
 
@@ -58,6 +61,7 @@ def get_current_user(session: SessionDep, token: TokenDep) -> User:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Inactive user")
     return user
 
+
 CurrentUser = Annotated[User, Depends(get_current_user)]
 
 
@@ -69,6 +73,7 @@ def get_current_active_superuser(current_user: CurrentUser) -> User:
         )
     return current_user
 
+
 # -------------------------------------------------------------------
 # 3) OAuth2 y dependencias para Employee (Admin)
 # -------------------------------------------------------------------
@@ -79,8 +84,8 @@ EmployeeTokenDep = Annotated[str, Depends(reusable_oauth2_employee)]
 
 
 def get_current_employee(
-    session: SessionDep,
-    token: EmployeeTokenDep
+        session: SessionDep,
+        token: EmployeeTokenDep
 ) -> EmployeeModel:
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
@@ -103,11 +108,12 @@ def get_current_employee(
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Inactive employee")
     return emp
 
+
 CurrentEmployee = Annotated[EmployeeModel, Depends(get_current_employee)]
 
 
 def get_current_active_employee_superuser(
-    current_employee: CurrentEmployee,
+        current_employee: CurrentEmployee,
 ) -> EmployeeModel:
     # Ajusta esta validación según cómo señales privilegios en Employee
     if current_employee.job_position.lower() not in ["administrador", "admin", "superuser"]:
@@ -117,7 +123,9 @@ def get_current_active_employee_superuser(
         )
     return current_employee
 
+
 SuperuserEmployee = Annotated[EmployeeModel, Depends(get_current_active_employee_superuser)]
+
 
 def get_parking_employee(session: Session, employee_id: int) -> int:
     employee = session.exec(select(Employee).where(Employee.id == employee_id)).first()
@@ -128,9 +136,22 @@ def get_parking_employee(session: Session, employee_id: int) -> int:
         )
     return employee.parking_id
 
+
 # -------------------------------------------------------------------
 # 4) Transformadores / helpers existentes
 # -------------------------------------------------------------------
+
+def transform_paymentwateway_create_model(json: CreateCardRequest1) -> PaymentGateway:
+    return PaymentGateway(
+        token=security.generate_token_paymentgateway(),
+        pan=json.card_number,
+        cvc=json.cvc,
+        exp_month=json.month,
+        exp_year=json.year,
+        card_owner_name=json.full_name_customer
+    )
+
+
 def transform_card_create_model(json: CreateCardRequest1) -> CreateOrUpdateCardRequest:
     return CreateOrUpdateCardRequest(
         card_number_hash=security.hash_card_number(str(json.card_number)),
@@ -141,6 +162,7 @@ def transform_card_create_model(json: CreateCardRequest1) -> CreateOrUpdateCardR
         customer_id=json.customer_id
     )
 
+
 def transform_card_update_model(json: UpdateCardRequest) -> CreateOrUpdateCardRequest:
     return CreateOrUpdateCardRequest(
         card_number_hash=json.card_number_hash,
@@ -150,6 +172,7 @@ def transform_card_update_model(json: UpdateCardRequest) -> CreateOrUpdateCardRe
         card_type=json.card_type,
         customer_id=json.customer_id
     )
+
 
 def transform_customer_hash_password(json: CreateCustomerRequest1) -> CreateCustomerRequest2:
     return CreateCustomerRequest2(

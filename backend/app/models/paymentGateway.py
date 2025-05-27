@@ -1,4 +1,5 @@
 from typing import TYPE_CHECKING, Optional, List
+from sqlalchemy import BigInteger, Column
 
 from sqlmodel import Field, Relationship, SQLModel
 
@@ -7,15 +8,17 @@ if TYPE_CHECKING:
 
 
 class PaymentGateway(SQLModel, table=True):
-    __tablename__ = "payment_gateway"
+    __tablename__ = "paymentgateway"
 
     token: Optional[str] = Field(default=None, primary_key=True)
-    pan: int
+    pan: int = Field(
+        sa_column=Column(BigInteger)
+    )
     cvc: int
     exp_month: int
     exp_year: int
     card_owner_name: str
 
     # «Una pasarela tiene muchas tarjetas»
-    cards: List["Card"] = Relationship(back_populates="payment_gateway")
+    cards: Optional["Card"] = Relationship(back_populates="paymentgateway")
 

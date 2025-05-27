@@ -17,11 +17,11 @@ class Card(SQLModel, table=True):
     last_four_digits: int
     # foreign keys
     customer_id: int = Field(foreign_key="customer.id")
-    token: str = Field(foreign_key="payment_gateway.token")
+    token: str = Field(foreign_key="paymentgateway.token")
 
     # relaciones
     customer: "Customer" = Relationship(back_populates="cards")
-    payment_gateway: "PaymentGateway" = Relationship(back_populates="cards")
+    paymentgateway: "PaymentGateway" = Relationship(back_populates="cards")
 
 
 # Register a new card

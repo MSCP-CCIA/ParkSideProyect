@@ -1,9 +1,30 @@
 from fastapi import HTTPException, status
 from sqlmodel import Session, select
 from app.models.card import *
-from app.api.deps import transform_card_create_model, transform_card_update_model
+from app.models.paymentGateway import *
+from app.api.deps import transform_card_create_model, transform_card_update_model, transform_paymentwateway_create_model
+
 
 # ------------------------- Customer Actions ------------------------- #
+
+def create_paymentgateway(*, session: Session, json: CreateCardRequest1) -> PaymentGateway:
+    try:
+        json = transform_paymentwateway_create_model(json)
+        db_obj = PaymentGateway.model_validate(json)
+        session.add(db_obj)
+        session.commit()
+        session.refresh(db_obj)
+        return db_obj
+    except HTTPException:
+        # Propaga si ya era un HTTPException válido
+        raise
+    except Exception as e:
+        # Ahora sí construyes bien la excepción HTTP:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"No se pudo crear PaymentGateway: {e}"
+        )
+
 
 def create_card(*, session: Session, json: CreateCardRequest1) -> Card:
     try:

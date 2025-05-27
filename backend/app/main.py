@@ -45,7 +45,8 @@ async def verify_token_middleware(request: Request, call_next):
         "/redoc",
         f"{settings.API_V1_STR}/token",
         f"{settings.API_V1_STR}/customer/register/",
-        f"{settings.API_V1_STR}/customer/login/"
+        f"{settings.API_V1_STR}/customer/login/",
+        f"{settings.API_V1_STR}/cards/register-card/"
 
         # Asumiendo que esta es tu ruta de login/obtención de token
     ]

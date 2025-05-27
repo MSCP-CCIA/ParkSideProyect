@@ -10,6 +10,7 @@ import hashlib
 from cryptography.fernet import Fernet, InvalidToken
 import os
 from jose import JWTError, jwt
+import secrets
 
 
 
@@ -19,6 +20,14 @@ ALGORITHM = "HS256"
 
 fernet = Fernet(settings.SECRET_KEYF.encode())
 
+def generate_token_paymentgateway() -> str:
+    """
+    Genera un token único de 32 bytes (URL-safe) para usar
+    como identificador en la base de datos. Altamente improbable
+    que se repita gracias a la entropía de 256 bits.
+    """
+    # token_urlsafe(n) devuelve un string base64-url de n bytes de entropía
+    return secrets.token_urlsafe(32)
 
 def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
     to_encode = data.copy()
