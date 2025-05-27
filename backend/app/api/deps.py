@@ -16,7 +16,7 @@ from app.core.config import settings
 from app.core.db import engine
 from app.models.paymentGateway import PaymentGateway
 from app.models.card import CreateCardRequest, CreateOrUpdateCardRequest, UpdateCardRequest
-from app.models.customer import CreateCustomerRequest, CreateCustomerRequest2, Customer as User
+from app.models.customer import CreateCustomerRequest, Customer
 from app.models.parkingRegistration import ParkingRegistration
 from app.models.payment import Payment
 from app.models.employee import Employee
@@ -45,7 +45,7 @@ reusable_oauth2 = OAuth2PasswordBearer(
 TokenDep = Annotated[str, Depends(reusable_oauth2)]
 
 
-def get_current_user(session: SessionDep, token: TokenDep) -> User:
+def get_current_customer(session: SessionDep, token: TokenDep) -> Customer:
     try:
         payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[security.ALGORITHM])
         token_data = TokenPayload(**payload)
@@ -54,18 +54,18 @@ def get_current_user(session: SessionDep, token: TokenDep) -> User:
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Could not validate credentials",
         )
-    user = session.get(User, token_data.sub)
-    if not user:
+    customer = session.get(Customer, token_data.sub)
+    if not customer:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
-    if not user.is_active:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Inactive user")
-    return user
+    if not customer.is_active:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Inactive customer")
+    return customer
 
 
-CurrentUser = Annotated[User, Depends(get_current_user)]
+CurrentCustomer = Annotated[Customer, Depends(get_current_customer)]
 
 
-def get_current_active_superuser(current_user: CurrentUser) -> User:
+def get_current_active_superuser(current_user: CurrentCustomer) -> Customer:
     if not current_user.is_superuser:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
@@ -174,12 +174,14 @@ def transform_card_update_model(json: UpdateCardRequest) -> CreateOrUpdateCardRe
     )
 
 
-def transform_customer_hash_password(json: CreateCustomerRequest) -> CreateCustomerRequest2:
-    return CreateCustomerRequest2(
-        id=json.id,
-        full_name=json.full_name,
-        email=json.email,
-        password_hash=security.hash_password(json.password),
-        is_active=json.is_active,
-        parking_id=json.parking_id
-    )
+def transform_customer_create_model(json: CreateCustomerRequest) -> dict:
+    print(json.parking_id)
+    return {
+        "id": json.id,
+        "full_name": json.full_name,
+        "email": json.email,
+        "document_type": json.document_type,
+        "password_hash": security.hash_password(json.password),
+        "is_active": json.is_active,
+        "parking_id": json.parking_id
+    }

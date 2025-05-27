@@ -1,7 +1,7 @@
 from fastapi import HTTPException, status
 from sqlmodel import Session, select
 from app.core.security import hash_password
-from app.api.deps import transform_customer_hash_password
+from app.api.deps import transform_customer_create_model
 from app.models.customer import *
 from app.api.deps import get_parking_employee
 
@@ -9,10 +9,8 @@ from app.api.deps import get_parking_employee
 
 def create_user(*, session: Session, json: CreateCustomerRequest) -> Customer:
     try:
-        json = transform_customer_hash_password(json)
-        db_obj = Customer.model_validate(
-            json
-        )
+        json = transform_customer_create_model(json)
+        db_obj = Customer.model_validate(json)
         session.add(db_obj)
         session.commit()
         session.refresh(db_obj)

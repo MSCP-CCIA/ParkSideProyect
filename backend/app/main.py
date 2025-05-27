@@ -48,7 +48,9 @@ async def verify_token_middleware(request: Request, call_next):
         f"{settings.API_V1_STR}/token",
         f"{settings.API_V1_STR}/customer/register/",
         f"{settings.API_V1_STR}/customer/login/",
-        f"{settings.API_V1_STR}/cards/register-card/"
+        # Modelos para probar (borrar)
+        f"{settings.API_V1_STR}/cards/register-card/",
+        f"{settings.API_V1_STR}/customer/get-customer-by-id/",
     ]
 
     if request.url.path in excluded_paths or request.url.path.startswith("/static"):

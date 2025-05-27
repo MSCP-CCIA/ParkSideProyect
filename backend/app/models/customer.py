@@ -18,7 +18,7 @@ class Customer(SQLModel, table=True):
     is_active: bool = Field(default=True)
     parking_id: int = Field(foreign_key="parking.id")
 
-    parking: Optional["Parking"] = Relationship(back_populates="customers")
+    parking: "Parking" = Relationship(back_populates="customers")
     cards: List["Card"] = Relationship(back_populates="customer")
     vehicles: List["Vehicle"] = Relationship(back_populates="customer")
 
@@ -74,8 +74,8 @@ class SearchCustomerByIdRequest(BaseModel):
 class SearchCustomersResponse(BaseModel):
     id: int
     full_name: str
-    document_type: str
     email: str
+    document_type: str
     is_active: bool
 
 # Update Customer State

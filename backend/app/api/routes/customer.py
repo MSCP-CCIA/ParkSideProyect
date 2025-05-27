@@ -35,7 +35,10 @@ def login_customer(session: SessionDep, json: SearchCustomerRequest) -> SearchCu
             status_code=400,
             detail="Inactive user"
         )
-    access_token = create_access_token(data={"sub": str(customer.id)},expires_delta=timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES))
+    access_token = create_access_token(
+        data={"sub": str(customer.id)},
+        expires_delta=timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+    )
     return SearchCustomerResponse(
         id=customer.id,
         token=access_token
@@ -86,8 +89,8 @@ def get_customer_by_id(session: SessionDep, json: SearchCustomerByIdRequest) -> 
         return SearchCustomersResponse(
             id=customer.id,
             full_name=customer.full_name,
-            #
             email=customer.email,
+            document_type=customer.document_type,
             is_active=customer.is_active
         )
     except Exception as e:
