@@ -1,5 +1,6 @@
 from datetime import date
 from typing import TYPE_CHECKING, Optional, List
+from sqlalchemy import Column, Integer, BigInteger
 
 from pydantic import BaseModel
 from sqlmodel import Field, Relationship, SQLModel
@@ -12,7 +13,9 @@ if TYPE_CHECKING:
 class Card(SQLModel, table=True):
     __tablename__ = "card"
 
-    id: Optional[int] = Field(default=None, primary_key=True)
+    id: Optional[int] = Field(
+        sa_column=Column("id", BigInteger, primary_key=True, autoincrement=False)
+    )
     card_type: str
     last_four_digits: int
     # foreign keys
