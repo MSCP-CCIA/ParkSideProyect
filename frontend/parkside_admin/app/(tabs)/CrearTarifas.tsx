@@ -1,9 +1,18 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Alert } from 'react-native';
+import {
+    View,
+    Text,
+    StyleSheet,
+    TouchableOpacity,
+    ScrollView,
+    Alert,
+} from 'react-native';
 import DashboardLayout from '../layouts/DashboardLayout';
 import ValidatedTextInput from '../../components/common/ValidatedTextInput';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { createTarifa } from '../../api/createTarifa';
+import { CreateHistoricalRateRequest } from '../../Models/tarifaModels';
 
 const CrearTarifas = () => {
     const navigation = useNavigation<NativeStackNavigationProp<any>>();
@@ -72,12 +81,30 @@ const CrearTarifas = () => {
         return isValid;
     };
 
-    const handleCreate = () => {
+    const handleCreate = async () => {
         setForceValidate(true);
 
-        if (validateForm()) {
+        if (!validateForm()) return;
+
+        const formattedDate = (() => {
+            const [mm, dd, yyyy] = fechaInicio.split('/');
+            return `${yyyy}-${mm}-${dd}`;
+        })();
+
+        const payload: CreateHistoricalRateRequest = {
+            employee_id: 1,
+            car_rate: parseInt(precioCarro),
+            motorbike_rate: parseInt(precioMoto),
+            start_date: formattedDate,
+        };
+
+        try {
+            await createTarifa(payload);
             Alert.alert('Éxito', 'Tarifa creada exitosamente.');
             navigation.navigate('Tarifas');
+        } catch (error) {
+            console.error('Error al crear la tarifa:', error);
+            Alert.alert('Error', 'No se pudo crear la tarifa. Intenta nuevamente.');
         }
     };
 

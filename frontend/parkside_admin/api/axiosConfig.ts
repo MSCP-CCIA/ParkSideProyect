@@ -2,7 +2,7 @@ import axios, { AxiosInstance, InternalAxiosRequestConfig, AxiosResponse, AxiosE
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
-const baseURL= '';
+const baseURL= 'http://127.0.0.1:8000';
 
 const api: AxiosInstance = axios.create({
     baseURL,
@@ -12,7 +12,7 @@ const api: AxiosInstance = axios.create({
     },
 });
 
-api.interceptors.request.use(
+/*api.interceptors.request.use(
     async (config: InternalAxiosRequestConfig): Promise<InternalAxiosRequestConfig> => {
         try {
             const token = await AsyncStorage.getItem('authToken');
@@ -45,6 +45,6 @@ api.interceptors.response.use(
         }
         return Promise.reject(error);
     }
-);
+); */
 
 export default api;

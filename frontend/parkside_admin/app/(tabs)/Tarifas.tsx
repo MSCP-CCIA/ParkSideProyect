@@ -1,26 +1,56 @@
-import React from 'react';
-import { View, Text, StyleSheet, TextInput, ScrollView } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import {
+    View,
+    Text,
+    StyleSheet,
+    TextInput,
+    ScrollView,
+    Alert,
+    TouchableOpacity,
+} from 'react-native';
 import DashboardLayout from '../layouts/DashboardLayout';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import ReusableTable from '../../components/common/ReusableTable';
-import { TouchableOpacity } from 'react-native';
+import { getTarifas } from '../../api/getTarifas';
+import { SearchHistoricalRateResponse } from '../../Models/tarifaModels';
+
+const headers = [
+    { label: 'Precio Carro', key: 'precioCarro' },
+    { label: 'Precio Moto', key: 'precioMoto' },
+    { label: 'Fecha Inicio', key: 'fechaInicio' },
+    { label: 'Fecha Fin', key: 'fechaFin' },
+];
 
 const Tarifas = () => {
     const navigation = useNavigation<NativeStackNavigationProp<any>>();
+    const [tarifas, setTarifas] = useState<any[]>([]);
+    const [loading, setLoading] = useState(false);
 
-    const headers = [
-        { label: 'Precio Carro', key: 'precioCarro' },
-        { label: 'Precio Moto', key: 'precioMoto' },
-        { label: 'Fecha Inicio', key: 'fechaInicio' },
-        { label: 'Fecha Fin', key: 'fechaFin' },
-    ];
+    const fetchTarifas = async () => {
+        setLoading(true);
+        try {
+            const response = await getTarifas({ employee_id: 1 });
 
-    const tarifas = [
-        { precioCarro: '12.000 $', precioMoto: '10.000 $', fechaInicio: '23/03/2025', fechaFin: '31/03/2025' },
-        { precioCarro: '10.000 $', precioMoto: '8.000 $', fechaInicio: '01/04/2025', fechaFin: '15/04/2025' },
-        { precioCarro: '12.000 $', precioMoto: '10.000 $', fechaInicio: '20/04/2025', fechaFin: '02/04/2025' },
-    ];
+            const mapped = response.historicalRates.map((item: SearchHistoricalRateResponse) => ({
+                precioCarro: `$${item.car_rate.toLocaleString()}`,
+                precioMoto: `$${item.motorbike_rate.toLocaleString()}`,
+                fechaInicio: new Date(item.start_date).toLocaleDateString(),
+                fechaFin: item.end_date ? new Date(item.end_date).toLocaleDateString() : 'Actual',
+            }));
+
+            setTarifas(mapped);
+        } catch (error) {
+            console.error('Error al obtener tarifas:', error);
+            Alert.alert('Error', 'No se pudieron cargar las tarifas.');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchTarifas();
+    }, []);
 
     const handleCreateTarifa = () => {
         navigation.navigate('CrearTarifas');
@@ -34,7 +64,7 @@ const Tarifas = () => {
                 <ReusableTable
                     headers={headers}
                     data={tarifas}
-                    noDataText="No hay tarifas registradas."
+                    noDataText={loading ? 'Cargando tarifas...' : 'No hay tarifas registradas.'}
                 />
 
                 <TouchableOpacity style={styles.createButton} onPress={handleCreateTarifa}>

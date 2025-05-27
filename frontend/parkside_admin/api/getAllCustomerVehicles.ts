@@ -8,7 +8,7 @@ export const getAllCustomerVehicles = async (
     data: SearchAllCustomerVehiclesRequest
 ): Promise<SearchAllCustomerVehiclesResponse> => {
     const response = await api.post<SearchAllCustomerVehiclesResponse>(
-        '/vehicle/get-all-customers-vehicles',
+        '/api/v1/vehicle/get-all-customers-vehicles',
         data
     );
     return response.data;
