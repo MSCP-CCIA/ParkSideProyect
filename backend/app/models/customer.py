@@ -11,14 +11,14 @@ if TYPE_CHECKING:
 # Modelo de base de datos
 class Customer(SQLModel, table=True):
     id: int = Field(sa_column=Column(BigInteger, primary_key=True))
-    #
     full_name: str = Field(index=True)
     email: str = Field(index=True)
+    document_type: str
     password_hash: str
     is_active: bool = Field(default=True)
     parking_id: int = Field(foreign_key="parking.id")
 
-    parking: Optional["Parking"] = Relationship(back_populates="customers")
+    parking: "Parking" = Relationship(back_populates="customers")
     cards: List["Card"] = Relationship(back_populates="customer")
     vehicles: List["Vehicle"] = Relationship(back_populates="customer")
 
@@ -26,21 +26,12 @@ class Customer(SQLModel, table=True):
 
 # Create Customer
 
-class CreateCustomerRequest1(BaseModel):
+class CreateCustomerRequest(BaseModel):
     id: int
-    #
     full_name: str
     email: str
+    document_type: str
     password: str
-    is_active: bool = True
-    parking_id: int = 1
-
-class CreateCustomerRequest2(BaseModel):
-    id: int
-    #
-    full_name: str
-    email: str
-    password_hash: str
     is_active: bool = True
     parking_id: int = 1
 
@@ -68,9 +59,9 @@ class SearchMyInformationRequest(BaseModel):
 
 class SearchMyInformationResponse(BaseModel):
     id: int
+    document_type: str
     full_name: str
     email: str
-    password_hash: str
 
 # ------------------------- Employee Actions ------------------------- #
 
@@ -83,8 +74,8 @@ class SearchCustomerByIdRequest(BaseModel):
 class SearchCustomersResponse(BaseModel):
     id: int
     full_name: str
-    #
     email: str
+    document_type: str
     is_active: bool
 
 # Update Customer State

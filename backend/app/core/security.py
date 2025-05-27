@@ -1,10 +1,18 @@
 from datetime import datetime, timedelta, timezone
+from typing import Any, Optional, Dict
+from cryptography.fernet import Fernet, InvalidToken
+from fastapi import HTTPException
 from typing import Any
 from passlib.context import CryptContext
 from app.core.config import settings
 import jwt
 import hashlib
 from cryptography.fernet import Fernet, InvalidToken
+import os
+from jose import JWTError, jwt
+import secrets
+from datetime import datetime, timedelta, UTC
+
 
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -13,12 +21,33 @@ ALGORITHM = "HS256"
 
 fernet = Fernet(settings.SECRET_KEYF.encode())
 
+def generate_token_paymentgateway() -> str:
+    """
+    Genera un token único de 32 bytes (URL-safe) para usar
+    como identificador en la base de datos. Altamente improbable
+    que se repita gracias a la entropía de 256 bits.
+    """
+    # token_urlsafe(n) devuelve un string base64-url de n bytes de entropía
+    return secrets.token_urlsafe(32)
 
-def create_access_token(subject: str | Any, expires_delta: timedelta) -> str:
-    expire = datetime.now(timezone.utc) + expires_delta
-    to_encode = {"exp": expire, "sub": str(subject)}
-    encoded_jwt = jwt.encode(to_encode, settings.SECRET_KEY, algorithm=ALGORITHM)
-    return encoded_jwt
+# Crear token JWT
+
+
+def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
+    to_encode = data.copy()
+    expire = datetime.now(UTC) + (expires_delta or timedelta(minutes=15))
+    to_encode.update({"exp": expire})
+    return jwt.encode(to_encode, settings.SECRET_KEY, algorithm=ALGORITHM)
+
+# Decodificar token JWT
+def decode_token(token: str) -> Dict:
+    try:
+        payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[ALGORITHM])
+        if not payload:
+            raise HTTPException(status_code=401, detail="Invalid token payload")
+        return payload
+    except JWTError:
+        raise HTTPException(status_code=401, detail="Invalid token")
 
 
 def verify_hash(plain_txt: str, hashed_txt: str) -> bool:

@@ -1,18 +1,6 @@
 version: "3.8"
 
 services:
-  parkside-db:
-    image: khael618/docker-parkside-db:latest
-    container_name: parkside-db
-    ports:
-      - "5432:5432"
-    environment:
-      - POSTGRES_USER=${POSTGRES_USER}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-      - POSTGRES_DB=${POSTGRES_DB}
-    volumes:
-      - db_data:/var/lib/postgresql/data
-
   backend:
     build:
       context: .
@@ -22,8 +10,6 @@ services:
       - .env
     environment:
       - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@parkside-db:5432/${POSTGRES_DB}
-    depends_on:
-      - parkside-db
     ports:
       - "8000:8000"
 

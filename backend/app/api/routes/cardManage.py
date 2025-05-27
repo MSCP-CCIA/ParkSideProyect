@@ -1,4 +1,4 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException, status
 from app.models.message import Message
 from app.crud.cardCrud import *
 from app.api.deps import SessionDep
@@ -8,16 +8,19 @@ router = APIRouter(prefix="/cards", tags=["cards"])
 # ------------------------- Customer Actions ------------------------- #
 
 @router.post("/register-card/", response_model=Message)
-def register_card(session: SessionDep, json: CreateCardRequest1) -> Message:
+def register_card(session: SessionDep, json: CreateCardRequest) -> Message:
     try:
-        create_card(session=session, json=json)
+        create_paymentgateway(session=session, json=json)
         return Message(message="Registro de tarjeta exitoso")
+    except HTTPException:
+        # si create_paymentgateway ya lanzó un HTTPException con su propio detail, lo propagamos
+        raise
     except Exception as e:
+        #detail con el mensaje real
         raise HTTPException(
-            status_code=400,
-            detail="Error inesperado al registrar la tarjeta"
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e)
         )
-
 
 @router.post("/get-card", response_model=SearchCardResponse)
 def get_card(session: SessionDep, json: SearchCardRequest) -> SearchCardResponse:

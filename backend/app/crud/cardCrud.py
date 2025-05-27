@@ -1,11 +1,53 @@
 from fastapi import HTTPException, status
 from sqlmodel import Session, select
 from app.models.card import *
-from app.api.deps import transform_card_create_model, transform_card_update_model
+from app.models.paymentGateway import *
+from app.api.deps import transform_card_create_model, transform_card_update_model, transform_paymentwateway_create_model
+
 
 # ------------------------- Customer Actions ------------------------- #
 
-def create_card(*, session: Session, json: CreateCardRequest1) -> Card:
+def create_paymentgateway(
+    *, session: Session, json: CreateCardRequest
+) -> PaymentGateway:
+    try:
+
+        pg_dict = transform_paymentwateway_create_model(json)
+        pg_obj = PaymentGateway.model_validate(pg_dict)
+        session.add(pg_obj)
+        session.commit()
+        session.refresh(pg_obj)
+
+        # Generar id de Card a partir de customer_id + últimos 4 dígitos
+        last_four_str = str(json.card_number)[-4:].zfill(4)
+        card_id = int(f"{json.customer_id}{last_four_str}")
+
+        card_dict = {
+            "id":               card_id,
+            "customer_id":      json.customer_id,
+            "token":            pg_obj.token,
+            "card_type":        json.card_type,
+            "last_four_digits": int(last_four_str),
+        }
+
+        card_obj = Card.model_validate(card_dict)
+        session.add(card_obj)
+        session.commit()
+        session.refresh(card_obj)
+
+        return pg_obj
+
+    except HTTPException:
+        session.rollback()
+        raise
+    except Exception as e:
+        session.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"No se pudo completar el registro de pasarela + tarjeta: {e}"
+        )
+
+def create_card(*, session: Session, json: CreateCardRequest) -> Card:
     try:
         json = transform_card_create_model(json)
         db_obj = Card.model_validate(

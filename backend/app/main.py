@@ -1,13 +1,18 @@
 import sentry_sdk
-from fastapi import FastAPI
+from fastapi import FastAPI, status,  Request
 from fastapi.routing import APIRoute
 from starlette.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
+from fastapi.responses import JSONResponse
+import app.models.paymentGateway
+import app.models.card
+import app.models.customer
 
 import os
 os.chdir("app/core")
 from app.api.main import api_router
 from app.core.config import settings
+from app.core.security import *
 
 def custom_generate_unique_id(route: APIRoute) -> str:
     return f"{route.tags[0]}-{route.name}"
@@ -28,5 +33,49 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+from fastapi import Request, status
+from fastapi.responses import JSONResponse
+from starlette.middleware.base import BaseHTTPMiddleware
+
+
+@app.middleware("http")
+async def verify_token_middleware(request: Request, call_next):
+    excluded_paths = [
+        "/docs",
+        f"{settings.API_V1_STR}/openapi.json",
+        "/redoc",
+        f"{settings.API_V1_STR}/token",
+        f"{settings.API_V1_STR}/customer/register/",
+        f"{settings.API_V1_STR}/customer/login/",
+        # Modelos para probar (borrar)
+        f"{settings.API_V1_STR}/cards/register-card/",
+    ]
+
+    if request.url.path in excluded_paths or request.url.path.startswith("/static"):
+        return await call_next(request)
+
+    auth_header = request.headers.get("Authorization")
+    if not auth_header or not auth_header.startswith("Bearer "):
+        return JSONResponse(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            content={"detail": "Authorization header missing or invalid"},
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+    token = auth_header.split(" ")[1]
+    try:
+        decoded_payload = decode_token(token)
+        request.state.user = decoded_payload  # ← Aquí guardamos el usuario
+    except HTTPException as e:
+        return JSONResponse(status_code=e.status_code, content={"detail": e.detail}, headers=e.headers)
+    except Exception as e:
+        return JSONResponse(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            content={"detail": f"Internal server error: {e}"}
+        )
+
+    return await call_next(request)
+
 
 app.include_router(api_router, prefix=settings.API_V1_STR)

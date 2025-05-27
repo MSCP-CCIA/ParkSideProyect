@@ -1,0 +1,9 @@
+POST http://127.0.0.1:8000/api/v1/vehicle/get-vehicle
+Accept: application/json
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMDAwMDAwMDAxIiwiZXhwIjoxNzQ5MDQ0OTkyfQ.sFcCepcuiw6itP62p9Fz6xArpIlV_6QuNqfcx8JBx7M
+
+{
+  "plate": "ABC001",
+  "customer_id": 1000000001
+}
