@@ -33,12 +33,14 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-# AÑADE TU MIDDLEWARE DE VERIFICACIÓN DE TOKEN AQUÍ
+
+from fastapi import Request, status
+from fastapi.responses import JSONResponse
+from starlette.middleware.base import BaseHTTPMiddleware
+
+
 @app.middleware("http")
 async def verify_token_middleware(request: Request, call_next):
-    # Rutas excluidas de la verificación de token
-    # Puedes usar settings.API_V1_STR para hacer estas rutas más dinámicas
-    # Por ejemplo, para /api/v1/docs, sería f"{settings.API_V1_STR}/docs"
     excluded_paths = [
         "/docs",
         f"{settings.API_V1_STR}/openapi.json",
@@ -47,11 +49,8 @@ async def verify_token_middleware(request: Request, call_next):
         f"{settings.API_V1_STR}/customer/register/",
         f"{settings.API_V1_STR}/customer/login/",
         f"{settings.API_V1_STR}/cards/register-card/"
-
-        # Asumiendo que esta es tu ruta de login/obtención de token
     ]
 
-    # Verifica si la ruta actual está en las excluidas o comienza con /static
     if request.url.path in excluded_paths or request.url.path.startswith("/static"):
         return await call_next(request)
 
@@ -65,16 +64,17 @@ async def verify_token_middleware(request: Request, call_next):
 
     token = auth_header.split(" ")[1]
     try:
-        # Aquí es donde se llama a tu función de decodificación
         decoded_payload = decode_token(token)
-        # Opcional: Puedes adjuntar el payload decodificado al objeto request si lo necesitas en los endpoints
-        # request.state.user = decoded_payload
-    except HTTPException as e: # Captura las HTTPException lanzadas por decode_token
+        request.state.user = decoded_payload  # ← Aquí guardamos el usuario
+    except HTTPException as e:
         return JSONResponse(status_code=e.status_code, content={"detail": e.detail}, headers=e.headers)
-    except Exception as e: # Captura cualquier otra excepción inesperada
-        return JSONResponse(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, content={"detail": f"Internal server error: {e}"})
-
+    except Exception as e:
+        return JSONResponse(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            content={"detail": f"Internal server error: {e}"}
+        )
 
     return await call_next(request)
+
 
 app.include_router(api_router, prefix=settings.API_V1_STR)
