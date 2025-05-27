@@ -21,6 +21,7 @@ def register_vehicle(session: SessionDep, json: CreateVehicleRequest) -> Message
 
 @router.post("/get-vehicle", response_model=SearchCustomerVehicleResponse)
 def get_vehicle(session: SessionDep, json: SearchCustomerVehicleRequest) -> SearchCustomerVehicleResponse:
+    print(json)
     try:
         vehicle = get_customer_vehicle(session=session, json=json)
         if not vehicle:

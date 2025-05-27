@@ -23,6 +23,7 @@ const Login: FC<LoginProps> = ({ navigation }) => {
     };
 
     const handleLogin = () => {
+
         let isValid = true;
 
         if (!email) {
