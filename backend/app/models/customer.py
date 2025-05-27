@@ -59,9 +59,9 @@ class SearchMyInformationRequest(BaseModel):
 
 class SearchMyInformationResponse(BaseModel):
     id: int
+    document_type: str
     full_name: str
     email: str
-    password_hash: str
 
 # ------------------------- Employee Actions ------------------------- #
 

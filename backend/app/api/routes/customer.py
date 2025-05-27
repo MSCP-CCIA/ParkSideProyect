@@ -51,14 +51,14 @@ def get_info(session: SessionDep, json: SearchMyInformationRequest) -> SearchMyI
         customer = get_customer_by_id(session=session, json=json)
         return SearchMyInformationResponse(
             id=customer.id,
+            document_type=customer.document_type,
             full_name=customer.full_name,
-            email=customer.email,
-            password_hash=customer.password_hash
+            email=customer.email
         )
     except Exception as e:
         raise HTTPException(
             status_code=400,
-            detail="Error inesperado al registrar el usuario"
+            detail="Error inesperado al traer la información el usuario"
         )
 
 
@@ -78,7 +78,7 @@ def update_customer(session: SessionDep, json: UpdateCustomerRequest) -> Message
 
 
 @router.post("/get-customer-by-id/", response_model=SearchCustomersResponse)
-def get_customer_by_id(session: SessionDep, json: SearchCustomerByIdRequest) -> SearchCustomersResponse:
+def get_customer_by_id_employee(session: SessionDep, json: SearchCustomerByIdRequest) -> SearchCustomersResponse:
     try:
         customer = get_customer_by_id_crud(session=session, json=json)
         if not customer:
