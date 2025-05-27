@@ -1,4 +1,3 @@
-from ultralytics import YOLO
 import os
 from ultralytics import YOLO
 

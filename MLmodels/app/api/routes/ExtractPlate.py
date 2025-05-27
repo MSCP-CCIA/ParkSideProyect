@@ -1,9 +1,11 @@
 from fastapi import APIRouter, FastAPI, UploadFile, File, HTTPException
-from app.Inference.ocr_processor import Service
+from MLmodels.Inference.ocr_processor import Service
 import httpx
 import shutil
 import os
-from backend.app.models.message import Message
+from MLmodels.Utils.message import Message
+from MLmodels.app.websocket.connection_manager import manager
+
 
 router = APIRouter()
 
@@ -33,6 +35,7 @@ async def extract_plate(file: UploadFile = File(...),)-> Message:
                 )
             return Message(message="Placa enviada exitosamente")
         else:
+            await manager.send_alert("Placa no reconocida. Operador requerido")
             raise HTTPException(status_code=422, detail="No se pudo reconocer la placa")
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

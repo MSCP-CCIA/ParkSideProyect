@@ -5,6 +5,7 @@ FROM python:3.11-slim
 RUN apt-get update && apt-get install -y \
     build-essential \
     libgl1 \
+    libglib2.0-0 \
     git \
     curl \
   && rm -rf /var/lib/apt/lists/*
@@ -24,11 +25,6 @@ COPY MLmodels/pyproject.toml MLmodels/poetry.lock ./
 RUN poetry config virtualenvs.create false \
  && poetry install --no-root --no-interaction --no-ansi
 
-# 6) Instala OpenCV headless y EasyOCR
-RUN pip install --no-cache-dir \
-    opencv-python-headless \
-    easyocr
-
 # 3) Necesitas OpenCV
 RUN pip install --no-cache-dir opencv-python-headless
 
@@ -37,6 +33,10 @@ COPY MLmodels/app ./app
 
 # 6) copia también la carpeta Inference dentro de `app`
 COPY MLmodels/Inference ./app/Inference
+
+COPY MLmodels/Utils ./app/Utils
+
+COPY MLmodels/Models ./app/Models
 
 EXPOSE 8001
 

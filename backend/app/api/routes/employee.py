@@ -23,7 +23,9 @@ def login_employee(session: SessionDep, json: SearchEmployeeRequest) -> SearchEm
             status_code=400,
             detail="Inactive user"
         )
-    access_token = create_access_token(subject=employee.id, expires_delta=timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES))
+    access_token = create_access_token(
+        data={"sub": str(employee.id)},
+        expires_delta=timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES))
     return SearchEmployeeResponse(
         id=employee.id,
         token=access_token
