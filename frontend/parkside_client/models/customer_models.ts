@@ -1,11 +1,11 @@
 export interface CreateCustomerRequest {
   id: number;
-  fullName: string;
+  full_name: string;
   email: string;
-  documentType: string;
+  document_type: string;
   password: string;
-  isActive: boolean;
-  parkingId: number;
+  is_active: boolean;
+  parking_id: number;
 }
 
 export interface UpdateCustomerRequest {
