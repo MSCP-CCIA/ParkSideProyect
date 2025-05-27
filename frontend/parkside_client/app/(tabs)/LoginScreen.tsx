@@ -6,13 +6,9 @@ import AuthTitle from '../../components/auth/AuthTitle';
 import InputField from '../../components/common/InputField';
 import Button from '../../components/common/Button';
 import LinkText from '../../components/common/LinkText';
-import axios, { AxiosResponse } from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
-interface LoginResponse {
-  id: number;
-  token: string;
-}
+import {SearchCustomerRequest, SearchCustomerResponse} from '../../models/customer_models';
+import {loginCustomer} from '../../api/loginApi'
 
 interface LoginScreenProps {
   navigation: NativeStackNavigationProp<any>; // Adjust 'any' with your navigation type
@@ -31,7 +27,7 @@ const LoginScreen: FC<LoginScreenProps> = ({ navigation }) => {
     return regex.test(correo);
   };
 
-  const saveLoginData = async (data: LoginResponse) => {
+  const saveLoginData = async (data: SearchCustomerResponse) => {
     try {
       const jsonValue = JSON.stringify(data);
       await AsyncStorage.setItem('loginData', jsonValue);
@@ -68,20 +64,22 @@ const LoginScreen: FC<LoginScreenProps> = ({ navigation }) => {
       setLoading(true);
       setLoginError(null);
       try {
-        const loginData = {
+
+        const request: SearchCustomerRequest = {
           email: email,
           password: password,
-        };
+        }
 
-        const response: AxiosResponse<LoginResponse> = await axios.post(
-          'http://127.0.0.1:8000/api/v1/login/',
-          loginData
-        );
+        const response: SearchCustomerResponse = await loginCustomer(request)
 
         setLoading(false);
-        console.log('Respuesta del login:', response.data);
-        await saveLoginData(response.data);
-        navigation.navigate('MainMenu'); // Navigate to the next screen after successful login
+        console.log('Respuesta del login:', response);
+        await saveLoginData(response);
+        navigation.navigate('MainMenu');
+        const value = await AsyncStorage.getItem('authToken');
+        if (typeof value === "string") {
+          console.log(JSON.parse(value));
+        }
       } catch (error: any) {
         setLoading(false);
         console.error('Error al iniciar sesión:', error.response?.data || error.message);
