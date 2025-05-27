@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta, timezone
-from typing import Any, Optional
+from typing import Any, Optional, Dict
 from cryptography.fernet import Fernet, InvalidToken
 from fastapi import HTTPException
 from typing import Any
@@ -11,6 +11,7 @@ from cryptography.fernet import Fernet, InvalidToken
 import os
 from jose import JWTError, jwt
 import secrets
+from datetime import datetime, timedelta, UTC
 
 
 
@@ -29,19 +30,22 @@ def generate_token_paymentgateway() -> str:
     # token_urlsafe(n) devuelve un string base64-url de n bytes de entropía
     return secrets.token_urlsafe(32)
 
+# Crear token JWT
+
+
 def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
     to_encode = data.copy()
-    expire = datetime.utcnow() + (expires_delta or timedelta(minutes=15))
+    expire = datetime.now(UTC) + (expires_delta or timedelta(minutes=15))
     to_encode.update({"exp": expire})
     return jwt.encode(to_encode, settings.SECRET_KEY, algorithm=ALGORITHM)
 
-def decode_token(token: str):
+# Decodificar token JWT
+def decode_token(token: str) -> Dict:
     try:
         payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[ALGORITHM])
-        username: str = payload.get("sub")
-        if not username:
-            raise HTTPException(status_code=401, detail="Invalid token")
-        return username
+        if not payload:
+            raise HTTPException(status_code=401, detail="Invalid token payload")
+        return payload
     except JWTError:
         raise HTTPException(status_code=401, detail="Invalid token")
 
