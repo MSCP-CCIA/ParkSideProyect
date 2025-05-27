@@ -7,7 +7,7 @@ from app.api.deps import get_parking_employee
 
 # ------------------------- Customer Actions ------------------------- #
 
-def create_user(*, session: Session, json: CreateCustomerRequest1) -> Customer:
+def create_user(*, session: Session, json: CreateCustomerRequest) -> Customer:
     try:
         json = transform_customer_hash_password(json)
         db_obj = Customer.model_validate(

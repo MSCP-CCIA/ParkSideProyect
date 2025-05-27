@@ -29,7 +29,7 @@ class Card(SQLModel, table=True):
 
 # Register a new card
 
-class CreateCardRequest1(BaseModel):
+class CreateCardRequest(BaseModel):
     card_number: int
     full_name_customer: str
     month: int

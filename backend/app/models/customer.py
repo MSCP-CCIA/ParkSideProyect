@@ -26,21 +26,12 @@ class Customer(SQLModel, table=True):
 
 # Create Customer
 
-class CreateCustomerRequest1(BaseModel):
+class CreateCustomerRequest(BaseModel):
     id: int
-    #
     full_name: str
     email: str
+    document_type: str
     password: str
-    is_active: bool = True
-    parking_id: int = 1
-
-class CreateCustomerRequest2(BaseModel):
-    id: int
-    #
-    full_name: str
-    email: str
-    password_hash: str
     is_active: bool = True
     parking_id: int = 1
 
@@ -83,7 +74,7 @@ class SearchCustomerByIdRequest(BaseModel):
 class SearchCustomersResponse(BaseModel):
     id: int
     full_name: str
-    #
+    document_type: str
     email: str
     is_active: bool
 

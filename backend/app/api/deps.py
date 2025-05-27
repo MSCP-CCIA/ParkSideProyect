@@ -15,8 +15,8 @@ from app.core import security
 from app.core.config import settings
 from app.core.db import engine
 from app.models.paymentGateway import PaymentGateway
-from app.models.card import CreateCardRequest1, CreateOrUpdateCardRequest, UpdateCardRequest
-from app.models.customer import CreateCustomerRequest1, CreateCustomerRequest2, Customer as User
+from app.models.card import CreateCardRequest, CreateOrUpdateCardRequest, UpdateCardRequest
+from app.models.customer import CreateCustomerRequest, CreateCustomerRequest2, Customer as User
 from app.models.parkingRegistration import ParkingRegistration
 from app.models.payment import Payment
 from app.models.employee import Employee
@@ -141,7 +141,7 @@ def get_parking_employee(session: Session, employee_id: int) -> int:
 # 4) Transformadores / helpers existentes
 # -------------------------------------------------------------------
 
-def transform_paymentwateway_create_model(json: CreateCardRequest1) -> PaymentGateway:
+def transform_paymentwateway_create_model(json: CreateCardRequest) -> PaymentGateway:
     return PaymentGateway(
         token=security.generate_token_paymentgateway(),
         pan=json.card_number,
@@ -152,7 +152,7 @@ def transform_paymentwateway_create_model(json: CreateCardRequest1) -> PaymentGa
     )
 
 
-def transform_card_create_model(json: CreateCardRequest1) -> CreateOrUpdateCardRequest:
+def transform_card_create_model(json: CreateCardRequest) -> CreateOrUpdateCardRequest:
     return CreateOrUpdateCardRequest(
         card_number_hash=security.hash_card_number(str(json.card_number)),
         full_name_customer=json.full_name_customer,
@@ -174,7 +174,7 @@ def transform_card_update_model(json: UpdateCardRequest) -> CreateOrUpdateCardRe
     )
 
 
-def transform_customer_hash_password(json: CreateCustomerRequest1) -> CreateCustomerRequest2:
+def transform_customer_hash_password(json: CreateCustomerRequest) -> CreateCustomerRequest2:
     return CreateCustomerRequest2(
         id=json.id,
         full_name=json.full_name,

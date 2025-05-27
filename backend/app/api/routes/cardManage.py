@@ -8,7 +8,7 @@ router = APIRouter(prefix="/cards", tags=["cards"])
 # ------------------------- Customer Actions ------------------------- #
 
 @router.post("/register-card/", response_model=Message)
-def register_card(session: SessionDep, json: CreateCardRequest1) -> Message:
+def register_card(session: SessionDep, json: CreateCardRequest) -> Message:
     try:
         create_paymentgateway(session=session, json=json)
         return Message(message="Registro de tarjeta exitoso")

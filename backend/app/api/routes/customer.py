@@ -11,7 +11,7 @@ router = APIRouter(prefix="/customer", tags=["customer"])
 # ------------------------- Customer Actions ------------------------- #
 
 @router.post("/register/", response_model=Message)
-def register(session: SessionDep, json: CreateCustomerRequest1) -> Message:
+def register(session: SessionDep, json: CreateCustomerRequest) -> Message:
     try:
         create_user(session=session, json=json)
         return Message(message="Registro de usuario exitoso")

@@ -8,7 +8,7 @@ from app.api.deps import transform_card_create_model, transform_card_update_mode
 # ------------------------- Customer Actions ------------------------- #
 
 def create_paymentgateway(
-    *, session: Session, json: CreateCardRequest1
+    *, session: Session, json: CreateCardRequest
 ) -> PaymentGateway:
     try:
 
@@ -47,7 +47,7 @@ def create_paymentgateway(
             detail=f"No se pudo completar el registro de pasarela + tarjeta: {e}"
         )
 
-def create_card(*, session: Session, json: CreateCardRequest1) -> Card:
+def create_card(*, session: Session, json: CreateCardRequest) -> Card:
     try:
         json = transform_card_create_model(json)
         db_obj = Card.model_validate(
