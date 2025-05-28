@@ -5,9 +5,9 @@ from app.api.deps import get_parking_employee
 
 # ------------------------- Employee Actions ------------------------- #
 
-def create_rate(*, session: Session, json: CreateHistoricalRateRequest) -> HistoricalRate:
+def create_rate(*, session: Session, request: CreateHistoricalRateRequest) -> HistoricalRate:
     try:
-        parking_id = get_parking_employee(session=session, employee_id=json.employee_id)
+        parking_id = get_parking_employee(session=session, employee_id=request.employee_id)
         statement = select(HistoricalRate).where(
             (HistoricalRate.parking_id == parking_id) &
             (HistoricalRate.end_date == None)
@@ -15,8 +15,8 @@ def create_rate(*, session: Session, json: CreateHistoricalRateRequest) -> Histo
 
         previous_rate = session.exec(statement).first()
         if previous_rate:
-            if previous_rate.start_date < json.start_date:
-                previous_rate.end_date = json.start_date
+            if previous_rate.start_date < request.start_date:
+                previous_rate.end_date = request.start_date
                 session.add(previous_rate)
             else:
                 raise HTTPException(
@@ -26,9 +26,9 @@ def create_rate(*, session: Session, json: CreateHistoricalRateRequest) -> Histo
 
         db_obj = HistoricalRate.model_validate(
             CreateHistoricalRate(
-                car_rate=json.car_rate,
-                motorbike_rate=json.motorbike_rate,
-                start_date=json.start_date,
+                car_rate=request.car_rate,
+                motorbike_rate=request.motorbike_rate,
+                start_date=request.start_date,
                 parking_id=parking_id
             )
         )
@@ -46,11 +46,11 @@ def create_rate(*, session: Session, json: CreateHistoricalRateRequest) -> Histo
         )
 
 
-def get_historical_rate_per_date(*, session: Session, json: SearchHistoricalRateRequest) -> HistoricalRate:
+def get_historical_rate_per_date(*, session: Session, request: SearchHistoricalRateRequest) -> HistoricalRate:
     try:
-        parking_id = get_parking_employee(session=session, employee_id=json.employee_id)
+        parking_id = get_parking_employee(session=session, employee_id=request.employee_id)
         statement = select(HistoricalRate).where(
-            (HistoricalRate.parking_id == parking_id) & (HistoricalRate.start_date == json.start_date)
+            (HistoricalRate.parking_id == parking_id) & (HistoricalRate.start_date == request.start_date)
         )
         historicalRate = session.exec(statement).first()
         if not historicalRate:
@@ -68,9 +68,9 @@ def get_historical_rate_per_date(*, session: Session, json: SearchHistoricalRate
         )
 
 
-def get_historical_rates(*, session: Session, json: SearchHistoricalRatesRequest) -> List[HistoricalRate]:
+def get_historical_rates(*, session: Session, request: SearchHistoricalRatesRequest) -> List[HistoricalRate]:
     try:
-        parking_id = get_parking_employee(session=session, employee_id=json.employee_id)
+        parking_id = get_parking_employee(session=session, employee_id=request.employee_id)
         statement = (select(HistoricalRate)
                      .where(HistoricalRate.parking_id == parking_id)
                      .order_by(desc(HistoricalRate.start_date)))

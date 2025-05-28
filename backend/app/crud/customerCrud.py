@@ -7,9 +7,9 @@ from app.api.deps import get_parking_employee
 
 # ------------------------- Customer Actions ------------------------- #
 
-def create_user(*, session: Session, json: CreateCustomerRequest) -> Customer:
+def create_user(*, session: Session, request: CreateCustomerRequest) -> Customer:
     try:
-        json = transform_customer_create_model(json)
+        json = transform_customer_create_model(request)
         db_obj = Customer.model_validate(json)
         session.add(db_obj)
         session.commit()
@@ -24,16 +24,16 @@ def create_user(*, session: Session, json: CreateCustomerRequest) -> Customer:
         )
 
 
-def update_user(*, session: Session, json: UpdateCustomerRequest) -> Customer:
+def update_user(*, session: Session, request: UpdateCustomerRequest) -> Customer:
     try:
-        statement = select(Customer).where(Customer.id == json.id)
+        statement = select(Customer).where(Customer.id == request.id)
         customer = session.exec(statement).first()
         if not customer:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="Usuario no encontrado"
             )
-        update_data = json.model_dump(exclude_unset=True, exclude={"id"})
+        update_data = request.model_dump(exclude_unset=True, exclude={"id"})
         for field, value in update_data.items():
             setattr(customer, field, value)
         session.add(customer)
@@ -50,8 +50,8 @@ def update_user(*, session: Session, json: UpdateCustomerRequest) -> Customer:
         )
 
 
-def get_customer_by_id(*, session: Session, json: SearchMyInformationRequest) -> Customer:
-    statement = select(Customer).where(Customer.id == json.id)
+def get_customer_by_id(*, session: Session, request: SearchMyInformationRequest) -> Customer:
+    statement = select(Customer).where(Customer.id == request.id)
     session_customer = session.exec(statement).first()
     return session_customer
 
@@ -62,20 +62,20 @@ def get_customer_by_email(*, session: Session, email: str) -> Customer | None:
     return session_customer
 
 
-def authenticate_customer(*, session: Session, json: SearchCustomerRequest) -> Customer | None:
-    customer = get_customer_by_email(session=session, email=json.email)
+def authenticate_customer(*, session: Session, request: SearchCustomerRequest) -> Customer | None:
+    customer = get_customer_by_email(session=session, email=request.email)
     if not customer:
         return None
-    if not hash_password(json.password) != customer.password_hash:
+    if not hash_password(request.password) != customer.password_hash:
         return None
     return customer
 
 # ------------------------- Employee Actions ------------------------- #
 
-def get_customer_by_id_crud(*, session: Session, json: SearchCustomerByIdRequest) -> Customer:
+def get_customer_by_id_crud(*, session: Session, request: SearchCustomerByIdRequest) -> Customer:
     try:
-        parking_id = get_parking_employee(session=session, employee_id=json.employee_id)
-        statement = select(Customer).where((Customer.id == json.customer_id) & (Customer.parking_id == parking_id))
+        parking_id = get_parking_employee(session=session, employee_id=request.employee_id)
+        statement = select(Customer).where((Customer.id == request.customer_id) & (Customer.parking_id == parking_id))
         customers = session.exec(statement).first()
         if not customers:
             raise HTTPException(
@@ -92,10 +92,10 @@ def get_customer_by_id_crud(*, session: Session, json: SearchCustomerByIdRequest
         )
 
 
-def update_customer_state_crud(*, session: Session, json: UpdateCustomerStateRequest) -> Customer:
+def update_customer_state_crud(*, session: Session, request: UpdateCustomerStateRequest) -> Customer:
     try:
-        parking_id = get_parking_employee(session=session, employee_id=json.employee_id)
-        statement = select(Customer).where((Customer.id == json.customer_id) & (Customer.parking_id == parking_id))
+        parking_id = get_parking_employee(session=session, employee_id=request.employee_id)
+        statement = select(Customer).where((Customer.id == request.customer_id) & (Customer.parking_id == parking_id))
         customer = session.exec(statement).first()
         if not customer:
             raise HTTPException(

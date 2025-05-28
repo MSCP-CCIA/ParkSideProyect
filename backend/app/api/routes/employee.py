@@ -11,8 +11,8 @@ router = APIRouter(prefix="/employee", tags=["employee"])
 # ------------------------- Employee Actions ------------------------- #
 
 @router.post("/login/", response_model=SearchEmployeeResponse)
-def login_employee(session: SessionDep, json: SearchEmployeeRequest) -> SearchEmployeeResponse:
-    employee = authenticate_employee(session=session, json=json)
+def login_employee(session: SessionDep, request: SearchEmployeeRequest) -> SearchEmployeeResponse:
+    employee = authenticate_employee(session=session, request=request)
     if not employee:
         raise HTTPException(
             status_code=400,
@@ -25,7 +25,8 @@ def login_employee(session: SessionDep, json: SearchEmployeeRequest) -> SearchEm
         )
     access_token = create_access_token(
         data={"sub": str(employee.id)},
-        expires_delta=timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES))
+        expires_delta=timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+    )
     return SearchEmployeeResponse(
         id=employee.id,
         token=access_token
@@ -33,9 +34,9 @@ def login_employee(session: SessionDep, json: SearchEmployeeRequest) -> SearchEm
 
 
 @router.post("/update-employee/", response_model=Message)
-def update_employee(session: SessionDep, json: UpdateEmployeeRequest) -> Message:
+def update_employee(session: SessionDep, request: UpdateEmployeeRequest) -> Message:
     try:
-        update_employee_crud(session=session, json=json)
+        update_employee_crud(session=session, request=request)
         return Message(message="Actualización de empleado exitosa")
     except Exception as e:
         raise HTTPException(

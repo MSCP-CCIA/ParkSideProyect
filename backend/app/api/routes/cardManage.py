@@ -8,34 +8,32 @@ router = APIRouter(prefix="/cards", tags=["cards"])
 # ------------------------- Customer Actions ------------------------- #
 
 @router.post("/register-card/", response_model=Message)
-def register_card(session: SessionDep, json: CreateCardRequest) -> Message:
+def register_card(session: SessionDep, request: CreateCardRequest) -> Message:
     try:
-        create_paymentgateway(session=session, json=json)
+        create_card(session=session, request=request)
         return Message(message="Registro de tarjeta exitoso")
     except HTTPException:
-        # si create_paymentgateway ya lanzó un HTTPException con su propio detail, lo propagamos
         raise
     except Exception as e:
-        #detail con el mensaje real
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=str(e)
         )
 
-@router.post("/get-card", response_model=SearchCardResponse)
-def get_card(session: SessionDep, json: SearchCardRequest) -> SearchCardResponse:
+@router.post("/get-card/", response_model=SearchCardResponse)
+def get_card(session: SessionDep, request: SearchCardRequest) -> SearchCardResponse:
     try:
-        card = get_card_crud(session=session, json=json)
+        card, expiration_date, full_name_customer = get_card_crud(session=session, request=request)
         if not card:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="Tarjeta no encontrada"
             )
         return SearchCardResponse(
-            card_number_hash=card.card_number_hash,
-            full_name_customer=card.full_name_customer,
-            month=card.expiration_date.month,
-            year=card.expiration_date.year
+            last_four_digits=card.last_four_digits,
+            card_type=card.card_type,
+            full_name_customer=full_name_customer,
+            expiration_date=expiration_date
         )
     except Exception as e:
         raise HTTPException(
@@ -44,21 +42,19 @@ def get_card(session: SessionDep, json: SearchCardRequest) -> SearchCardResponse
         )
 
 
-@router.post("/get-cards", response_model=SearchCardsResponse)
-def get_cards(session: SessionDep, json: SearchCardsRequest) -> SearchCardsResponse:
+@router.post("/get-cards/", response_model=SearchCardsResponse)
+def get_cards(session: SessionDep, request: SearchCardsRequest) -> SearchCardsResponse:
     try:
-        cards = get_cards_crud(session=session, json=json)
+        cards = get_cards_crud(session=session, request=request)
         if not cards:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="Tarjetas no encontradas"
             )
         cards_response = [
-            SearchCardResponse(
-                card_number_hash=card.card_number_hash,
-                full_name_customer=card.full_name_customer,
-                month=card.expiration_date.month,
-                year=card.expiration_date.year
+            SearchCard(
+                last_four_digits=card.last_four_digits,
+                card_type=card.card_type
             )
             for card in cards
         ]
@@ -71,9 +67,9 @@ def get_cards(session: SessionDep, json: SearchCardsRequest) -> SearchCardsRespo
 
 
 @router.post("/update-card/", response_model=Message)
-def update_card(session: SessionDep, json: UpdateCardRequest) -> Message:
+def update_card(session: SessionDep, request: UpdateCardRequest) -> Message:
     try:
-        update_card_crud(session=session, json=json)
+        update_card_crud(session=session, request=request)
         return Message(message="Actualización de tarjeta exitosa")
     except Exception as e:
         raise HTTPException(
@@ -82,10 +78,10 @@ def update_card(session: SessionDep, json: UpdateCardRequest) -> Message:
         )
 
 
-@router.delete("/delete-card", response_model=Message)
-def delete_card(session: SessionDep, json: DeleteCardRequest):
+@router.delete("/delete-card/", response_model=Message)
+def delete_card(session: SessionDep, request: DeleteCardRequest):
     try:
-        if delete_card_crud(session=session, json=json):
+        if delete_card_crud(session=session, request=request):
             return Message(message="Tarjeta eliminada correctamente")
         return Message(message="La tarjeta no ha sido eliminada")
     except Exception as e:

@@ -11,9 +11,9 @@ router = APIRouter(prefix="/customer", tags=["customer"])
 # ------------------------- Customer Actions ------------------------- #
 
 @router.post("/register/", response_model=Message)
-def register(session: SessionDep, json: CreateCustomerRequest) -> Message:
+def register(session: SessionDep, request: CreateCustomerRequest) -> Message:
     try:
-        create_user(session=session, json=json)
+        create_user(session=session, request=request)
         return Message(message="Registro de usuario exitoso")
     except Exception as e:
         raise HTTPException(
@@ -23,8 +23,8 @@ def register(session: SessionDep, json: CreateCustomerRequest) -> Message:
 
 
 @router.post("/login/", response_model=SearchCustomerResponse)
-def login_customer(session: SessionDep, json: SearchCustomerRequest) -> SearchCustomerResponse:
-    customer = authenticate_customer(session=session, json=json)
+def login_customer(session: SessionDep, request: SearchCustomerRequest) -> SearchCustomerResponse:
+    customer = authenticate_customer(session=session, request=request)
     if not customer:
         raise HTTPException(
             status_code=400,
@@ -46,9 +46,9 @@ def login_customer(session: SessionDep, json: SearchCustomerRequest) -> SearchCu
 
 
 @router.post("/info/", response_model=SearchMyInformationResponse)
-def get_info(session: SessionDep, json: SearchMyInformationRequest) -> SearchMyInformationResponse:
+def get_info(session: SessionDep, request: SearchMyInformationRequest) -> SearchMyInformationResponse:
     try:
-        customer = get_customer_by_id(session=session, json=json)
+        customer = get_customer_by_id(session=session, request=request)
         return SearchMyInformationResponse(
             id=customer.id,
             document_type=customer.document_type,
@@ -63,9 +63,9 @@ def get_info(session: SessionDep, json: SearchMyInformationRequest) -> SearchMyI
 
 
 @router.post("/update-customer/", response_model=Message)
-def update_customer(session: SessionDep, json: UpdateCustomerRequest) -> Message:
+def update_customer(session: SessionDep, request: UpdateCustomerRequest) -> Message:
     try:
-        update_user(session=session, json=json)
+        update_user(session=session, request=request)
         return Message(message="Actualización de usuario exitosa")
     except Exception as e:
         raise HTTPException(
@@ -78,9 +78,9 @@ def update_customer(session: SessionDep, json: UpdateCustomerRequest) -> Message
 
 
 @router.post("/get-customer-by-id/", response_model=SearchCustomersResponse)
-def get_customer_by_id_employee(session: SessionDep, json: SearchCustomerByIdRequest) -> SearchCustomersResponse:
+def get_customer_by_id_employee(session: SessionDep, request: SearchCustomerByIdRequest) -> SearchCustomersResponse:
     try:
-        customer = get_customer_by_id_crud(session=session, json=json)
+        customer = get_customer_by_id_crud(session=session, request=request)
         if not customer:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
@@ -101,9 +101,9 @@ def get_customer_by_id_employee(session: SessionDep, json: SearchCustomerByIdReq
 
 
 @router.post("/update-customer-state/", response_model=Message)
-def update_customer_state(session: SessionDep, json: UpdateCustomerStateRequest) -> Message:
+def update_customer_state(session: SessionDep, request: UpdateCustomerStateRequest) -> Message:
     try:
-        update_customer_state_crud(session=session, json=json)
+        update_customer_state_crud(session=session, request=request)
         return Message(message="Actualización de estado exitosa")
     except Exception as e:
         raise HTTPException(

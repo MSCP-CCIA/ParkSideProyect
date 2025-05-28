@@ -11,20 +11,14 @@ if TYPE_CHECKING:
 
 
 class Card(SQLModel, table=True):
-    __tablename__ = "card"
-
-    id: Optional[int] = Field(
-        sa_column=Column("id", BigInteger, primary_key=True, autoincrement=False)
-    )
+    id: int = Field(sa_column=Column(BigInteger, primary_key=True))
     card_type: str
     last_four_digits: int
-    # foreign keys
     customer_id: int = Field(foreign_key="customer.id")
     token: str = Field(foreign_key="paymentgateway.token")
 
-    # relaciones
     customer: "Customer" = Relationship(back_populates="cards")
-    paymentgateway: "PaymentGateway" = Relationship(back_populates="cards")
+    paymentGateway: "PaymentGateway" = Relationship(back_populates="cards")
 
 
 # Register a new card
@@ -38,50 +32,43 @@ class CreateCardRequest(BaseModel):
     card_type: str
     customer_id: int
 
-# Update card
-
-class UpdateCardRequest(BaseModel):
-    card_number_hash: str
-    full_name_customer: str
-    month: int
-    year: int
-    cvc: int
-    card_type: str
-    customer_id: int
-
-# Json Transformation for Register a new card and Update a card
-
-class CreateOrUpdateCardRequest(BaseModel):
-    card_number_hash: str
-    full_name_customer: str
-    cvc_code_hash: str
-    expiration_date: date
-    card_type: str
-    customer_id: int
-
 # Search a customer's card
 
 class SearchCardRequest(BaseModel):
-    card_number_hash: str
+    last_four_digits: int
     customer_id: int
 
 class SearchCardResponse(BaseModel):
-    card_number_hash: str
+    last_four_digits: int
+    card_type: str
     full_name_customer: str
-    month: int
-    year: int
+    expiration_date: str
 
 # Search all customer's cards
 
 class SearchCardsRequest(BaseModel):
     customer_id: int
 
+class SearchCard(BaseModel):
+    last_four_digits: int
+    card_type: str
+
 class SearchCardsResponse(BaseModel):
-    cards: List[SearchCardResponse]
+    cards: List[SearchCard]
+
+# Update card
+
+class UpdateCardRequest(BaseModel):
+    last_four_digits: int
+    full_name_customer: str
+    month: int
+    year: int
+    cvc: int
+    customer_id: int
 
 # Delete a customer's card
 
 class DeleteCardRequest(BaseModel):
-    card_number_hash: str
+    last_four_digits: int
     customer_id: int
 

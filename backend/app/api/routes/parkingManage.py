@@ -7,9 +7,9 @@ router = APIRouter(prefix="/parking", tags=["parkingManage"])
 # ------------------------- Employee Actions ------------------------- #
 
 @router.post("/get-parking", response_model=SearchParkingResponse)
-def get_vehicle(session: SessionDep, json: SearchParkingRequest) -> SearchParkingResponse:
+def get_vehicle(session: SessionDep, request: SearchParkingRequest) -> SearchParkingResponse:
     try:
-        parking = get_parking(session=session, json=json)
+        parking = get_parking(session=session, request=request)
         if not parking:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,

@@ -8,17 +8,13 @@ if TYPE_CHECKING:
 
 
 class PaymentGateway(SQLModel, table=True):
-    __tablename__ = "paymentgateway"
-
     token: Optional[str] = Field(default=None, primary_key=True)
-    pan: int = Field(
-        sa_column=Column(BigInteger)
-    )
+    pan: int = Field(sa_column=Column(BigInteger, unique=True))
     cvc: int
     exp_month: int
     exp_year: int
     card_owner_name: str
 
     # «Una pasarela tiene muchas tarjetas»
-    cards: Optional["Card"] = Relationship(back_populates="paymentgateway")
+    cards: Optional["Card"] = Relationship(back_populates="paymentGateway")
 

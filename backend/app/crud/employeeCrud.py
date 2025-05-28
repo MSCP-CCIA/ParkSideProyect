@@ -11,25 +11,25 @@ def get_employee_by_email(*, session: Session, email: str) -> Employee | None:
     return session_employee
 
 
-def authenticate_employee(*, session: Session, json: SearchEmployeeRequest) -> Employee | None:
-    employee = get_employee_by_email(session=session, email=json.email)
+def authenticate_employee(*, session: Session, request: SearchEmployeeRequest) -> Employee | None:
+    employee = get_employee_by_email(session=session, email=request.email)
     if not employee:
         return None
-    if not hash_password(json.password) != employee.password_hash:
+    if not hash_password(request.password) != employee.password_hash:
         return None
     return employee
 
 
-def update_employee_crud(*, session: Session, json: UpdateEmployeeRequest) -> Employee:
+def update_employee_crud(*, session: Session, request: UpdateEmployeeRequest) -> Employee:
     try:
-        statement = select(Employee).where(Employee.id == json.id)
+        statement = select(Employee).where(Employee.id == request.id)
         employee = session.exec(statement).first()
         if not employee:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="Empleado no encontrado"
             )
-        update_data = json.model_dump(exclude_unset=True, exclude={"id"})
+        update_data = request.model_dump(exclude_unset=True, exclude={"id"})
         for field, value in update_data.items():
             setattr(employee, field, value)
         session.add(employee)
