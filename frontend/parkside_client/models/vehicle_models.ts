@@ -4,30 +4,25 @@ export interface CreateVehicleRequest {
   customer_id: number;
 }
 
-export interface SearchVehicleRequest {
+export interface SearchCustomerVehicleRequest {
   plate: string;
   customer_id: number;
 }
 
-export interface SearchVehicleResponse {
+export interface SearchCustomerVehicleResponse {
   type: string;
   plate: string;
 }
 
-export interface SearchVehiclesRequest {
-      vehicles: {
-        type: string;
-        plate: string;
-    }[];
+export interface SearchCustomerVehiclesRequest {
+  customer_id: number;
 }
 
 export interface SearchVehiclesResponse {
-      vehicles: {
-        type: string;
-        plate: string;
-    }[]; //  Use an array for the vehicles property
+  vehicles: SearchCustomerVehicleResponse[];
 }
+
 export interface DeleteVehicleRequest {
-    customer_id: number;
-    plate: string;
+  customer_id: number;
+  plate: string;
 }

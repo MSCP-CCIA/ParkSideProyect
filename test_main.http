@@ -1,7 +1,7 @@
 POST http://127.0.0.1:8000/api/v1/vehicle/get-vehicle
 Accept: application/json
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMDAwMDAwMDAxIiwiZXhwIjoxNzQ5MDQ0OTkyfQ.sFcCepcuiw6itP62p9Fz6xArpIlV_6QuNqfcx8JBx7M
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMDAwMDAwMDAxIiwiZXhwIjoxNzQ5MDg2MDkxfQ.7-UM5uuX_mbeE3ayMx-LzXM1jQVd0akiZrR3Otcmhvw
 
 {
   "plate": "ABC001",

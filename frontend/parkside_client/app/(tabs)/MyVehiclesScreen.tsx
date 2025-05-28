@@ -10,21 +10,11 @@ import {
 import ScreenLayout from '../layouts/ScreenLayout';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios, { AxiosResponse } from 'axios';
-import { SearchVehiclesRequest } from '../../models/vehicle_models';
+import {SearchCustomerVehiclesRequest, SearchVehiclesResponse} from '../../models/vehicle_models'
+import {listVehicles} from '../../api/listVehiclesApi'
 
-// API Service
-const getVehicles = async (customerId: number): Promise<AxiosResponse<SearchVehiclesRequest>> => {
-    try {
-        const response = await axios.post(
-            'http://127.0.0.1:8000/api/v1/vehicle/get-vehicles', // Reemplaza con la URL de tu API
-            { "customer_id": customerId }
-        );
-        return response;
-    } catch (error: any) {
-        console.error('Error al obtener los vehículos:', error);
-        throw error; // Re-lanza el error para que el componente lo maneje
-    }
-};
+
+
 
 // API Service para eliminar vehículo
 interface DeleteVehicleRequest {
@@ -74,14 +64,14 @@ const MyVehiclesScreen: FC<MyVehiclesScreenProps> = ({ navigation }) => {
     useEffect(() => {
         const getCustomerIdFromStorage = async () => {
             try {
-                const storedData = await AsyncStorage.getItem('loginData');
+                const storedData = await AsyncStorage.getItem('authToken');
                 if (storedData) {
                     const { id } = JSON.parse(storedData);
                     setCustomerId(id);
                 } else {
                     // Manejar el caso en que no hay datos de inicio de sesión
                     Alert.alert('Error', 'No se ha iniciado sesión. Por favor, inicie sesión.');
-                    navigation.navigate('Login'); // Redirigir a la pantalla de inicio de sesión
+                    navigation.navigate('AddVehicle'); // Redirigir a la pantalla de inicio de sesión
                 }
             } catch (error) {
                 console.error('Error al obtener el ID del cliente:', error);
@@ -101,10 +91,13 @@ const MyVehiclesScreen: FC<MyVehiclesScreenProps> = ({ navigation }) => {
                 setLoading(true);
                 setError(null);
                 try {
-                    const response = await getVehicles(customerId);
+                    const request: SearchCustomerVehiclesRequest = {
+                          customer_id: customerId
+                    }
+                    const response = await listVehicles(request);
 
-                    if (response.data && response.data.vehicles) {
-                        const mappedVehicles = response.data.vehicles.map((v, index) => ({
+                    if (response && response.vehicles) {
+                        const mappedVehicles = response.vehicles.map((v, index) => ({
                             id: `${index + 1}`, // Generamos un ID secuencial localmente
                             Tipo: v.type,
                             Placa: v.plate,
