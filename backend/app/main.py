@@ -41,7 +41,6 @@ from starlette.middleware.base import BaseHTTPMiddleware
 
 @app.middleware("http")
 async def verify_token_middleware(request: Request, call_next):
-    print(request.headers.items())
     if request.method == "OPTIONS":
         return await call_next(request)
     excluded_paths = [
@@ -56,7 +55,11 @@ async def verify_token_middleware(request: Request, call_next):
         f"{settings.API_V1_STR}/cards/update-card/",
         f"{settings.API_V1_STR}/cards/get-card/",
         f"{settings.API_V1_STR}/cards/get-cards/",
-        f"{settings.API_V1_STR}/cards/delete-card/"
+        f"{settings.API_V1_STR}/cards/delete-card/",
+        f"{settings.API_V1_STR}/cards/register-card/",
+        f"{settings.API_V1_STR}/employee/login/",
+        f"{settings.API_V1_STR}/vehicle/register-vehicle/",
+        f"{settings.API_V1_STR}/flow/entry-register/"
     ]
     if request.url.path in excluded_paths or request.url.path.startswith("/static"):
         return await call_next(request)
