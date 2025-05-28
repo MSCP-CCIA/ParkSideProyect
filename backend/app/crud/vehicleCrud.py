@@ -7,10 +7,10 @@ from app.api.deps import get_parking_employee
 
 # ------------------------- Customer Actions ------------------------- #
 
-def create_vehicle(*, session: Session, json: CreateVehicleRequest) -> Vehicle:
+def create_vehicle(*, session: Session, request: CreateVehicleRequest) -> Vehicle:
     try:
         db_obj = Vehicle.model_validate(
-            json
+            request
         )
         session.add(db_obj)
         session.commit()
@@ -25,10 +25,10 @@ def create_vehicle(*, session: Session, json: CreateVehicleRequest) -> Vehicle:
         )
 
 
-def get_customer_vehicle(*, session: Session, json: SearchCustomerVehicleRequest) -> Vehicle:
+def get_customer_vehicle(*, session: Session, request: SearchCustomerVehicleRequest) -> Vehicle:
     try:
         statement = select(Vehicle).where(
-            (Vehicle.plate == json.plate) & (Vehicle.customer_id == json.customer_id)
+            (Vehicle.plate == request.plate) & (Vehicle.customer_id == request.customer_id)
         )
         vehicle = session.exec(statement).first()
         if not vehicle:
@@ -46,9 +46,9 @@ def get_customer_vehicle(*, session: Session, json: SearchCustomerVehicleRequest
         )
 
 
-def get_customer_vehicles(*, session: Session, json: SearchCustomerVehiclesRequest) -> List[Vehicle]:
+def get_customer_vehicles(*, session: Session, request: SearchCustomerVehiclesRequest) -> List[Vehicle]:
     try:
-        statement = select(Vehicle).where(Vehicle.customer_id == json.customer_id)
+        statement = select(Vehicle).where(Vehicle.customer_id == request.customer_id)
         vehicles = session.exec(statement).all()
         if not vehicles:
             raise HTTPException(
@@ -65,10 +65,10 @@ def get_customer_vehicles(*, session: Session, json: SearchCustomerVehiclesReque
         )
 
 
-def delete_customer_vehicle(*, session: Session, json: DeleteVehicleRequest) -> bool:
+def delete_customer_vehicle(*, session: Session, request: DeleteVehicleRequest) -> bool:
     try:
         statement = select(Vehicle).where(
-            (Vehicle.plate == json.plate) & (Vehicle.customer_id == json.customer_id)
+            (Vehicle.plate == request.plate) & (Vehicle.customer_id == request.customer_id)
         )
         vehicle = session.exec(statement).first()
         if not vehicle:
@@ -91,11 +91,11 @@ def delete_customer_vehicle(*, session: Session, json: DeleteVehicleRequest) -> 
 # ------------------------- Employee Actions ------------------------- #
 
 
-def get_all_customer_vehicles_crud(*, session: Session, json: SearchAllCustomerVehiclesRequest) -> SearchAllCustomerVehiclesResponse:
+def get_all_customer_vehicles_crud(*, session: Session, request: SearchAllCustomerVehiclesRequest) -> SearchAllCustomerVehiclesResponse:
     try:
-        parking_id = get_parking_employee(session=session, employee_id=json.employee_id)
+        parking_id = get_parking_employee(session=session, employee_id=request.employee_id)
         statement = (select(Customer.id, Customer.full_name, Vehicle.type, Customer.email, Vehicle.plate)
-                     .join(Customer).where((Customer.id == json.customer_id) & (Customer.parking_id == parking_id)))
+                     .join(Customer).where((Customer.id == request.customer_id) & (Customer.parking_id == parking_id)))
         response = session.exec(statement).all()
         if not response:
             raise HTTPException(
@@ -122,11 +122,11 @@ def get_all_customer_vehicles_crud(*, session: Session, json: SearchAllCustomerV
         )
 
 
-def get_registrations_by_plate_entry_crud(*, session: Session, json: SearchRegistrationByPlateRequest) -> SearchRegistrationByPlateResponse:
+def get_registrations_by_plate_entry_crud(*, session: Session, request: SearchRegistrationByPlateRequest) -> SearchRegistrationByPlateResponse:
     try:
-        parking_id = get_parking_employee(session=session, employee_id=json.employee_id)
+        parking_id = get_parking_employee(session=session, employee_id=request.employee_id)
         statement = (select(Customer.id, Customer.full_name, Vehicle.type, Customer.email, Vehicle.plate)
-                     .join(Customer).where((Customer.parking_id == parking_id) & (Vehicle.plate == json.plate)))
+                     .join(Customer).where((Customer.parking_id == parking_id) & (Vehicle.plate == request.plate)))
         db_response = session.exec(statement).first()
         if not db_response:
             raise HTTPException(
@@ -150,11 +150,11 @@ def get_registrations_by_plate_entry_crud(*, session: Session, json: SearchRegis
         )
 
 """
-def get_registrations_by_plate_exit_crud(*, session: Session, json: SearchRegistrationByPlateRequest) -> SearchRegistrationByPlateResponse:
+def get_registrations_by_plate_exit_crud(*, session: Session, request: SearchRegistrationByPlateRequest) -> SearchRegistrationByPlateResponse:
     try:
-        parking_id = get_parking_employee(session=session, employee_id=json.employee_id)
+        parking_id = get_parking_employee(session=session, employee_id=request.employee_id)
         statement = (select(Customer.id, Customer.full_name, Vehicle.type, Customer.email, Vehicle.plate)
-                     .join(Customer).where((Customer.parking_id == parking_id) & (Vehicle.plate == json.plate)))
+                     .join(Customer).where((Customer.parking_id == parking_id) & (Vehicle.plate == request.plate)))
         db_response = session.exec(statement).first()
         if not db_response:
             raise HTTPException(
@@ -178,12 +178,12 @@ def get_registrations_by_plate_exit_crud(*, session: Session, json: SearchRegist
         )
 """
 
-def get_occupation_report_crud(*, session: Session, json: SearchOccupationReportRequest) -> SearchOccupationReportResponse:
+def get_occupation_report_crud(*, session: Session, request: SearchOccupationReportRequest) -> SearchOccupationReportResponse:
     try:
-        parking_id = get_parking_employee(session=session, employee_id=json.employee_id)
+        parking_id = get_parking_employee(session=session, employee_id=request.employee_id)
         statement = (select(Vehicle.plate, Customer.full_name, ParkingRegistration.entry_datetime, ParkingRegistration.exit_datetime,)
-                     .join(Customer).where((Customer.parking_id == parking_id) & (Vehicle.plate == json.plate))
-                     .join(ParkingRegistration).where(ParkingRegistration.plate == json.plate)
+                     .join(Customer).where((Customer.parking_id == parking_id) & (Vehicle.plate == request.plate))
+                     .join(ParkingRegistration).where(ParkingRegistration.plate == request.plate)
                      .order_by(desc(ParkingRegistration.entry_datetime)))
         db_response = session.exec(statement).all()
         if not db_response:

@@ -1,7 +1,7 @@
 import requests
 
 def simulate_vehicle_entry(image_path: str):
-    url = ("http://127.0.0.1:8001/extract-plate")
+    url = ("http://127.0.0.1:8001/entry-extract-plate")
     with open(image_path, "rb") as img:
         files = {'file': (image_path, img, 'image/jpeg')}
         response = requests.post(url, files=files)
@@ -13,4 +13,4 @@ def simulate_vehicle_entry(image_path: str):
         print("Error:", response.text)
 
 if __name__ == "__main__":
-    simulate_vehicle_entry(r"placas-patentes-motos-colombia-1.jpg")
+    simulate_vehicle_entry(r"C:\Users\Asus\Downloads\placas-patentes-motos-colombia-1.jpg")

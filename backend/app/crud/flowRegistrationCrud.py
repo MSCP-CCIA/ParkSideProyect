@@ -5,10 +5,10 @@ from app.models.vehicle import Vehicle
 
 # ------------------------- ML and Employee Actions ------------------------- #
 
-def get_customer_vehicle(*, session: Session, json: EntryOrUpdateVehicleRequest) -> Vehicle:
+def get_customer_vehicle(*, session: Session, request: EntryOrUpdateVehicleRequest) -> Vehicle:
     try:
         statement = select(Vehicle).where(
-            (Vehicle.plate == json.plate)
+            (Vehicle.plate == request.plate)
         )
         vehicle = session.exec(statement).first()
         if not vehicle:
@@ -25,17 +25,17 @@ def get_customer_vehicle(*, session: Session, json: EntryOrUpdateVehicleRequest)
             detail=f"Error al obtener el vehículo: {str(e)}"
         )
 
-def create_parking_registration(*, session: Session, json: EntryOrUpdateVehicleRequest) -> ParkingRegistration | None:
+def create_parking_registration(*, session: Session, request: EntryOrUpdateVehicleRequest) -> ParkingRegistration | None:
     try:
         statement = (select(ParkingRegistration)
-                     .where((Vehicle.plate == json.plate))
+                     .where((Vehicle.plate == request.plate))
                      .order_by(desc(ParkingRegistration.entry_datetime)))
         parkingRegistration = session.exec(statement).first()
         if not parkingRegistration or parkingRegistration.exit_datetime is not None:
             register = EntryVehicle(
                 entry_datetime=datetime.now(),
                 exit_datetime=None,
-                plate=json.plate
+                plate=request.plate
             )
             db_obj = ParkingRegistration.model_validate(
                 register
@@ -53,10 +53,10 @@ def create_parking_registration(*, session: Session, json: EntryOrUpdateVehicleR
             detail=f"Error al crear el registro de parqueo: {str(e)}"
         )
 
-def update_parking_registration(*, session: Session, json: EntryOrUpdateVehicleRequest) -> ParkingRegistration:
+def update_parking_registration(*, session: Session, request: EntryOrUpdateVehicleRequest) -> ParkingRegistration:
     try:
         statement = select(ParkingRegistration).where(
-            (ParkingRegistration.plate == json.plate) &
+            (ParkingRegistration.plate == request.plate) &
             (ParkingRegistration.exit_datetime == None)  # Aún no ha salido
         ).order_by(ParkingRegistration.entry_datetime.desc())
         parking_registration = session.exec(statement).first()

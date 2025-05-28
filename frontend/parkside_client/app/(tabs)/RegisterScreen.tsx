@@ -8,15 +8,10 @@ import Dropdown from '../../components/common/Dropdown';
 import { Ionicons } from '@expo/vector-icons';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import axios, { AxiosResponse } from 'axios';
+import {CreateCustomerRequest, SearchCustomerResponse} from '../../models/customer_models';
+import {registerCustomer} from '../../api/registerApi'
+import {Message} from '../../models/message_models'
 
-interface RegisterResponse {
-    id: number;
-    full_name: string;
-    email: string;
-    is_active: boolean;
-    parking_id: number;
-    // Puedes incluir otros campos que tu backend responda
-}
 
 interface RegisterScreenProps {
     navigation: NativeStackNavigationProp<any>;
@@ -95,22 +90,19 @@ const RegisterScreen: FC<RegisterScreenProps> = ({ navigation }) => {
             setLoading(true);
             setRegistrationError(null);
             try {
-                const userData = {
-                    id: parseInt(documentNumber, 10) || 0, // Usar el número de documento como ID
-                    full_name: `${name.trim()} ${lastName.trim()}`,
-                    email: email.trim(),
-                    password: password,
-                    is_active: true,
-                    parking_id: 1,
-                };
-
-                const response: AxiosResponse<RegisterResponse> = await axios.post(
-                    'http://127.0.0.1:8000/api/v1/register/',
-                    userData
-                );
-
+                const request: CreateCustomerRequest = {
+                      id: parseInt(documentNumber, 10) || 0,
+                      full_name: `${name.trim()} ${lastName.trim()}`,
+                      email: email.trim(),
+                      document_type: documentType.trim(),
+                      password: password.trim(),
+                      is_active: true,
+                      parking_id: 1,
+                }
+                console.log(request)
+                const response: Message = await registerCustomer(request)
                 setLoading(false);
-                console.log('Registro exitoso:', response.data);
+                console.log('Registro exitoso:', response);
                 navigation.navigate('Login')
             } catch (error: any) {
                 setLoading(false);

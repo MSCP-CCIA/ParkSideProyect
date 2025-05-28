@@ -15,7 +15,7 @@ from app.core import security
 from app.core.config import settings
 from app.core.db import engine
 from app.models.paymentGateway import PaymentGateway
-from app.models.card import CreateCardRequest, CreateOrUpdateCardRequest, UpdateCardRequest
+from app.models.card import CreateCardRequest, UpdateCardRequest, Card
 from app.models.customer import CreateCustomerRequest, Customer
 from app.models.parkingRegistration import ParkingRegistration
 from app.models.payment import Payment
@@ -141,47 +141,52 @@ def get_parking_employee(session: Session, employee_id: int) -> int:
 # 4) Transformadores / helpers existentes
 # -------------------------------------------------------------------
 
-def transform_paymentwateway_create_model(json: CreateCardRequest) -> PaymentGateway:
-    return PaymentGateway(
-        token=security.generate_token_paymentgateway(),
-        pan=json.card_number,
-        cvc=json.cvc,
-        exp_month=json.month,
-        exp_year=json.year,
-        card_owner_name=json.full_name_customer
-    )
-
-
-def transform_card_create_model(json: CreateCardRequest) -> CreateOrUpdateCardRequest:
-    return CreateOrUpdateCardRequest(
-        card_number_hash=security.hash_card_number(str(json.card_number)),
-        full_name_customer=json.full_name_customer,
-        cvc_code_hash=security.hash_card_number(str(json.cvc)),
-        expiration_date=date(json.year, json.month, 1),
-        card_type=json.card_type,
-        customer_id=json.customer_id
-    )
-
-
-def transform_card_update_model(json: UpdateCardRequest) -> CreateOrUpdateCardRequest:
-    return CreateOrUpdateCardRequest(
-        card_number_hash=json.card_number_hash,
-        full_name_customer=json.full_name_customer,
-        cvc_code_hash=security.hash_card_number(str(json.cvc)),
-        expiration_date=date(json.year, json.month, 1),
-        card_type=json.card_type,
-        customer_id=json.customer_id
-    )
-
-
-def transform_customer_create_model(json: CreateCustomerRequest) -> dict:
-    print(json.parking_id)
+def transform_paymentwateway_create_model(request: CreateCardRequest) -> dict:
     return {
-        "id": json.id,
-        "full_name": json.full_name,
-        "email": json.email,
-        "document_type": json.document_type,
-        "password_hash": security.hash_password(json.password),
-        "is_active": json.is_active,
-        "parking_id": json.parking_id
+        "token": security.generate_token_paymentgateway(),
+        "pan": request.card_number,
+        "cvc": request.cvc,
+        "exp_month": request.month,
+        "exp_year": request.year,
+        "card_owner_name": request.full_name_customer
+    }
+
+def transform_paymentwateway_update_model(request: UpdateCardRequest, paymentGateway: PaymentGateway) -> dict:
+    return {
+        "token": paymentGateway.token,
+        "pan": paymentGateway.pan,
+        "cvc": request.cvc,
+        "exp_month": request.month,
+        "exp_year": request.year,
+        "card_owner_name": request.full_name_customer
+    }
+
+
+def generate_card_id(last_four_number: int, customer_id: int) -> int:
+    # Generar id de Card a partir de customer_id + últimos 4 dígitos
+    last_four_str = str(last_four_number)
+    return int(f"{customer_id}{last_four_str}")
+
+
+def transform_card_create_model(request: CreateCardRequest, token: str) -> dict:
+    last_four_number = request.card_number % 10000
+    card_id = generate_card_id(last_four_number=last_four_number, customer_id=request.customer_id)
+    return {
+        "id": card_id,
+        "card_type": request.card_type,
+        "last_four_digits": last_four_number,
+        "customer_id": request.customer_id,
+        "token": token,
+    }
+
+
+def transform_customer_create_model(request: CreateCustomerRequest) -> dict:
+    return {
+        "id": request.id,
+        "full_name": request.full_name,
+        "email": request.email,
+        "document_type": request.document_type,
+        "password_hash": security.hash_password(request.password),
+        "is_active": request.is_active,
+        "parking_id": request.parking_id
     }

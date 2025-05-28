@@ -9,11 +9,11 @@ router = APIRouter(prefix="/flow", tags=["flowRegistration"])
 # ------------------------- ML Actions ------------------------- #
 
 @router.post("/entry-register/", response_model=Message)
-def entry_register(session: SessionDep, json: EntryOrUpdateVehicleRequest | dict) -> Message:
+def entry_register(session: SessionDep, request: EntryOrUpdateVehicleRequest | dict) -> Message:
     try:
-        vehicle = get_customer_vehicle(session=session, json=json)
+        vehicle = get_customer_vehicle(session=session, request=request)
         if vehicle:
-            if create_parking_registration(session=session,json=json):
+            if create_parking_registration(session=session,request=request):
                 return Message(message="Registro de parqueo creado exitosamente")
             return Message(message="El vehículo ya está parqueado")
         return Message(message="El vehículo no existe")
@@ -24,11 +24,11 @@ def entry_register(session: SessionDep, json: EntryOrUpdateVehicleRequest | dict
         )
 
 @router.post("/exit-register/", response_model=Message)
-def exit_register(session: SessionDep, json: EntryOrUpdateVehicleRequest) -> Message:
+def exit_register(session: SessionDep, request: EntryOrUpdateVehicleRequest) -> Message:
     try:
-        vehicle = get_customer_vehicle(session=session, json=json)
+        vehicle = get_customer_vehicle(session=session, request=request)
         if vehicle:
-            update_parking_registration(session=session,json=json)
+            update_parking_registration(session=session,request=request)
             return Message(message="Actualización de parqueo realizada exitosamente")
         return Message(message="El vehículo no existe")
     except Exception as e:

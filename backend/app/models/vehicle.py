@@ -35,13 +35,15 @@ class SearchCustomerVehicleResponse(BaseModel):
     type: str
     plate: str
 
+# Get All Customer's Vehicles
+
 class SearchCustomerVehiclesRequest(BaseModel):
     customer_id: int
 
-# Get All Customer's Vehicles
-
 class SearchVehiclesResponse(BaseModel):
     vehicles: List[SearchCustomerVehicleResponse]
+
+# Delete Customer's Vehicle
 
 class DeleteVehicleRequest(BaseModel):
     customer_id: int

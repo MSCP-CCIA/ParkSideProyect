@@ -5,9 +5,9 @@ from app.api.deps import get_parking_employee
 
 # ------------------------- Employee Actions ------------------------- #
 
-def get_parking(*, session: Session, json: SearchParkingRequest) -> Parking:
+def get_parking(*, session: Session, request: SearchParkingRequest) -> Parking:
     try:
-        parking_id = get_parking_employee(session=session, employee_id=json.employee_id)
+        parking_id = get_parking_employee(session=session, employee_id=request.employee_id)
         statement = select(Parking).where(
             (Parking.id == parking_id)
         )

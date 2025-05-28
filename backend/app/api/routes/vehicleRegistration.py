@@ -8,9 +8,9 @@ router = APIRouter(prefix="/vehicle", tags=["vehicleRegistration"])
 # ------------------------- Customer Actions ------------------------- #
 
 @router.post("/register-vehicle/", response_model=Message)
-def register_vehicle(session: SessionDep, json: CreateVehicleRequest) -> Message:
+def register_vehicle(session: SessionDep, request: CreateVehicleRequest) -> Message:
     try:
-        create_vehicle(session=session, json=json)
+        create_vehicle(session=session, request=request)
         return Message(message="Registro de vehículo exitoso")
     except Exception as e:
         raise HTTPException(
@@ -20,10 +20,10 @@ def register_vehicle(session: SessionDep, json: CreateVehicleRequest) -> Message
 
 
 @router.post("/get-vehicle", response_model=SearchCustomerVehicleResponse)
-def get_vehicle(session: SessionDep, json: SearchCustomerVehicleRequest) -> SearchCustomerVehicleResponse:
-    print(json)
+def get_vehicle(session: SessionDep, request: SearchCustomerVehicleRequest) -> SearchCustomerVehicleResponse:
+    print(request)
     try:
-        vehicle = get_customer_vehicle(session=session, json=json)
+        vehicle = get_customer_vehicle(session=session, request=request)
         if not vehicle:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
@@ -41,9 +41,9 @@ def get_vehicle(session: SessionDep, json: SearchCustomerVehicleRequest) -> Sear
 
 
 @router.post("/get-customer-vehicles", response_model=SearchVehiclesResponse)
-def get_vehicles(session: SessionDep, json: SearchCustomerVehiclesRequest) -> SearchVehiclesResponse:
+def get_vehicles(session: SessionDep, request: SearchCustomerVehiclesRequest) -> SearchVehiclesResponse:
     try:
-        vehicles = get_customer_vehicles(session=session, json=json)
+        vehicles = get_customer_vehicles(session=session, request=request)
         if not vehicles:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
@@ -65,9 +65,9 @@ def get_vehicles(session: SessionDep, json: SearchCustomerVehiclesRequest) -> Se
 
 
 @router.delete("/delete-vehicle", response_model=Message)
-def delete_vehicle(session: SessionDep, json: DeleteVehicleRequest) -> Message:
+def delete_vehicle(session: SessionDep, request: DeleteVehicleRequest) -> Message:
     try:
-        if delete_customer_vehicle(session=session, json=json):
+        if delete_customer_vehicle(session=session, request=request):
             return Message(message="Vehiculo eliminado correctamente")
         return Message(message="El vehiculo no ha sido eliminado")
     except Exception as e:
@@ -79,9 +79,9 @@ def delete_vehicle(session: SessionDep, json: DeleteVehicleRequest) -> Message:
 # ------------------------- Employee Actions ------------------------- #
 
 @router.post("/get-all-customers-vehicles", response_model=SearchAllCustomerVehiclesResponse)
-def get_all_customer_vehicles(session: SessionDep, json: SearchAllCustomerVehiclesRequest) -> SearchAllCustomerVehiclesResponse:
+def get_all_customer_vehicles(session: SessionDep, request: SearchAllCustomerVehiclesRequest) -> SearchAllCustomerVehiclesResponse:
     try:
-        return get_all_customer_vehicles_crud(session=session, json=json)
+        return get_all_customer_vehicles_crud(session=session, request=request)
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -90,9 +90,9 @@ def get_all_customer_vehicles(session: SessionDep, json: SearchAllCustomerVehicl
 
 
 @router.post("/get-vehicle-by-plate-entry", response_model=SearchRegistrationByPlateResponse)
-def get_vehicle_by_plate_entry(session: SessionDep, json: SearchRegistrationByPlateRequest) -> SearchRegistrationByPlateResponse:
+def get_vehicle_by_plate_entry(session: SessionDep, request: SearchRegistrationByPlateRequest) -> SearchRegistrationByPlateResponse:
     try:
-        return get_registrations_by_plate_entry_crud(session=session, json=json)
+        return get_registrations_by_plate_entry_crud(session=session, request=request)
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -101,9 +101,9 @@ def get_vehicle_by_plate_entry(session: SessionDep, json: SearchRegistrationByPl
 
 """
 @router.post("/get-vehicle-by-plate-exit", response_model=SearchRegistrationByPlateResponse)
-def get_vehicle_by_plate_entry(session: SessionDep, json: SearchRegistrationByPlateRequest) -> SearchRegistrationByPlateResponse:
+def get_vehicle_by_plate_entry(session: SessionDep, request: SearchRegistrationByPlateRequest) -> SearchRegistrationByPlateResponse:
     try:
-        return get_registrations_by_plate_exit_crud(session=session, json=json)
+        return get_registrations_by_plate_exit_crud(session=session, request=request)
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -112,9 +112,9 @@ def get_vehicle_by_plate_entry(session: SessionDep, json: SearchRegistrationByPl
 """
 
 @router.post("/get-occupation-report", response_model=SearchOccupationReportResponse)
-def get_occupation_report(session: SessionDep, json: SearchOccupationReportRequest) -> SearchOccupationReportResponse:
+def get_occupation_report(session: SessionDep, request: SearchOccupationReportRequest) -> SearchOccupationReportResponse:
     try:
-        return get_occupation_report_crud(session=session, json=json)
+        return get_occupation_report_crud(session=session, request=request)
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,

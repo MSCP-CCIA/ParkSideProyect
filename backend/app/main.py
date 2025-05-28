@@ -29,7 +29,7 @@ app = FastAPI(
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],  # tu lista de orígenes
-    allow_credentials=False,
+    allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -41,6 +41,8 @@ from starlette.middleware.base import BaseHTTPMiddleware
 
 @app.middleware("http")
 async def verify_token_middleware(request: Request, call_next):
+    if request.method == "OPTIONS":
+        return await call_next(request)
     excluded_paths = [
         "/docs",
         f"{settings.API_V1_STR}/openapi.json",
@@ -50,11 +52,17 @@ async def verify_token_middleware(request: Request, call_next):
         f"{settings.API_V1_STR}/customer/login/",
         # Modelos para probar (borrar)
         f"{settings.API_V1_STR}/cards/register-card/",
+        f"{settings.API_V1_STR}/cards/update-card/",
+        f"{settings.API_V1_STR}/cards/get-card/",
+        f"{settings.API_V1_STR}/cards/get-cards/",
+        f"{settings.API_V1_STR}/cards/delete-card/",
+        f"{settings.API_V1_STR}/cards/register-card/",
+        f"{settings.API_V1_STR}/employee/login/",
+        f"{settings.API_V1_STR}/vehicle/register-vehicle/",
+        f"{settings.API_V1_STR}/flow/entry-register/"
     ]
-
     if request.url.path in excluded_paths or request.url.path.startswith("/static"):
         return await call_next(request)
-
     auth_header = request.headers.get("Authorization")
     if not auth_header or not auth_header.startswith("Bearer "):
         return JSONResponse(
@@ -62,11 +70,10 @@ async def verify_token_middleware(request: Request, call_next):
             content={"detail": "Authorization header missing or invalid"},
             headers={"WWW-Authenticate": "Bearer"},
         )
-
     token = auth_header.split(" ")[1]
     try:
         decoded_payload = decode_token(token)
-        request.state.user = decoded_payload  # ← Aquí guardamos el usuario
+        request.state.user = decoded_payload
     except HTTPException as e:
         return JSONResponse(status_code=e.status_code, content={"detail": e.detail}, headers=e.headers)
     except Exception as e:
@@ -74,8 +81,5 @@ async def verify_token_middleware(request: Request, call_next):
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             content={"detail": f"Internal server error: {e}"}
         )
-
     return await call_next(request)
-
-
 app.include_router(api_router, prefix=settings.API_V1_STR)

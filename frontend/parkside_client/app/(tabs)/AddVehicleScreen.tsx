@@ -10,21 +10,14 @@ import {
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
-
-// Layout
 import ScreenLayout from '../layouts/ScreenLayout';
-
-// Components
 import ValidatedTextInput from '../../components/common/ValidatedTextInput';
 import Dropdown from '../../components/common/Dropdown';
-
-// models
-import { CreateVehicleRequest } from '../../models/vehicle_models';
-
-// API Services
 import { registerVehicle } from '../../core/register_vehicle';
+import {addVehicle} from '../../api/addVehicleApi'
+import {CreateVehicleRequest} from '../../models/vehicle_models'
+import {Message} from '../../models/message_models'
 
-// Props Interface
 interface AddVehicleScreenProps {
   navigation: any;
 }
@@ -44,7 +37,7 @@ const AddVehicleScreen: FC<AddVehicleScreenProps> = ({ navigation }) => {
     useEffect(() => {
       const getCustomerIdFromStorage = async () => {
         try {
-          const storedData = await AsyncStorage.getItem('loginData');
+          const storedData = await AsyncStorage.getItem('authToken');
           if (storedData) {
             const { id } = JSON.parse(storedData);
             setCustomerId(id);
@@ -97,28 +90,21 @@ const AddVehicleScreen: FC<AddVehicleScreenProps> = ({ navigation }) => {
   };
 
   // API Request Object Creation
-  const createVehicleRequestObject = (
-    vehiclePlate: string,
-    selectedVehicleType: string,
-    customerId: number
-  ): CreateVehicleRequest => {
-    return {
-      plate: vehiclePlate,
-      type: selectedVehicleType,
-      customer_id: customerId,
-    };
-  };
+
 
   // API Call Handler
   const handleAccept = async () => {
-    if (validatePlate() && customerId) { // Verifica también que customerId no sea nulo
-      setLoading(true); // Inicia la carga
-      const createVehicleRequest = createVehicleRequestObject(vehiclePlate, selectedVehicleType, customerId);
-      console.log('esto se va a amandar',createVehicleRequest);
+    if (validatePlate() && customerId) {
+      setLoading(true);
+      const request: CreateVehicleRequest = {
+          plate: vehiclePlate.trim(),
+          type: selectedVehicleType.trim(),
+          customer_id: customerId,
+      }
+      console.log('esto se va a amandar',request);
       try {
-        const response = await registerVehicle(createVehicleRequest);
-        setLoading(false); // Detiene la carga, independientemente del resultado
-        console.log('Respuesta del servidor:', response.data);
+        const response = await addVehicle(request);
+        console.log('Respuesta del servidor:', response);
         Alert.alert('Vehículo registrado correctamente');
         navigation.navigate('MyVehiclesScreen');
       } catch (error: any) {
@@ -132,7 +118,6 @@ const AddVehicleScreen: FC<AddVehicleScreenProps> = ({ navigation }) => {
     }
   };
 
-  // Render
   return (
     <ScreenLayout title="Agregar Vehículo" navigation={navigation}>
       <KeyboardAvoidingView

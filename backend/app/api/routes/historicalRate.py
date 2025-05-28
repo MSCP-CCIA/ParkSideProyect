@@ -8,9 +8,9 @@ router = APIRouter(prefix="/historicalRate", tags=["historicalRate"])
 # ------------------------- Employee Actions ------------------------- #
 
 @router.post("/register-rate/", response_model=Message)
-def register_rate(session: SessionDep, json: CreateHistoricalRateRequest) -> Message:
+def register_rate(session: SessionDep, request: CreateHistoricalRateRequest) -> Message:
     try:
-        create_rate(session=session, json=json)
+        create_rate(session=session, request=request)
         return Message(message="Registro de tarifa exitoso")
     except Exception as e:
         raise HTTPException(
@@ -20,9 +20,9 @@ def register_rate(session: SessionDep, json: CreateHistoricalRateRequest) -> Mes
 
 
 @router.post("/get-rate-{date}", response_model=SearchHistoricalRateResponse)
-def get_rate(session: SessionDep, json: SearchHistoricalRateRequest) -> SearchHistoricalRateResponse:
+def get_rate(session: SessionDep, request: SearchHistoricalRateRequest) -> SearchHistoricalRateResponse:
     try:
-        historicalRate = get_historical_rate_per_date(session=session, json=json)
+        historicalRate = get_historical_rate_per_date(session=session, request=request)
         if not historicalRate:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
@@ -42,9 +42,9 @@ def get_rate(session: SessionDep, json: SearchHistoricalRateRequest) -> SearchHi
 
 
 @router.post("/get-all", response_model=SearchHistoricalRatesResponse)
-def get_rates(session: SessionDep, json: SearchHistoricalRatesRequest) -> SearchHistoricalRatesResponse:
+def get_rates(session: SessionDep, request: SearchHistoricalRatesRequest) -> SearchHistoricalRatesResponse:
     try:
-        historicalRates = get_historical_rates(session=session, json=json)
+        historicalRates = get_historical_rates(session=session, request=request)
         if not historicalRates:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,

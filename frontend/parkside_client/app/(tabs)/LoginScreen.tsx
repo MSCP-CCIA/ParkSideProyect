@@ -30,7 +30,7 @@ const LoginScreen: FC<LoginScreenProps> = ({ navigation }) => {
   const saveLoginData = async (data: SearchCustomerResponse) => {
     try {
       const jsonValue = JSON.stringify(data);
-      await AsyncStorage.setItem('loginData', jsonValue);
+      await AsyncStorage.setItem('authToken', jsonValue);
       console.log('Datos de login guardados en AsyncStorage');
     } catch (e) {
       console.error('Error al guardar los datos de login:', e);
