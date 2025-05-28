@@ -7,7 +7,7 @@ router = APIRouter(prefix="/historicalRate", tags=["historicalRate"])
 
 # ------------------------- Employee Actions ------------------------- #
 
-@router.post("/register-rate/", response_model=Message)
+@router.post("/register-rate", response_model=Message)
 def register_rate(session: SessionDep, request: CreateHistoricalRateRequest) -> Message:
     try:
         create_rate(session=session, request=request)

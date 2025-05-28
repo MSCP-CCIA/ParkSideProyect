@@ -8,7 +8,7 @@ router = APIRouter(prefix="/flow", tags=["flowRegistration"])
 
 # ------------------------- ML Actions ------------------------- #
 
-@router.post("/entry-register/", response_model=Message)
+@router.post("/entry-register", response_model=Message)
 def entry_register(session: SessionDep, request: EntryOrUpdateVehicleRequest | dict) -> Message:
     try:
         vehicle = get_customer_vehicle(session=session, request=request)
@@ -23,7 +23,7 @@ def entry_register(session: SessionDep, request: EntryOrUpdateVehicleRequest | d
             detail="Error inesperado al registrar la entrada al parqueadero"
         )
 
-@router.post("/exit-register/", response_model=Message)
+@router.post("/exit-register", response_model=Message)
 def exit_register(session: SessionDep, request: EntryOrUpdateVehicleRequest) -> Message:
     try:
         vehicle = get_customer_vehicle(session=session, request=request)

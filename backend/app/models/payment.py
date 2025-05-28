@@ -1,6 +1,7 @@
-from datetime import datetime
+from datetime import datetime, date
 from decimal import Decimal
-from typing import Optional, TYPE_CHECKING
+from pydantic import BaseModel
+from typing import Optional, TYPE_CHECKING, List
 from sqlalchemy import Column, BigInteger
 from sqlmodel import Field, Relationship, SQLModel
 
@@ -23,3 +24,21 @@ class Payment(SQLModel, table=True):
 
     parking_registration: "ParkingRegistration" = Relationship(back_populates="payment")
     employee: Optional["Employee"] = Relationship(back_populates="payments")
+
+# ------------------------- Employee Actions ------------------------- #
+
+# Get Occupation Report for Employee
+
+class SearchPaymentReportRequest(BaseModel):
+    employee_id: int
+    customer_id: int
+
+class SearchPaymentReport(BaseModel):
+    customer_id: int
+    customer_full_name: str
+    date_created: date
+    transaction_amount: float
+    status: str
+
+class SearchPaymentReportResponse(BaseModel):
+    payment_report: List[SearchPaymentReport]

@@ -149,7 +149,7 @@ def get_registrations_by_plate_entry_crud(*, session: Session, request: SearchRe
             detail=f"Error al obtener el vehículo: {str(e)}"
         )
 
-"""
+
 def get_registrations_by_plate_exit_crud(*, session: Session, request: SearchRegistrationByPlateRequest) -> SearchRegistrationByPlateResponse:
     try:
         parking_id = get_parking_employee(session=session, employee_id=request.employee_id)
@@ -176,12 +176,12 @@ def get_registrations_by_plate_exit_crud(*, session: Session, request: SearchReg
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Error al obtener el vehículo: {str(e)}"
         )
-"""
+
 
 def get_occupation_report_crud(*, session: Session, request: SearchOccupationReportRequest) -> SearchOccupationReportResponse:
     try:
         parking_id = get_parking_employee(session=session, employee_id=request.employee_id)
-        statement = (select(Vehicle.plate, Customer.full_name, ParkingRegistration.entry_datetime, ParkingRegistration.exit_datetime,)
+        statement = (select(Vehicle.plate, Customer.full_name, ParkingRegistration.entry_datetime, ParkingRegistration.exit_datetime)
                      .join(Customer).where((Customer.parking_id == parking_id) & (Vehicle.plate == request.plate))
                      .join(ParkingRegistration).where(ParkingRegistration.plate == request.plate)
                      .order_by(desc(ParkingRegistration.entry_datetime)))

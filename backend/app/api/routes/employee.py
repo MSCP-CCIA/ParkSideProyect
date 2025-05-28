@@ -10,7 +10,7 @@ router = APIRouter(prefix="/employee", tags=["employee"])
 
 # ------------------------- Employee Actions ------------------------- #
 
-@router.post("/login/", response_model=SearchEmployeeResponse)
+@router.post("/login", response_model=SearchEmployeeResponse)
 def login_employee(session: SessionDep, request: SearchEmployeeRequest) -> SearchEmployeeResponse:
     employee = authenticate_employee(session=session, request=request)
     if not employee:
@@ -33,7 +33,7 @@ def login_employee(session: SessionDep, request: SearchEmployeeRequest) -> Searc
     )
 
 
-@router.post("/update-employee/", response_model=Message)
+@router.post("/update-employee", response_model=Message)
 def update_employee(session: SessionDep, request: UpdateEmployeeRequest) -> Message:
     try:
         update_employee_crud(session=session, request=request)

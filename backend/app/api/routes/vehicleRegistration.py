@@ -7,7 +7,7 @@ router = APIRouter(prefix="/vehicle", tags=["vehicleRegistration"])
 
 # ------------------------- Customer Actions ------------------------- #
 
-@router.post("/register-vehicle/", response_model=Message)
+@router.post("/register-vehicle", response_model=Message)
 def register_vehicle(session: SessionDep, request: CreateVehicleRequest) -> Message:
     try:
         create_vehicle(session=session, request=request)
@@ -96,12 +96,12 @@ def get_vehicle_by_plate_entry(session: SessionDep, request: SearchRegistrationB
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error inesperado al buscar el vehículo"
+            detail=f"Error inesperado al buscar el vehículo: {str(e)}"
         )
 
-"""
+
 @router.post("/get-vehicle-by-plate-exit", response_model=SearchRegistrationByPlateResponse)
-def get_vehicle_by_plate_entry(session: SessionDep, request: SearchRegistrationByPlateRequest) -> SearchRegistrationByPlateResponse:
+def get_vehicle_by_plate_exit(session: SessionDep, request: SearchRegistrationByPlateRequest) -> SearchRegistrationByPlateResponse:
     try:
         return get_registrations_by_plate_exit_crud(session=session, request=request)
     except Exception as e:
@@ -109,7 +109,7 @@ def get_vehicle_by_plate_entry(session: SessionDep, request: SearchRegistrationB
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Error inesperado al buscar el vehículo: {str(e)}"
         )
-"""
+
 
 @router.post("/get-occupation-report", response_model=SearchOccupationReportResponse)
 def get_occupation_report(session: SessionDep, request: SearchOccupationReportRequest) -> SearchOccupationReportResponse:

@@ -1,9 +1,12 @@
-from sqlmodel import Session, select
-from typing import Optional, List
+from app.models.payment import *
+from fastapi import HTTPException, status
+from sqlmodel import Session, select, desc
+from app.models.vehicle import Vehicle
+from app.models.customer import Customer
+from app.models.parkingRegistration import ParkingRegistration
+from app.api.deps import get_parking_employee
 
-from app.models.payment import Payment
-from app.schemas.payment import PaymentCreate, PaymentUpdate
-
+"""
 def create_payment(session: Session, payment_in: PaymentCreate) -> Payment:
     db_payment = Payment.model_validate(payment_in)
     session.add(db_payment)
@@ -25,3 +28,37 @@ def update_payment(session: Session, db_payment: Payment, payment_in: PaymentUpd
     session.commit()
     session.refresh(db_payment)
     return db_payment
+"""
+
+def get_payment_report_crud(*, session: Session, request: SearchPaymentReportRequest) -> SearchPaymentReportResponse:
+    try:
+        parking_id = get_parking_employee(session=session, employee_id=request.employee_id)
+        statement = (select(Customer.id, Customer.full_name, Payment.date_created, Payment.transaction_amount, Payment.status)
+                     .join(ParkingRegistration).where(Payment.parking_registration_id == ParkingRegistration.id)
+                     .join(Vehicle).where(ParkingRegistration.plate == Vehicle.plate)
+                     .join(Customer).where((Vehicle.customer_id == request.customer_id) & (Customer.parking_id == parking_id))
+                     .order_by(desc(Payment.date_created)))
+        db_response = session.exec(statement).all()
+        if not db_response:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Usuario no encontrado"
+            )
+        response = [
+            SearchPaymentReport(
+                customer_id=i.id,
+                customer_full_name=i.full_name,
+                date_created=i.date_created.strftime("%Y-%m-%d"),
+                transaction_amount=i.transaction_amount,
+                status=i.status
+            )
+            for i in db_response
+        ]
+        return SearchPaymentReportResponse(payment_report=response)
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error al obtener el vehículo: {str(e)}"
+        )

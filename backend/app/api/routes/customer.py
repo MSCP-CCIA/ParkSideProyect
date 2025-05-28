@@ -10,7 +10,7 @@ router = APIRouter(prefix="/customer", tags=["customer"])
 
 # ------------------------- Customer Actions ------------------------- #
 
-@router.post("/register/", response_model=Message)
+@router.post("/register", response_model=Message)
 def register(session: SessionDep, request: CreateCustomerRequest) -> Message:
     try:
         create_user(session=session, request=request)
@@ -22,7 +22,7 @@ def register(session: SessionDep, request: CreateCustomerRequest) -> Message:
         )
 
 
-@router.post("/login/", response_model=SearchCustomerResponse)
+@router.post("/login", response_model=SearchCustomerResponse)
 def login_customer(session: SessionDep, request: SearchCustomerRequest) -> SearchCustomerResponse:
     customer = authenticate_customer(session=session, request=request)
     if not customer:
@@ -45,7 +45,7 @@ def login_customer(session: SessionDep, request: SearchCustomerRequest) -> Searc
     )
 
 
-@router.post("/info/", response_model=SearchMyInformationResponse)
+@router.post("/info", response_model=SearchMyInformationResponse)
 def get_info(session: SessionDep, request: SearchMyInformationRequest) -> SearchMyInformationResponse:
     try:
         customer = get_customer_by_id(session=session, request=request)
@@ -62,7 +62,7 @@ def get_info(session: SessionDep, request: SearchMyInformationRequest) -> Search
         )
 
 
-@router.post("/update-customer/", response_model=Message)
+@router.post("/update-customer", response_model=Message)
 def update_customer(session: SessionDep, request: UpdateCustomerRequest) -> Message:
     try:
         update_user(session=session, request=request)
@@ -77,7 +77,7 @@ def update_customer(session: SessionDep, request: UpdateCustomerRequest) -> Mess
 # ------------------------- Employee Actions ------------------------- #
 
 
-@router.post("/get-customer-by-id/", response_model=SearchCustomersResponse)
+@router.post("/get-customer-by-id", response_model=SearchCustomersResponse)
 def get_customer_by_id_employee(session: SessionDep, request: SearchCustomerByIdRequest) -> SearchCustomersResponse:
     try:
         customer = get_customer_by_id_crud(session=session, request=request)
@@ -100,7 +100,7 @@ def get_customer_by_id_employee(session: SessionDep, request: SearchCustomerById
         )
 
 
-@router.post("/update-customer-state/", response_model=Message)
+@router.post("/update-customer-state", response_model=Message)
 def update_customer_state(session: SessionDep, request: UpdateCustomerStateRequest) -> Message:
     try:
         update_customer_state_crud(session=session, request=request)
