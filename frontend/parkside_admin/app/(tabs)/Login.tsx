@@ -7,8 +7,8 @@ import AuthTitle from '../../components/Auth/AuthTitle';
 import InputField from '../../components/common/InputField';
 import Button from '../../components/common/Button';
 import LinkText from '../../components/common/LinkText';
-import { loginEmployee } from '../../api/login';
-import { SearchEmployeeRequest } from '../../Models/loginModels';
+import { loginEmployee } from '../../api/loginApi';
+import { SearchEmployeeRequest } from '@/models/loginModels';
 
 interface LoginProps {
   navigation: NativeStackNavigationProp<any>;

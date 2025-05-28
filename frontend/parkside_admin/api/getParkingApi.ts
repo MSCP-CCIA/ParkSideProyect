@@ -2,9 +2,9 @@ import api from '../api/axiosConfig';
 import {
   SearchParkingRequest,
   SearchParkingResponse,
-} from '../Models/parkingModels';
+} from '@/models/parkingModels';
 
-export const getParking = async (
+export const getParkingApi = async (
   data: SearchParkingRequest
 ): Promise<SearchParkingResponse> => {
   const response = await api.post<SearchParkingResponse>(

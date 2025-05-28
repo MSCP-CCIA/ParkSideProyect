@@ -11,8 +11,8 @@ import {
 import DashboardLayout from '../layouts/DashboardLayout';
 import SelectableTable from '../../components/common/SelectableTable';
 import RefreshButton from '../../components/common/RefreshButton';
-import { getRegistroEntrada } from '../../api/registroEntrada';
-import { SearchRegistrationByPlateResponse } from '../../Models/registroEntradaModels';
+import { getRegistroEntrada } from '../../api/registroEntradaApi';
+import { SearchRegistrationByPlateResponse } from '@/models/registroEntradaModels';
 
 const headers = [
   { label: 'Número de Documento', key: 'numeroDocumento' },

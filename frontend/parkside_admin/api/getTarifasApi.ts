@@ -2,9 +2,9 @@ import api from '../api/axiosConfig';
 import {
   SearchHistoricalRatesRequest,
   SearchHistoricalRatesResponse
-} from '../Models/tarifaModels';
+} from '@/models/tarifaModels';
 
-export const getTarifas = async (
+export const getTarifasApi = async (
   data: SearchHistoricalRatesRequest
 ): Promise<SearchHistoricalRatesResponse> => {
   const response = await api.post<SearchHistoricalRatesResponse>(

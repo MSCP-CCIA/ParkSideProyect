@@ -12,8 +12,8 @@ import DashboardLayout from '../layouts/DashboardLayout';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import ReusableTable from '../../components/common/ReusableTable';
-import { getTarifas } from '../../api/getTarifas';
-import { SearchHistoricalRateResponse } from '../../Models/tarifaModels';
+import { getTarifasApi } from '../../api/getTarifasApi';
+import { SearchHistoricalRateResponse } from '@/models/tarifaModels';
 
 const headers = [
     { label: 'Precio Carro', key: 'precioCarro' },
@@ -30,7 +30,7 @@ const Tarifas = () => {
     const fetchTarifas = async () => {
         setLoading(true);
         try {
-            const response = await getTarifas({ employee_id: 1 });
+            const response = await getTarifasApi({ employee_id: 1 });
 
             const mapped = response.historicalRates.map((item: SearchHistoricalRateResponse) => ({
                 precioCarro: `$${item.car_rate.toLocaleString()}`,

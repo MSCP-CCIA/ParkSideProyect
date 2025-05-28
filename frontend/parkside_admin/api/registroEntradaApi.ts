@@ -2,7 +2,7 @@ import api from '../api/axiosConfig';
 import {
   SearchRegistrationByPlateRequest,
   SearchRegistrationByPlateResponse
-} from '../Models/registroEntradaModels';
+} from '@/models/registroEntradaModels';
 
 export const getRegistroEntrada = async (
   data: SearchRegistrationByPlateRequest

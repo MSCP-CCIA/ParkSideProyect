@@ -11,8 +11,8 @@ import DashboardLayout from '../layouts/DashboardLayout';
 import ValidatedTextInput from '../../components/common/ValidatedTextInput';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { createTarifa } from '../../api/createTarifa';
-import { CreateHistoricalRateRequest } from '../../Models/tarifaModels';
+import { createTarifaApi } from '../../api/createTarifaApi';
+import { CreateHistoricalRateRequest } from '@/models/tarifaModels';
 
 const CrearTarifas = () => {
     const navigation = useNavigation<NativeStackNavigationProp<any>>();
@@ -99,7 +99,7 @@ const CrearTarifas = () => {
         };
 
         try {
-            await createTarifa(payload);
+            await createTarifaApi(payload);
             Alert.alert('Éxito', 'Tarifa creada exitosamente.');
             navigation.navigate('Tarifas');
         } catch (error) {

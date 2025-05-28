@@ -2,9 +2,9 @@ import api from '../api/axiosConfig';
 import {
     SearchAllCustomerVehiclesRequest,
     SearchAllCustomerVehiclesResponse,
-} from '../Models/vehicleModels';
+} from '@/models/vehicleModels';
 
-export const getAllCustomerVehicles = async (
+export const getAllCustomerVehiclesApi = async (
     data: SearchAllCustomerVehiclesRequest
 ): Promise<SearchAllCustomerVehiclesResponse> => {
     const response = await api.post<SearchAllCustomerVehiclesResponse>(

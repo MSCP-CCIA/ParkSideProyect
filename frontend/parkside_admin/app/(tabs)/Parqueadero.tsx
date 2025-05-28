@@ -10,8 +10,8 @@ import {
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import DashboardLayout from '../layouts/DashboardLayout';
-import { getParking } from '../../api/getParking';
-import { SearchParkingResponse } from '../../Models/parkingModels';
+import { getParkingApi } from '../../api/getParkingApi';
+import { SearchParkingResponse } from '@/models/parkingModels';
 
 const Parqueadero = () => {
   const navigation = useNavigation<NativeStackNavigationProp<any>>();
@@ -20,7 +20,7 @@ const Parqueadero = () => {
 
   const fetchParkingInfo = async () => {
     try {
-      const response = await getParking({ employee_id: 1 });
+      const response = await getParkingApi({ employee_id: 1 });
       setParkingData(response);
     } catch (error) {
       console.error('Error al obtener la información del parqueadero:', error);

@@ -10,8 +10,8 @@ import {
 import DashboardLayout from '../layouts/DashboardLayout';
 import ReusableTable from '../../components/common/ReusableTable';
 import RefreshButton from '../../components/common/RefreshButton';
-import { SearchAllCustomerVehicles } from '../../Models/vehicleModels';
-import { getAllCustomerVehicles } from '../../api/getAllCustomerVehicles';
+import { SearchAllCustomerVehicles } from '@/models/vehicleModels';
+import { getAllCustomerVehiclesApi } from '../../api/getAllCustomerVehiclesApi';
 
 const headers = [
     { label: 'Número de Documento', key: 'customer_id' },
@@ -28,7 +28,7 @@ const InfoVehiculos = () => {
     const fetchVehicles = async () => {
         setLoading(true);
         try {
-            const response = await getAllCustomerVehicles({
+            const response = await getAllCustomerVehiclesApi({
                 employee_id: 1,
                 customer_id: 1,
             });

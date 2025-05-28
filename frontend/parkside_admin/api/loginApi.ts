@@ -1,5 +1,5 @@
 import api from '../api/axiosConfig';
-import {SearchEmployeeRequest, SearchEmployeeResponse} from '../Models/loginModels';
+import {SearchEmployeeRequest, SearchEmployeeResponse} from '@/models/loginModels';
 
 export const loginEmployee = async (
     data: SearchEmployeeRequest

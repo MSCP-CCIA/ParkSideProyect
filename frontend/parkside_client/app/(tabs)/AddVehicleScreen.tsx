@@ -18,7 +18,7 @@ import ScreenLayout from '../layouts/ScreenLayout';
 import ValidatedTextInput from '../../components/common/ValidatedTextInput';
 import Dropdown from '../../components/common/Dropdown';
 
-// Models
+// models
 import { CreateVehicleRequest } from '../../models/vehicle_models';
 
 // API Services
