@@ -8,7 +8,7 @@ export const getParkingApi = async (
   data: SearchParkingRequest
 ): Promise<SearchParkingResponse> => {
   const response = await api.post<SearchParkingResponse>(
-    '/api/v1/vehicle/get-parking',
+    '/api/v1/parking/get-parking',
     data
   );
   return response.data;

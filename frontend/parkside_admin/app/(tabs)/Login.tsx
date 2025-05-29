@@ -7,7 +7,7 @@ import AuthTitle from '../../components/Auth/AuthTitle';
 import InputField from '../../components/common/InputField';
 import Button from '../../components/common/Button';
 import LinkText from '../../components/common/LinkText';
-import { loginEmployee } from '../../api/loginApi';
+import { loginEmployee } from '@/api/loginApi';
 import { SearchEmployeeRequest, SearchEmployeeResponse } from '@/models/loginModels';
 
 interface LoginProps {

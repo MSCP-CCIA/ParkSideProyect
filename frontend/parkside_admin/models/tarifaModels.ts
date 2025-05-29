@@ -15,8 +15,8 @@ export interface SearchHistoricalRatesResponse {
 
 export interface CreateHistoricalRateRequest {
   employee_id: number;
-  car_rate: number;
-  motorbike_rate: number;
+  car_rate: number | null;
+  motorbike_rate: number | null;
   start_date: string;
 }
 

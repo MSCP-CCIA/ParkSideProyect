@@ -1,12 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import {
-    View,
-    Text,
-    StyleSheet,
-    TextInput,
-    ScrollView,
-    Alert,
-    TouchableOpacity,
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  Alert,
+  TouchableOpacity,
 } from 'react-native';
 import DashboardLayout from '../layouts/DashboardLayout';
 import { useNavigation } from '@react-navigation/native';
@@ -14,100 +13,99 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import ReusableTable from '../../components/common/ReusableTable';
 import { getTarifasApi } from '../../api/getTarifasApi';
 import { SearchHistoricalRateResponse } from '@/models/tarifaModels';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const headers = [
-    { label: 'Precio Carro', key: 'precioCarro' },
-    { label: 'Precio Moto', key: 'precioMoto' },
-    { label: 'Fecha Inicio', key: 'fechaInicio' },
-    { label: 'Fecha Fin', key: 'fechaFin' },
+  { label: 'Precio Carro', key: 'precioCarro' },
+  { label: 'Precio Moto', key: 'precioMoto' },
+  { label: 'Fecha Inicio', key: 'fechaInicio' },
+  { label: 'Fecha Fin', key: 'fechaFin' },
 ];
 
 const Tarifas = () => {
-    const navigation = useNavigation<NativeStackNavigationProp<any>>();
-    const [tarifas, setTarifas] = useState<any[]>([]);
-    const [loading, setLoading] = useState(false);
+  const navigation = useNavigation<NativeStackNavigationProp<any>>();
+  const [tarifas, setTarifas] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
 
-    const fetchTarifas = async () => {
-        setLoading(true);
-        try {
-            const response = await getTarifasApi({ employee_id: 1 });
+  const fetchTarifas = async () => {
+    setLoading(true);
+    try {
+      const idString = await AsyncStorage.getItem('userId');
+      if (!idString) {
+        Alert.alert('Error', 'No se encontró el ID del empleado.');
+        setLoading(false);
+        return;
+      }
+      const employee_id = parseInt(idString, 10);
 
-            const mapped = response.historicalRates.map((item: SearchHistoricalRateResponse) => ({
-                precioCarro: `$${item.car_rate.toLocaleString()}`,
-                precioMoto: `$${item.motorbike_rate.toLocaleString()}`,
-                fechaInicio: new Date(item.start_date).toLocaleDateString(),
-                fechaFin: item.end_date ? new Date(item.end_date).toLocaleDateString() : 'Actual',
-            }));
+      const response = await getTarifasApi({ employee_id });
 
-            setTarifas(mapped);
-        } catch (error) {
-            console.error('Error al obtener tarifas:', error);
-            Alert.alert('Error', 'No se pudieron cargar las tarifas.');
-        } finally {
-            setLoading(false);
-        }
-    };
+      const mapped = response.historicalRates.map(
+        (item: SearchHistoricalRateResponse) => ({
+          precioCarro: `$${item.car_rate.toLocaleString()}`,
+          precioMoto: `$${item.motorbike_rate.toLocaleString()}`,
+          fechaInicio: new Date(item.start_date).toLocaleDateString(),
+          fechaFin: item.end_date
+            ? new Date(item.end_date).toLocaleDateString()
+            : 'Actual',
+        })
+      );
 
-    useEffect(() => {
-        fetchTarifas();
-    }, []);
+      setTarifas(mapped);
+    } catch (error) {
+      console.error('Error al obtener tarifas:', error);
+      Alert.alert('Error', 'No se pudieron cargar las tarifas.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    const handleCreateTarifa = () => {
-        navigation.navigate('CrearTarifas');
-    };
+  useEffect(() => {
+    fetchTarifas();
+  }, []);
 
-    return (
-        <DashboardLayout>
-            <ScrollView>
-                <Text style={styles.title}>Tarifas</Text>
+  const handleCreateTarifa = () => {
+    navigation.navigate('CrearTarifas');
+  };
 
-                <ReusableTable
-                    headers={headers}
-                    data={tarifas}
-                    noDataText={loading ? 'Cargando tarifas...' : 'No hay tarifas registradas.'}
-                />
+  return (
+    <DashboardLayout>
+      <ScrollView>
+        <Text style={styles.title}>Tarifas</Text>
 
-                <TouchableOpacity style={styles.createButton} onPress={handleCreateTarifa}>
-                    <Text style={styles.createButtonText}>Crear nueva Tarifa</Text>
-                </TouchableOpacity>
-            </ScrollView>
-        </DashboardLayout>
-    );
+        <ReusableTable
+          headers={headers}
+          data={tarifas}
+          noDataText={loading ? 'Cargando tarifas...' : 'No hay tarifas registradas.'}
+        />
+
+        <TouchableOpacity style={styles.createButton} onPress={handleCreateTarifa}>
+          <Text style={styles.createButtonText}>Crear nueva Tarifa</Text>
+        </TouchableOpacity>
+      </ScrollView>
+    </DashboardLayout>
+  );
 };
 
 const styles = StyleSheet.create({
-    title: {
-        fontSize: 22,
-        fontWeight: 'bold',
-        marginBottom: 16,
-        marginTop: 16,
-    },
-    searchContainer: {
-        flexDirection: 'row',
-        marginBottom: 16,
-    },
-    searchInput: {
-        flex: 1,
-        height: 40,
-        borderColor: '#1976D2',
-        borderWidth: 1,
-        borderRadius: 8,
-        paddingHorizontal: 10,
-        marginRight: 10,
-        backgroundColor: '#fff',
-    },
-    createButton: {
-        marginTop: 24,
-        backgroundColor: '#1976D2',
-        borderRadius: 8,
-        paddingVertical: 12,
-        paddingHorizontal: 20,
-        alignSelf: 'center',
-    },
-    createButtonText: {
-        color: '#fff',
-        fontWeight: 'bold',
-    },
+  title: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    marginBottom: 16,
+    marginTop: 16,
+  },
+  createButton: {
+    marginTop: 24,
+    backgroundColor: '#1976D2',
+    borderRadius: 8,
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    alignSelf: 'center',
+  },
+  createButtonText: {
+    color: '#fff',
+    fontWeight: 'bold',
+  },
 });
 
 export default Tarifas;

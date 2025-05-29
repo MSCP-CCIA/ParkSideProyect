@@ -10,21 +10,34 @@ import {
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import DashboardLayout from '../layouts/DashboardLayout';
-import { getParkingApi } from '../../api/getParkingApi';
-import { SearchParkingResponse } from '@/models/parkingModels';
+import { getParkingApi } from '@/api/getParkingApi';
+import { SearchParkingResponse, SearchParkingRequest } from '@/models/parkingModels';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const Parqueadero = () => {
   const navigation = useNavigation<NativeStackNavigationProp<any>>();
 
   const [parkingData, setParkingData] = useState<SearchParkingResponse | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
 
   const fetchParkingInfo = async () => {
     try {
-      const response = await getParkingApi({ employee_id: 1 });
+      const idString = await AsyncStorage.getItem('userId');
+      if (!idString) {
+        Alert.alert('Error', 'No se encontró el ID del empleado.');
+        setLoading(false);
+        return;
+      }
+      const employee_id = parseInt(idString, 10);
+      console.log(employee_id)
+      const requestData: SearchParkingRequest = { employee_id };
+      const response = await getParkingApi(requestData);
       setParkingData(response);
     } catch (error) {
       console.error('Error al obtener la información del parqueadero:', error);
       Alert.alert('Error', 'No se pudo cargar la información del parqueadero.');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -41,39 +54,43 @@ const Parqueadero = () => {
       <ScrollView contentContainerStyle={styles.container}>
         <Text style={styles.title}>Parqueadero</Text>
 
-        <View style={styles.infoContainer}>
-          <View style={styles.leftSide}>
-            <View style={styles.infoRow}>
-              <Text style={styles.label}>Nombre Estacionamiento:</Text>
-              <View style={styles.input}>
-                <Text style={styles.inputText}>{parkingData?.name ?? 'Cargando...'}</Text>
+        {loading ? (
+          <Text style={styles.loadingText}>Cargando...</Text>
+        ) : (
+          <View style={styles.infoContainer}>
+            <View style={styles.leftSide}>
+              <View style={styles.infoRow}>
+                <Text style={styles.label}>Nombre Estacionamiento:</Text>
+                <View style={styles.input}>
+                  <Text style={styles.inputText}>{parkingData?.name ?? 'No disponible'}</Text>
+                </View>
+              </View>
+
+              <View style={styles.infoRow}>
+                <Text style={styles.label}>Dirección:</Text>
+                <View style={styles.input}>
+                  <Text style={styles.inputText}>{parkingData?.address ?? 'No disponible'}</Text>
+                </View>
+              </View>
+
+              <View style={styles.infoRow}>
+                <Text style={styles.label}>Empresa:</Text>
+                <View style={styles.input}>
+                  <Text style={styles.inputText}>{parkingData?.enterprise ?? 'No disponible'}</Text>
+                </View>
               </View>
             </View>
 
-            <View style={styles.infoRow}>
-              <Text style={styles.label}>Dirección:</Text>
-              <View style={styles.input}>
-                <Text style={styles.inputText}>{parkingData?.address ?? 'Cargando...'}</Text>
-              </View>
-            </View>
-
-            <View style={styles.infoRow}>
-              <Text style={styles.label}>Empresa:</Text>
-              <View style={styles.input}>
-                <Text style={styles.inputText}>{parkingData?.enterprise ?? 'Cargando...'}</Text>
+            <View style={styles.rightSide}>
+              <View style={styles.noteBox}>
+                <Text style={styles.noteText}>
+                  <Text style={styles.boldText}>Nota Importante: </Text>
+                  Si se desea crear un nuevo parqueadero y agregarlo al registro primero se debe contactar con la empresa para validar que el estacionamiento exista.
+                </Text>
               </View>
             </View>
           </View>
-
-          <View style={styles.rightSide}>
-            <View style={styles.noteBox}>
-              <Text style={styles.noteText}>
-                <Text style={styles.boldText}>Nota Importante: </Text>
-                Si se desea crear un nuevo parqueadero y agregarlo al registro primero se debe contactar con la empresa para validar que el estacionamiento exista.
-              </Text>
-            </View>
-          </View>
-        </View>
+        )}
 
         <TouchableOpacity style={styles.button} onPress={handleVerTarifas}>
           <Text style={styles.buttonText}>Ver Tarifas</Text>
@@ -91,6 +108,11 @@ const styles = StyleSheet.create({
     fontSize: 22,
     fontWeight: 'bold',
     marginBottom: 20,
+  },
+  loadingText: {
+    fontSize: 18,
+    textAlign: 'center',
+    color: '#1976D2',
   },
   infoContainer: {
     flexDirection: 'row',
