@@ -7,7 +7,8 @@ import CardLogo from '../../components/cardValidation/CardLogoType';
 // Importa las interfaces y la función de la API
 import { SearchCardRequest, SearchCardResponse } from '../../models/card_models'; // Ajusta la ruta si es necesario
 import { getCard } from '../../api/getCardApi'; // Ajusta la ruta si es necesario
-
+import { deleteCard } from '../../api/deleteCardApi'; // Ajusta la ruta si es diferente
+import { DeleteCardRequest } from '../../models/card_models';
 interface CardDetailsScreenProps {
     navigation: any;
     route: any;
@@ -81,31 +82,37 @@ const CardDetailsScreen: FC<CardDetailsScreenProps> = ({ navigation, route }) =>
                 last_four_digits: parseInt(paymentMethod.last4, 10),
                 customer_id: customer_id,
             };
-
-            navigation.navigate('EditCardScreen', { searchCardRequest: request });
+            const response: SearchCardResponse = await getCard(request)
+            navigation.navigate('EditCardScreen', { searchCardResponse: response });
         } catch (err) {
             console.error('Error al preparar la edición:', err);
             Alert.alert('Error', 'No se pudo preparar la edición de la tarjeta.');
         }
     };
 
-    const handleDelete = () => {
-        Alert.alert(
-            'Eliminar Método de Pago',
-            '¿Estás seguro de que deseas eliminar este método de pago?',
-            [
-                { text: 'Cancelar', style: 'cancel' },
-                {
-                    text: 'Sí, eliminar',
-                    style: 'destructive',
-                    onPress: () => {
-                        Alert.alert('Método de pago eliminado');
-                        navigation.navigate('PaymentMethods');
-                    },
-                },
-            ]
-        );
-    };
+    const handleDelete = async () => {
+      try {
+        const idString = await AsyncStorage.getItem('userId');
+        const customer_id = idString ? parseInt(idString, 10) : null;
+
+        if (!customer_id) {
+          console.warn('No se pudo obtener el ID del usuario para eliminar la tarjeta.');
+          return;
+        }
+
+        const request: DeleteCardRequest = {
+          last_four_digits: parseInt(paymentMethod.last4, 10),
+          customer_id: customer_id,
+        };
+
+        await deleteCard(request);
+
+        // Redirige después de eliminar la tarjeta
+        navigation.navigate('MainMenu');
+      } catch (err) {
+        console.error('Error al eliminar la tarjeta:', err);
+      }
+};
 
     if (loading) {
         return (
