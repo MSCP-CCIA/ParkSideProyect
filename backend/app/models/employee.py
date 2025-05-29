@@ -37,3 +37,13 @@ class SearchEmployeeResponse(BaseModel):
 class UpdateEmployeeRequest(BaseModel):
     id: int
     full_name: str
+
+
+class SearchInformationRequest(BaseModel):
+    id: int
+
+class SearchInformationResponse(BaseModel):
+    id: int
+    document_type: str
+    full_name: str
+    email: str

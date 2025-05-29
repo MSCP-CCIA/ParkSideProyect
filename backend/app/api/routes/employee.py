@@ -8,6 +8,7 @@ from app.models.message import Message
 
 router = APIRouter(prefix="/employee", tags=["employee"])
 
+
 # ------------------------- Employee Actions ------------------------- #
 
 @router.post("/login", response_model=SearchEmployeeResponse)
@@ -49,4 +50,21 @@ def update_employee(session: SessionDep, request: UpdateEmployeeRequest) -> Mess
         raise HTTPException(
             status_code=400,
             detail="Error inesperado al actualizar el empleado"
+        )
+
+
+@router.post("/info", response_model=SearchInformationResponse)
+def get_info(session: SessionDep, request: SearchInformationRequest) -> SearchInformationRequest:
+    try:
+        employee = get_employee_by_id(session=session, request=request)
+        return SearchInformationResponse(
+            id=employee.id,
+            document_type=employee.document_type,
+            full_name=employee.full_name,
+            email=employee.email
+        )
+    except Exception as e:
+        raise HTTPException(
+            status_code=400,
+            detail="Error inesperado al traer la información el usuario"
         )

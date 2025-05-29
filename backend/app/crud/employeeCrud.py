@@ -3,6 +3,7 @@ from fastapi import HTTPException, status
 from app.models.employee import *
 from app.core.security import hash_password
 
+
 # ------------------------- Employee Actions ------------------------- #
 
 def get_employee_by_email(*, session: Session, email: str) -> Employee | None:
@@ -44,3 +45,9 @@ def update_employee_crud(*, session: Session, request: UpdateEmployeeRequest) ->
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Error al actualizar el empleado: {str(e)}"
         )
+
+
+def get_employee_by_id(*, session: Session, request: SearchInformationRequest) -> Employee:
+    statement = select(Employee).where(Employee.id == request.id)
+    session_employee = session.exec(statement).first()
+    return session_employee
