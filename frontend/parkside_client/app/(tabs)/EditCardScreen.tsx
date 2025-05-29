@@ -10,7 +10,8 @@ import {
 } from 'react-native';
 import ScreenLayout from '../layouts/ScreenLayout';
 import ValidatedTextInput from '../../components/common/ValidatedTextInput';
-import CardLogo from '../../components/cardValidation/CardLogo';
+import CardLogo from '../../components/cardValidation/CardLogoType';
+import {SearchCardResponse} from "@/models/card_models";
 
 interface EditCardScreenProps {
     navigation: any;
@@ -18,7 +19,8 @@ interface EditCardScreenProps {
 }
 
 const EditCardScreen: FC<EditCardScreenProps> = ({ navigation, route }) => {
-    const { paymentMethod } = route.params;
+    const { searchCardResponse }: { searchCardResponse: SearchCardResponse } = route.params;
+    console.log(searchCardResponse)
 
     const [cardHolderName, setCardHolderName] = useState('');
     const [expiryDate, setExpiryDate] = useState('');
@@ -73,10 +75,6 @@ const EditCardScreen: FC<EditCardScreenProps> = ({ navigation, route }) => {
             valid = false;
         }
 
-        if (!/^\d{3,4}$/.test(cvv)) {
-            newErrors.cvv = 'El CVC debe tener 3 o 4 dígitos.';
-            valid = false;
-        }
 
         setErrors(newErrors);
         return valid;
@@ -84,6 +82,8 @@ const EditCardScreen: FC<EditCardScreenProps> = ({ navigation, route }) => {
 
 
     const handleSaveChanges = () => {
+        setExpiryDate(searchCardResponse.expiration_date)
+        setCardHolderName(searchCardResponse.full_name_customer)
         if (validateForm()) {
             Alert.alert('Cambios guardados', 'Tu tarjeta ha sido actualizada correctamente.');
             navigation.navigate('MainMenu');
@@ -101,14 +101,14 @@ const EditCardScreen: FC<EditCardScreenProps> = ({ navigation, route }) => {
                 behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
                 keyboardVerticalOffset={Platform.OS === 'ios' ? 40 : 0}
             >
-                <CardLogo cardNumber={paymentMethod.number} />
-                <Text style={styles.cardNumber}>****{paymentMethod.last4}</Text>
+                <CardLogo cardType={searchCardResponse.card_type === 'mastercard' ? 'mastercard' : 'visa'} />
+                <Text style={styles.cardNumber}>****{searchCardResponse.last_four_digits}</Text>
 
                 <ValidatedTextInput
                     label="Titular de la tarjeta"
                     placeholder="Tu Nombre"
                     keyboardType="default"
-                    value={cardHolderName}
+                    value={searchCardResponse.full_name_customer}
                     onChangeText={handleCardHolderChange}
                     style={styles.inputField}
                 />
@@ -118,21 +118,13 @@ const EditCardScreen: FC<EditCardScreenProps> = ({ navigation, route }) => {
                     label="Fecha de vencimiento"
                     placeholder="MM/YY"
                     keyboardType="number-pad"
-                    value={expiryDate}
+                    value={searchCardResponse.expiration_date}
                     onChangeText={handleExpiryChange}
                     style={styles.inputField}
                 />
                 {errors.expiryDate && <Text style={styles.error}>{errors.expiryDate}</Text>}
 
-                <ValidatedTextInput
-                    label="CVC"
-                    placeholder="_ _ _"
-                    keyboardType="number-pad"
-                    value={cvv}
-                    onChangeText={handleCvvChange}
-                    style={styles.inputField}
-                />
-                {errors.cvv && <Text style={styles.error}>{errors.cvv}</Text>}
+
 
                 <TouchableOpacity style={styles.saveButton} onPress={handleSaveChanges}>
                     <Text style={styles.buttonText}>SIGUIENTE</Text>

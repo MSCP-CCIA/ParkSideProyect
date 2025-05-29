@@ -45,12 +45,7 @@ import React, { FC, useState } from 'react';
          onPress={() => navigateTo('MyVehiclesScreen')}
          style={styles.menuItem}
        />
-       <MenuItem
-         title="ESTADO VEHICULO"
-         description="Revisa en tiempo real el estado de tu vehículo"
-         onPress={() => navigateTo('StateVehicle')}
-         style={styles.menuItem}
-       />
+
        <MenuItem
          title="METODOS DE PAGO"
          description="Configura tus métodos de pago para pagar tu estadía del parqueadero"
