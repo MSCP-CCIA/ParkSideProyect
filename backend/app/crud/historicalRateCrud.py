@@ -23,19 +23,23 @@ def create_rate(*, session: Session, request: CreateHistoricalRateRequest) -> Hi
                     status_code=400,
                     detail="La fecha de las nuevas tarifas debe ser mayor a la fecha de inicio de las últimas tarifas."
                 )
-
-        db_obj = HistoricalRate.model_validate(
-            CreateHistoricalRate(
-                car_rate=request.car_rate,
-                motorbike_rate=request.motorbike_rate,
-                start_date=request.start_date,
-                parking_id=parking_id
+        if request.car_rate or request.motorbike_rate:
+            db_obj = HistoricalRate.model_validate(
+                CreateHistoricalRate(
+                    car_rate=request.car_rate if request.car_rate else previous_rate.car_rate,
+                    motorbike_rate=request.motorbike_rate if request.motorbike_rate else previous_rate.motorbike_rate,
+                    start_date=request.start_date,
+                    parking_id=parking_id
+                )
             )
+            session.add(db_obj)
+            session.commit()
+            session.refresh(db_obj)
+            return db_obj
+        raise HTTPException(
+            status_code=400,
+            detail="Al menos una tarifa debe cambiar."
         )
-        session.add(db_obj)
-        session.commit()
-        session.refresh(db_obj)
-        return db_obj
     except HTTPException:
         raise
     except Exception as e:

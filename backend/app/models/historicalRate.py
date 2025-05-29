@@ -23,8 +23,8 @@ class HistoricalRate(SQLModel, table=True):
 
 class CreateHistoricalRateRequest(BaseModel):
     employee_id: int
-    car_rate: int
-    motorbike_rate: int
+    car_rate: int | None
+    motorbike_rate: int | None
     start_date: date
 
 class CreateHistoricalRate(BaseModel):

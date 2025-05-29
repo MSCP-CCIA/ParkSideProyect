@@ -15,7 +15,7 @@ def register_rate(session: SessionDep, request: CreateHistoricalRateRequest) -> 
     except Exception as e:
         raise HTTPException(
             status_code=400,
-            detail="Error inesperado al registrar la tarifa"
+            detail=f"Error inesperado al registrar la tarifa: {e}"
         )
 
 
