@@ -1,53 +1,80 @@
+/**
+ * @interface CreateCardRequest
+ * @description Representa la solicitud para crear una nueva tarjeta.
+ */
 export interface CreateCardRequest {
-  cardNumber: number;
-  fullNameCustomer: string;
-  month: number;
-  year: number;
-  cvc: number;
-  cardType: string;
-  customerId: number;
+    card_number: number;
+    full_name_customer: string;
+    month: number;
+    year: number;
+    cvc: number;
+    card_type: string;
+    customer_id: number;
 }
 
-export interface UpdateCardRequest {
-  cardNumberHash: string;
-  fullNameCustomer: string;
-  month: number;
-  year: number;
-  cvc: number;
-  cardType: string;
-  customerId: number;
-}
-
-export interface CreateOrUpdateCardRequest {
-  cardNumberHash: string;
-  fullNameCustomer: string;
-  cvcCodeHash: string;
-  expirationDate: Date;
-  cardType: string;
-  customerId: number;
-}
-
+/**
+ * @interface SearchCardRequest
+ * @description Representa la solicitud para buscar una tarjeta específica de un cliente.
+ */
 export interface SearchCardRequest {
-  cardNumberHash: string;
-  customerId: number;
+    last_four_digits: number;
+    customer_id: number;
 }
 
+/**
+ * @interface SearchCardResponse
+ * @description Representa la respuesta de la búsqueda de una tarjeta específica.
+ */
 export interface SearchCardResponse {
-  cardNumberHash: string;
-  fullNameCustomer: string;
-  month: number;
-  year: number;
+    last_four_digits: number;
+    card_type: string;
+    full_name_customer: string;
+    expiration_date: string; // Formato de fecha como string, por ejemplo "MM/AA" o "YYYY-MM-DD"
 }
 
+/**
+ * @interface SearchCardsRequest
+ * @description Representa la solicitud para buscar todas las tarjetas de un cliente.
+ */
 export interface SearchCardsRequest {
-  customerId: number;
+    customer_id: number;
 }
 
+/**
+ * @interface SearchCard
+ * @description Representa un resumen de una tarjeta para listas.
+ */
+export interface SearchCard {
+    last_four_digits: number;
+    card_type: string;
+}
+
+/**
+ * @interface SearchCardsResponse
+ * @description Representa la respuesta de la búsqueda de todas las tarjetas de un cliente.
+ */
 export interface SearchCardsResponse {
-  cards: SearchCardResponse[];
+    cards: SearchCard[]; // Un array de objetos SearchCard
 }
 
+/**
+ * @interface UpdateCardRequest
+ * @description Representa la solicitud para actualizar la información de una tarjeta.
+ */
+export interface UpdateCardRequest {
+    last_four_digits: number;
+    full_name_customer: string;
+    month: number;
+    year: number;
+    cvc: number;
+    customer_id: number;
+}
+
+/**
+ * @interface DeleteCardRequest
+ * @description Representa la solicitud para eliminar una tarjeta de un cliente.
+ */
 export interface DeleteCardRequest {
-  cardNumberHash: string;
-  customerId: number;
+    last_four_digits: number;
+    customer_id: number;
 }
