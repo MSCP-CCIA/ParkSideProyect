@@ -41,23 +41,18 @@ const CardDetailsScreen: FC<CardDetailsScreenProps> = ({ navigation, route }) =>
                 const customer_id = idString ? parseInt(idString, 10) : null;
 
                 if (!customer_id) {
-                    console.warn('No se encontró el ID del usuario para obtener detalles de la tarjeta');
                     setError('No se pudo cargar el ID de usuario.');
                     setLoading(false);
                     return;
                 }
-                console.log(parseInt(paymentMethod.last4))
-                console.log(customer_id)
                 const request: SearchCardRequest = {
                     last_four_digits: parseInt(paymentMethod.last4),
                     customer_id: customer_id,
                 };
-                console.log(request)
 
                 const response = await getCard(request);
                 setCardDetails(response); // Almacena la respuesta de la API
             } catch (err) {
-                console.error('Error al obtener los detalles de la tarjeta:', err);
                 setError('Error al cargar los detalles de la tarjeta.');
                 Alert.alert('Error', 'No se pudieron cargar los detalles de la tarjeta. Por favor, inténtalo de nuevo.');
             } finally {
@@ -85,7 +80,6 @@ const CardDetailsScreen: FC<CardDetailsScreenProps> = ({ navigation, route }) =>
             const response: SearchCardResponse = await getCard(request)
             navigation.navigate('EditCardScreen', { searchCardResponse: response });
         } catch (err) {
-            console.error('Error al preparar la edición:', err);
             Alert.alert('Error', 'No se pudo preparar la edición de la tarjeta.');
         }
     };
@@ -96,7 +90,6 @@ const CardDetailsScreen: FC<CardDetailsScreenProps> = ({ navigation, route }) =>
         const customer_id = idString ? parseInt(idString, 10) : null;
 
         if (!customer_id) {
-          console.warn('No se pudo obtener el ID del usuario para eliminar la tarjeta.');
           return;
         }
 
@@ -110,7 +103,6 @@ const CardDetailsScreen: FC<CardDetailsScreenProps> = ({ navigation, route }) =>
         // Redirige después de eliminar la tarjeta
         navigation.navigate('MainMenu');
       } catch (err) {
-        console.error('Error al eliminar la tarjeta:', err);
       }
 };
 

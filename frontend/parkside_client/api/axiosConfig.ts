@@ -1,14 +1,31 @@
+/**
+ * Configuración de Axios con interceptores para manejo de tokens y errores.
+ */
+
 import axios, { AxiosInstance, InternalAxiosRequestConfig, AxiosError } from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-const excludedRoutes = ['/api/v1/customer/login','/api/v1/customer/register'];
-// Definimos la interfaz para el objeto que guardas
+
+/**
+ * Rutas excluidas donde no se debe agregar el token de autorización.
+ */
+const excludedRoutes = ['/api/v1/customer/login', '/api/v1/customer/register'];
+
+/**
+ * Interfaz para la información de login almacenada.
+ */
 export interface LoginData {
   id: number;
   token: string;
 }
 
+/**
+ * URL base para las peticiones HTTP.
+ */
 const baseURL = 'http://127.0.0.1:8000';
 
+/**
+ * Instancia configurada de Axios.
+ */
 const api: AxiosInstance = axios.create({
   baseURL,
   timeout: 10000,
@@ -16,17 +33,22 @@ const api: AxiosInstance = axios.create({
     'Content-Type': 'application/json',
   },
 });
+
+/**
+ * Interceptor para las solicitudes que agrega el token de autorización cuando es necesario.
+ */
 api.interceptors.request.use(
   async (config: InternalAxiosRequestConfig): Promise<InternalAxiosRequestConfig> => {
     try {
-      // Si la ruta está en la lista de exclusión, no agregar token
+      // No agregar token para rutas excluidas
       if (excludedRoutes.some(route => config.url?.includes(route))) {
         return config;
       }
+
       const token = await AsyncStorage.getItem('authToken');
-        if (token) {
-          config.headers.Authorization = `Bearer ${token}`;
-        }
+      if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+      }
     } catch (error) {
       console.error('Error al obtener o parsear el token del storage:', error);
     }
@@ -38,10 +60,11 @@ api.interceptors.request.use(
   }
 );
 
+/**
+ * Interceptor para las respuestas que maneja errores y logueo detallado.
+ */
 api.interceptors.response.use(
-  (response) => {
-    return response;
-  },
+  (response) => response,
   (error: AxiosError) => {
     console.error('Error en la respuesta de Axios:', error);
     if (error.response) {

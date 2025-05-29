@@ -10,9 +10,6 @@ import React, { FC, useState } from 'react';
    const [estadoVehiculo, setEstadoVehiculo] = useState('ESTACIONADO'); // Estado inicial
 
    const handlePagar = () => {
-     // Lógica para iniciar el proceso de pago
-     console.log('Pagar estacionamiento');
-     // Aquí podrías navegar a la pantalla de pago
    };
 
    return (

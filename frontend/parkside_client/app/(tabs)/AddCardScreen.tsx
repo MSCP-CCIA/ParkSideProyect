@@ -53,7 +53,6 @@ const AgregarTarjetaScreen: FC<AgregarTarjetaScreenProps> = ({ navigation }) => 
                     navigation.navigate('Login'); // Redirigir a la pantalla de inicio de sesión
                 }
             } catch (error) {
-                console.error('Error al obtener el ID del cliente:', error);
                 Alert.alert('Error', 'No se pudo obtener la información del usuario.');
                 navigation.navigate('Login');
             }
@@ -166,13 +165,11 @@ const AgregarTarjetaScreen: FC<AgregarTarjetaScreenProps> = ({ navigation }) => 
                 setLoading(false);
                 setSaveError('Error al guardar la tarjeta. Por favor, intenta de nuevo.');
                 setSaveSuccess(false);
-                console.error('Error al guardar la tarjeta:', error);
             }
         } else if (customerId === null) {
             Alert.alert('Advertencia', 'No se ha podido obtener la información del usuario. Por favor, inicie sesión nuevamente.');
             navigation.navigate('Login');
         } else {
-            console.log('Validación fallida.');
         }
     };
 
