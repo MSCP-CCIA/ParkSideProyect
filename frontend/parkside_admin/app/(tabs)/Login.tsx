@@ -29,11 +29,9 @@ const Login: FC<LoginProps> = ({ navigation }) => {
 
   const saveLoginData = async (data: SearchEmployeeResponse) => {
     try {
-      const jsonValue = JSON.stringify(data);
-      await AsyncStorage.setItem('authToken', jsonValue);
-      console.log('Datos de login guardados en AsyncStorage');
+      await AsyncStorage.setItem('authToken', data.token);
+      await AsyncStorage.setItem('userId', data.id.toString());
     } catch (e) {
-      console.error('Error al guardar los datos de login:', e);
     }
   };
 

@@ -105,7 +105,7 @@ const AddVehicleScreen: FC<AddVehicleScreenProps> = ({ navigation }) => {
       try {
         const response = await addVehicle(request);
         Alert.alert('Vehículo registrado correctamente');
-        navigation.navigate('MyVehiclesScreen');
+        navigation.navigate('MainMenu');
       } catch (error: any) {
         setLoading(false);
         console.error("Error al registrar el vehiculo", error)

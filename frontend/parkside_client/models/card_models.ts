@@ -62,14 +62,12 @@ export interface SearchCardsResponse {
  * @description Representa la solicitud para actualizar la información de una tarjeta.
  */
 export interface UpdateCardRequest {
-    last_four_digits: number;
-    full_name_customer: string;
-    month: number;
-    year: number;
-    cvc: number;
-    customer_id: number;
+  last_four_digits: number;
+  full_name_customer: string;
+  month: number;
+  year: number;
+  customer_id: number;
 }
-
 /**
  * @interface DeleteCardRequest
  * @description Representa la solicitud para eliminar una tarjeta de un cliente.

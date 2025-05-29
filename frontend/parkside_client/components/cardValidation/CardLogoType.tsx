@@ -9,9 +9,9 @@ const CardLogo: FC<CardLogoProps> = ({ cardType }) => {
   let logoSource;
 
   if (cardType === 'visa') {
-    logoSource = require('../../assets/images/visa.jpeg'); // Asegúrate que la ruta es correcta
+    logoSource = require('../../assets/images/visa.jpeg');
   } else if (cardType === 'mastercard') {
-    logoSource = require('../../assets/images/mastercard.jpeg'); // Asegúrate que la ruta es correcta
+    logoSource = require('../../assets/images/mastercard.jpeg');
   } else {
     return null; // No mostrar nada si no es ninguno de los tipos esperados
   }

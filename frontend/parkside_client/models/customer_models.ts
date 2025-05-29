@@ -10,7 +10,7 @@ export interface CreateCustomerRequest {
 
 export interface UpdateCustomerRequest {
   id: number;
-  fullName: string;
+  full_name: string;
 }
 
 export interface SearchCustomerRequest {
@@ -29,7 +29,7 @@ export interface SearchMyInformationRequest {
 
 export interface SearchMyInformationResponse {
   id: number;
-  fullName: string;
+  document_type: string;
+  full_name: string;
   email: string;
-  passwordHash: string;
 }

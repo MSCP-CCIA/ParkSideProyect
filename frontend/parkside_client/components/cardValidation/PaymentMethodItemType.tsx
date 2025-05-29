@@ -14,14 +14,11 @@ interface PaymentMethodItemProps {
 const PaymentMethodItem: FC<PaymentMethodItemProps> = ({ paymentMethod, onPress }) => {
   return (
     <TouchableOpacity style={styles.container} onPress={onPress}>
-      <CardLogo cardType={paymentMethod.type} /> {/* Cambiado aquí */}
-      <Text style={styles.cardNumber}>****{paymentMethod.last4}</Text>
-      <View style={styles.arrowContainer}>
-        <Ionicons name="chevron-forward" size={24} color="gray" />
-      </View>
+      <CardLogo cardType={paymentMethod.type} /><Text style={styles.cardNumber}>****{paymentMethod.last4}</Text><View style={styles.arrowContainer}><Ionicons name="chevron-forward" size={24} color="gray" /></View>
     </TouchableOpacity>
   );
 };
+
 
 const styles = StyleSheet.create({
   container: {

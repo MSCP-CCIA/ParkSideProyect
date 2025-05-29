@@ -24,13 +24,14 @@ const LoginScreen: FC<LoginScreenProps> = ({ navigation }) => {
     const regex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     return regex.test(correo);
   };
-const saveLoginData = async (data: LoginData) => {
-  try {
-    await AsyncStorage.setItem('authToken', data.token);
-    await AsyncStorage.setItem('userId', data.id.toString());
-  } catch (e) {
-  }
-};
+  const saveLoginData = async (data: LoginData) => {
+    try {
+      await AsyncStorage.setItem('authToken', data.token);
+      await AsyncStorage.setItem('userId', data.id.toString());
+    } catch (e) {
+      console.error("Error setting AsyncStorage item:", e);
+    }
+  };
   const handleLogin = async () => {
     let isValid = true;
 

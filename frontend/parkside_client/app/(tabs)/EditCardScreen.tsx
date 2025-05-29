@@ -11,7 +11,11 @@ import {
 import ScreenLayout from '../layouts/ScreenLayout';
 import ValidatedTextInput from '../../components/common/ValidatedTextInput';
 import CardLogo from '../../components/cardValidation/CardLogoType';
-import {SearchCardResponse} from "@/models/card_models";
+import { SearchCardResponse } from '@/models/card_models';
+import {UpdateCardRequest} from '../../models/card_models'
+import {Message} from '../../models/message_models'
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import {updateCard} from "@/api/updateCardApi";
 
 interface EditCardScreenProps {
     navigation: any;
@@ -20,11 +24,12 @@ interface EditCardScreenProps {
 
 const EditCardScreen: FC<EditCardScreenProps> = ({ navigation, route }) => {
     const { searchCardResponse }: { searchCardResponse: SearchCardResponse } = route.params;
-    console.log(searchCardResponse)
+    console.log(searchCardResponse);
 
-    const [cardHolderName, setCardHolderName] = useState('');
-    const [expiryDate, setExpiryDate] = useState('');
-    const [cvv, setCvv] = useState('');
+    // Inicializar estados con valores recibidos para inputs editables
+    const [cardHolderName, setCardHolderName] = useState(searchCardResponse.full_name_customer);
+    const [expiryDate, setExpiryDate] = useState(searchCardResponse.expiration_date);
+    const [cvv, setCvv] = useState(''); // Si quieres manejar cvv editable, inicializa aquí
 
     const [errors, setErrors] = useState<{
         cardHolderName?: string;
@@ -33,8 +38,9 @@ const EditCardScreen: FC<EditCardScreenProps> = ({ navigation, route }) => {
     }>({});
 
     const handleCardHolderChange = (text: string) => {
-        setCardHolderName(text.replace(/[^a-zA-Z\s]/g, ''));
-        if (!/^[a-zA-Z\s]*$/.test(text)) {
+        const cleaned = text.replace(/[^a-zA-Z\s]/g, '');
+        setCardHolderName(cleaned);
+        if (!/^[a-zA-Z\s]*$/.test(cleaned)) {
             setErrors((prev) => ({
                 ...prev,
                 cardHolderName: 'Solo se permiten letras.',
@@ -54,7 +60,8 @@ const EditCardScreen: FC<EditCardScreenProps> = ({ navigation, route }) => {
     };
 
     const handleCvvChange = (text: string) => {
-        setCvv(text.replace(/[^0-9]/g, '').slice(0, 4));
+        const cleaned = text.replace(/[^0-9]/g, '').slice(0, 4);
+        setCvv(cleaned);
         setErrors((prev) => ({ ...prev, cvv: undefined }));
     };
 
@@ -75,20 +82,43 @@ const EditCardScreen: FC<EditCardScreenProps> = ({ navigation, route }) => {
             valid = false;
         }
 
+        // Opcional validar cvv si es obligatorio en edición
+        /*
+        if (cvv.length < 3 || cvv.length > 4) {
+            newErrors.cvv = 'El CVV debe tener 3 o 4 dígitos.';
+            valid = false;
+        }
+        */
 
         setErrors(newErrors);
         return valid;
     };
 
-
-    const handleSaveChanges = () => {
-        setExpiryDate(searchCardResponse.expiration_date)
-        setCardHolderName(searchCardResponse.full_name_customer)
+    const handleSaveChanges = async () => {
         if (validateForm()) {
-            Alert.alert('Cambios guardados', 'Tu tarjeta ha sido actualizada correctamente.');
+            const [monthStr, yearStr] = expiryDate.split('/');
+            const month = parseInt(monthStr, 10);
+            const year = parseInt(yearStr, 10);
+            const idString = await AsyncStorage.getItem('userId');
+            if (!idString) {
+                throw new Error('No se encontró el id del usuario en el almacenamiento local');
+            }
+            const id = parseInt(idString, 10);
+            const request: UpdateCardRequest = {
+                last_four_digits: searchCardResponse.last_four_digits,
+                full_name_customer: cardHolderName,
+                month: month,
+                year: year,
+                customer_id: id,
+            }
+            console.log(request)
+            const response: Message = await updateCard(request);
+            console.log('response',response)
+                Alert.alert('Cambios guardados', 'Tu tarjeta ha sido actualizada correctamente.');
             navigation.navigate('MainMenu');
         }
     };
+
 
     const handleCancel = () => {
         navigation.navigate('MainMenu');
@@ -108,7 +138,7 @@ const EditCardScreen: FC<EditCardScreenProps> = ({ navigation, route }) => {
                     label="Titular de la tarjeta"
                     placeholder="Tu Nombre"
                     keyboardType="default"
-                    value={searchCardResponse.full_name_customer}
+                    value={cardHolderName}
                     onChangeText={handleCardHolderChange}
                     style={styles.inputField}
                 />
@@ -118,13 +148,25 @@ const EditCardScreen: FC<EditCardScreenProps> = ({ navigation, route }) => {
                     label="Fecha de vencimiento"
                     placeholder="MM/YY"
                     keyboardType="number-pad"
-                    value={searchCardResponse.expiration_date}
+                    value={expiryDate}
                     onChangeText={handleExpiryChange}
                     style={styles.inputField}
                 />
                 {errors.expiryDate && <Text style={styles.error}>{errors.expiryDate}</Text>}
 
-
+                {/* Si quieres que CVV sea editable, descomenta y ajusta */}
+                {/*
+                <ValidatedTextInput
+                    label="CVV"
+                    placeholder="***"
+                    keyboardType="number-pad"
+                    secureTextEntry={true}
+                    value={cvv}
+                    onChangeText={handleCvvChange}
+                    style={styles.inputField}
+                />
+                {errors.cvv && <Text style={styles.error}>{errors.cvv}</Text>}
+                */}
 
                 <TouchableOpacity style={styles.saveButton} onPress={handleSaveChanges}>
                     <Text style={styles.buttonText}>SIGUIENTE</Text>

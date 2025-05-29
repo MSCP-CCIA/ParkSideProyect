@@ -73,12 +73,10 @@ const AgregarTarjetaScreen: FC<AgregarTarjetaScreenProps> = ({ navigation }) => 
     const validateForm = () => {
         const newErrors: typeof errors = {};
         let isValid = true;
-
-        if (!/^\d{15,19}$/.test(cardNumber)) {
-            newErrors.cardNumber = 'El número debe tener entre 15 y 19 dígitos.';
+        if (!/^\d{16}$/.test(cardNumber)) {
+            newErrors.cardNumber = 'El número debe tener exactamente 16 dígitos.';
             isValid = false;
         }
-
         if (!cardHolderName.trim()) {
             newErrors.cardHolderName = 'El titular es obligatorio.';
             isValid = false;
@@ -120,7 +118,7 @@ const AgregarTarjetaScreen: FC<AgregarTarjetaScreenProps> = ({ navigation }) => 
     };
 
     const handleCardNumberChange = (text: string) => {
-        setCardNumber(text.replace(/[^0-9]/g, '').slice(0, 19));
+        setCardNumber(text.replace(/[^0-9]/g, '').slice(0, 16));
     };
 
     const handleCardHolderChange = (text: string) => {
@@ -147,7 +145,7 @@ const AgregarTarjetaScreen: FC<AgregarTarjetaScreenProps> = ({ navigation }) => 
             try {
                 const [monthStr, yearShortStr] = expiryDate.split('/');
                 const month = parseInt(monthStr, 10);
-                const year = parseInt(yearShortStr, 10) + 2000;
+                const year = parseInt(yearShortStr, 10);
                 const cardNumberNumber = parseInt(cardNumber, 10);
                 const cvvNumber = parseInt(cvv, 10);
 
@@ -163,7 +161,7 @@ const AgregarTarjetaScreen: FC<AgregarTarjetaScreenProps> = ({ navigation }) => 
                 const reponse = await addCard(request)
                 setLoading(false);
                 setSaveSuccess(true);
-                navigation.navigate('PaymentMethods');
+                navigation.navigate('MainMenu');
             } catch (error: any) {
                 setLoading(false);
                 setSaveError('Error al guardar la tarjeta. Por favor, intenta de nuevo.');

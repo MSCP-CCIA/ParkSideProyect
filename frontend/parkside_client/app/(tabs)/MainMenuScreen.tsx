@@ -75,11 +75,6 @@ import React, { FC, useState } from 'react';
              <Text style={styles.drawerText}>Información Vehiculos</Text>
            </TouchableOpacity>
 
-           <TouchableOpacity onPress={() => navigateTo('StateVehicle')} style={styles.drawerItem}>
-             <Ionicons name="alert-circle-outline" size={24} color="#1976D2" style={styles.drawerIcon} />
-             <Text style={styles.drawerText}>Estado del Vehiculo</Text>
-           </TouchableOpacity>
-
            <TouchableOpacity onPress={() => navigateTo('PaymentMethods')} style={styles.drawerItem}>
              <Ionicons name="card-outline" size={24} color="#1976D2" style={styles.drawerIcon} />
              <Text style={styles.drawerText}>Metodos de Pago</Text>
@@ -90,7 +85,7 @@ import React, { FC, useState } from 'react';
              <Text style={styles.drawerText}>Movimientos</Text>
            </TouchableOpacity>
            <TouchableOpacity onPress={handleCerrarSesion} style={styles.drawerSignOutButton}>
-             <Text style={styles.drawerSignOutButtonText}>Cerrar Sesión</Text>
+             <Text style={styles.drawerSignOutButtonText}>log out</Text>
            </TouchableOpacity>
          </View>
        </SlidingMenuView>

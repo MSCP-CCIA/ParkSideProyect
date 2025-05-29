@@ -4,6 +4,6 @@ import {Message} from '../models/message_models'
 export const updateCard  = async (
     data: UpdateCardRequest
 ): Promise<Message> => {
-    const response = await api.post<Message>('/api/v1/cards/get-card', data);
+    const response = await api.post<Message>('/api/v1/cards/update-card', data);
     return response.data;
 };
