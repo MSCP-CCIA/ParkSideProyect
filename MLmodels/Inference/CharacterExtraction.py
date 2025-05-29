@@ -9,8 +9,6 @@ def characterExtraction(image: str):
         if confidence > 0.3:
             return text
         else:
-            print("Plate Text Wasn't Recognized")
             return None
     else:
-        print('No text found')
         return None
