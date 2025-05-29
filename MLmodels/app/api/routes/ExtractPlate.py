@@ -26,7 +26,7 @@ async def entry_extract_plate(file: UploadFile = File(...),)-> Message:
         if result:
             async with httpx.AsyncClient() as client:
                 response = await client.post(
-                    "http://localhost:8000/api/v1/flow/entry-register/",
+                    f"http://{BACKEND_URL}:8000/api/v1/flow/entry-register/",
                     json={"plate": result},
                 )
             if response.status_code != 200:
@@ -54,7 +54,7 @@ async def exit_extract_plate(file: UploadFile = File(...),)-> Message:
         if result:
             async with httpx.AsyncClient() as client:
                 response = await client.post(
-                    "http://localhost:8000/api/v1/flow/exit-register/",
+                    f"http://{BACKEND_URL}:8000/api/v1/flow/exit-register/",
                     json={"plate": result},
                 )
             if response.status_code != 200:
