@@ -63,7 +63,6 @@ class UpdateCardRequest(BaseModel):
     full_name_customer: str
     month: int
     year: int
-    cvc: int
     customer_id: int
 
 # Delete a customer's card
