@@ -5,7 +5,6 @@ from pydantic import BaseModel
 from sqlmodel import Field, Relationship, SQLModel
 
 if TYPE_CHECKING:
-    from app.models.vehicle import Vehicle
     from app.models.payment import Payment
 
 class ParkingRegistration(SQLModel, table=True):
@@ -14,7 +13,6 @@ class ParkingRegistration(SQLModel, table=True):
     exit_datetime: datetime | None = Field(default_factory=None)
     plate: str = Field(foreign_key="vehicle.plate")
 
-    vehicle: "Vehicle" = Relationship(back_populates="parking_registrations")
     payment: Optional["Payment"] = Relationship(back_populates="parking_registration")
 
 # ------------------------- ML and Employee Actions ------------------------- #

@@ -21,7 +21,6 @@ def register_vehicle(session: SessionDep, request: CreateVehicleRequest) -> Mess
 
 @router.post("/get-vehicle", response_model=SearchCustomerVehicleResponse)
 def get_vehicle(session: SessionDep, request: SearchCustomerVehicleRequest) -> SearchCustomerVehicleResponse:
-    print(request)
     try:
         vehicle = get_customer_vehicle(session=session, request=request)
         if not vehicle:
@@ -69,11 +68,11 @@ def delete_vehicle(session: SessionDep, request: DeleteVehicleRequest) -> Messag
     try:
         if delete_customer_vehicle(session=session, request=request):
             return Message(message="Vehiculo eliminado correctamente")
-        return Message(message="El vehiculo no ha sido eliminado")
+        return Message(message="Vehículo no encontrado")
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Vehículo no encontrado"
+            detail=f"Error al eliminar el vehículo: {e}"
         )
 
 # ------------------------- Employee Actions ------------------------- #

@@ -1,9 +1,12 @@
+from zoneinfo import ZoneInfo
 from fastapi import HTTPException, status
 from sqlmodel import Session, select, desc
 from app.models.parkingRegistration import *
 from app.models.vehicle import Vehicle
 from app.models.payment import Payment
 from app.api.deps import generate_random_transaction_data
+
+LOCAL_ZONE = ZoneInfo("America/Bogota")
 
 # ------------------------- ML and Employee Actions ------------------------- #
 
@@ -27,6 +30,7 @@ def get_customer_vehicle(*, session: Session, request: EntryOrUpdateVehicleReque
             detail=f"Error al obtener el vehículo: {str(e)}"
         )
 
+
 def create_parking_registration(*, session: Session, request: EntryOrUpdateVehicleRequest) -> ParkingRegistration | None:
     try:
         statement = (select(ParkingRegistration)
@@ -37,7 +41,7 @@ def create_parking_registration(*, session: Session, request: EntryOrUpdateVehic
         parkingRegistration = session.exec(statement).first()
         if not parkingRegistration or parkingRegistration.exit_datetime is not None:
             register = EntryVehicle(
-                entry_datetime=datetime.now(),
+                entry_datetime=datetime.now().astimezone(LOCAL_ZONE),
                 exit_datetime=None,
                 plate=request.plate
             )
@@ -55,6 +59,7 @@ def create_parking_registration(*, session: Session, request: EntryOrUpdateVehic
             detail=f"Error al crear el registro de parqueo: {str(e)}"
         )
 
+
 def update_parking_registration(*, session: Session, request: EntryOrUpdateVehicleRequest) -> ParkingRegistration:
     try:
         statement = select(ParkingRegistration).where(
@@ -67,7 +72,7 @@ def update_parking_registration(*, session: Session, request: EntryOrUpdateVehic
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="Registro de parqueo no encontrado o ya cerrado"
             )
-        parking_registration.exit_datetime = datetime.now()
+        parking_registration.exit_datetime = datetime.now().astimezone(LOCAL_ZONE)
         # Simulación de Payment
         payment_json = generate_random_transaction_data(parking_id=parking_registration.id)
         db_payment = Payment.model_validate(payment_json)

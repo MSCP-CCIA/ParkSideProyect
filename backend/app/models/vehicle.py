@@ -6,7 +6,6 @@ from sqlmodel import Field, Relationship, SQLModel
 
 if TYPE_CHECKING:
     from app.models.customer import Customer
-    from app.models.parkingRegistration import ParkingRegistration
 
 class Vehicle(SQLModel, table=True):
     plate: str = Field(primary_key=True)
@@ -14,7 +13,6 @@ class Vehicle(SQLModel, table=True):
     customer_id: int = Field(foreign_key="customer.id")
 
     customer: "Customer" = Relationship(back_populates="vehicles")
-    parking_registrations: List["ParkingRegistration"] = Relationship(back_populates="vehicle")
 
 # ------------------------- Customer Actions ------------------------- #
 
