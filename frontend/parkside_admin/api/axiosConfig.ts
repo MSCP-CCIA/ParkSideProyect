@@ -1,6 +1,6 @@
 import axios, { AxiosInstance, InternalAxiosRequestConfig, AxiosError } from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-const excludedRoutes = ['/api/v1/customer/login','/api/v1/customer/register'];
+const excludedRoutes = ['/api/v1/employee/login'];
 // Definimos la interfaz para el objeto que guardas
 export interface LoginData {
   id: number;

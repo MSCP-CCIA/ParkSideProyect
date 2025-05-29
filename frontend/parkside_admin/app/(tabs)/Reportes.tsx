@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, TextInput, ScrollView, Alert } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import DashboardLayout from '../layouts/DashboardLayout';
 import Dropdown from '../../components/common/Dropdown';
 import RefreshButton from '../../components/common/RefreshButton';
@@ -21,6 +22,7 @@ const Reportes = () => {
   const [searchText, setSearchText] = useState('');
   const [pagosData, setPagosData] = useState<SearchPaymentReport[]>([]);
   const [ocupacionData, setOcupacionData] = useState<SearchOccupationReport[]>([]);
+  const [loading, setLoading] = useState(false);
 
   const reportOptions = ['Reporte de pagos', 'Reporte de ocupación'];
 
@@ -42,35 +44,50 @@ const Reportes = () => {
   ];
 
   const handleRefresh = async () => {
+    if (!searchText) {
+      Alert.alert('Error', 'Por favor ingresa un número de documento o placa para buscar.');
+      return;
+    }
+
+    setLoading(true);
     try {
+      const employeeIdStr = await AsyncStorage.getItem('userId');
+      const employee_id = employeeIdStr ? parseInt(employeeIdStr) : null;
+
+      if (!employee_id) throw new Error('No se pudo obtener el ID del empleado');
+
       if (selectedReport === 'Reporte de pagos') {
+        const customer_id = parseInt(searchText);
+        if (isNaN(customer_id)) {
+          throw new Error('Número de documento inválido');
+        }
+
         const request: SearchPaymentReportRequest = {
-          employee_id: 1,
-          customer_id: searchText ? parseInt(searchText) : 0,
+          employee_id,
+          customer_id,
         };
+
         const response = await getReportePagos(request);
         setPagosData(response.payment_report);
       } else if (selectedReport === 'Reporte de ocupación') {
         const request: SearchOccupationReportRequest = {
-          employee_id: 1,
+          employee_id,
           plate: searchText,
         };
+
         const response = await getReporteOcupacion(request);
         setOcupacionData(response.occupation_report);
       }
     } catch (error) {
       Alert.alert('Error', 'No se pudo cargar el reporte.');
       console.error(error);
+      setPagosData([]);
+      setOcupacionData([]);
+    } finally {
+      setLoading(false);
     }
   };
 
-  useEffect(() => {
-    if (selectedReport) {
-      handleRefresh();
-    }
-  }, [selectedReport]);
-
-  // Transformar datos al formato esperado por la tabla
   const transformedPagosData = pagosData.map((item) => ({
     documento: item.customer_id.toString(),
     usuario: item.customer_full_name,
@@ -129,7 +146,7 @@ const Reportes = () => {
           <ReusableTable
             headers={pagosHeaders}
             data={filteredData(transformedPagosData, ['documento', 'usuario', 'fecha'])}
-            noDataText="No hay reportes de pagos registrados."
+            noDataText={loading ? 'Cargando datos...' : 'No hay reportes de pagos registrados.'}
           />
         )}
 
@@ -137,7 +154,7 @@ const Reportes = () => {
           <ReusableTable
             headers={ocupacionHeaders}
             data={filteredData(transformedOcupacionData, ['placa', 'usuario', 'fechaEntrada'])}
-            noDataText="No hay reportes de ocupación registrados."
+            noDataText={loading ? 'Cargando datos...' : 'No hay reportes de ocupación registrados.'}
           />
         )}
       </ScrollView>

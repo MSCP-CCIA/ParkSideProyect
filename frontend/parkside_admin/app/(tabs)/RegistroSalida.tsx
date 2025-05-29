@@ -8,11 +8,15 @@ import {
   ScrollView,
   Alert,
 } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import DashboardLayout from '../layouts/DashboardLayout';
 import SelectableTable from '../../components/common/SelectableTable';
 import RefreshButton from '../../components/common/RefreshButton';
 import { getRegistroSalida } from '../../api/registroSalidaApi';
-import { SearchRegistrationByPlateResponse } from '@/models/registroSalidaModels';
+import {
+  SearchRegistrationByPlateRequest,
+  SearchRegistrationByPlateResponse,
+} from '@/models/registroSalidaModels';
 
 const headers = [
   { label: 'Número de Documento', key: 'numeroDocumento' },
@@ -34,11 +38,23 @@ const RegistroSalida = () => {
   };
 
   const handleSearch = async () => {
+    if (!placa) {
+      Alert.alert('Error', 'Por favor ingresa una placa para buscar.');
+      return;
+    }
+
     try {
-      const data: SearchRegistrationByPlateResponse = await getRegistroSalida({
-        employee_id: 1,
+      const employeeIdStr = await AsyncStorage.getItem('userId');
+      const employee_id = employeeIdStr ? parseInt(employeeIdStr) : null;
+
+      if (!employee_id) throw new Error('No se encontró el ID del empleado');
+
+      const request: SearchRegistrationByPlateRequest = {
+        employee_id,
         plate: placa.toUpperCase(),
-      });
+      };
+
+      const data: SearchRegistrationByPlateResponse = await getRegistroSalida(request);
 
       const mapped = {
         numeroDocumento: data.customer_id.toString(),
