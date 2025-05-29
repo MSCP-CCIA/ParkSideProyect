@@ -39,7 +39,8 @@ const AddVehicleScreen: FC<AddVehicleScreenProps> = ({ navigation }) => {
         try {
           const storedData = await AsyncStorage.getItem('authToken');
           if (storedData) {
-            const { id } = JSON.parse(storedData);
+            const idString = await AsyncStorage.getItem('userId');
+            const id = idString ? parseInt(idString, 10) : null;
             setCustomerId(id);
           } else {
             // Manejar el caso en que no hay datos de inicio de sesión
@@ -101,10 +102,8 @@ const AddVehicleScreen: FC<AddVehicleScreenProps> = ({ navigation }) => {
           type: selectedVehicleType.trim(),
           customer_id: customerId,
       }
-      console.log('esto se va a amandar',request);
       try {
         const response = await addVehicle(request);
-        console.log('Respuesta del servidor:', response);
         Alert.alert('Vehículo registrado correctamente');
         navigation.navigate('MyVehiclesScreen');
       } catch (error: any) {

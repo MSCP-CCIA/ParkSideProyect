@@ -1,6 +1,6 @@
 import axios, { AxiosInstance, InternalAxiosRequestConfig, AxiosError } from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
+const excludedRoutes = ['/api/v1/customer/login','/api/v1/customer/register'];
 // Definimos la interfaz para el objeto que guardas
 export interface LoginData {
   id: number;
@@ -16,31 +16,20 @@ const api: AxiosInstance = axios.create({
     'Content-Type': 'application/json',
   },
 });
-
 api.interceptors.request.use(
   async (config: InternalAxiosRequestConfig): Promise<InternalAxiosRequestConfig> => {
     try {
-      // 1. Obtener el string del AsyncStorage
-      const storedDataString = await AsyncStorage.getItem('authToken');
-
-      if (storedDataString) {
-        // 2. Parsear el string JSON a un objeto LoginData
-        const loginData: LoginData = JSON.parse(storedDataString);
-
-        // 3. Acceder a la propiedad 'token' del objeto
-        const token = loginData.token;
-
+      // Si la ruta está en la lista de exclusión, no agregar token
+      if (excludedRoutes.some(route => config.url?.includes(route))) {
+        return config;
+      }
+      const token = await AsyncStorage.getItem('authToken');
         if (token) {
-          console.log('Token encontrado y agregado a la cabecera:', token);
           config.headers.Authorization = `Bearer ${token}`;
         }
-      }
     } catch (error) {
       console.error('Error al obtener o parsear el token del storage:', error);
-      // Opcional: Si el token está corrupto o no se puede parsear, podrías limpiar el storage
-      // AsyncStorage.removeItem('loginData');
     }
-    console.log(config.headers)
     return config;
   },
   (error: AxiosError): Promise<AxiosError> => {

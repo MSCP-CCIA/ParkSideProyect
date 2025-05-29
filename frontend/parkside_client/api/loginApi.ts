@@ -3,6 +3,6 @@ import {SearchCustomerRequest, SearchCustomerResponse} from '../models/customer_
 export const loginCustomer  = async (
     data: SearchCustomerRequest
 ): Promise<SearchCustomerResponse> => {
-    const response = await api.post<SearchCustomerResponse>('/api/v1/customer/login/', data);
+    const response = await api.post<SearchCustomerResponse>('/api/v1/customer/login', data);
     return response.data;
 };

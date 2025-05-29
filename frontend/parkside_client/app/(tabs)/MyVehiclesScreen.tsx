@@ -66,7 +66,8 @@ const MyVehiclesScreen: FC<MyVehiclesScreenProps> = ({ navigation }) => {
             try {
                 const storedData = await AsyncStorage.getItem('authToken');
                 if (storedData) {
-                    const { id } = JSON.parse(storedData);
+                    const idString = await AsyncStorage.getItem('userId');
+                    const id = idString ? parseInt(idString, 10) : null;
                     setCustomerId(id);
                 } else {
                     // Manejar el caso en que no hay datos de inicio de sesión
@@ -135,8 +136,6 @@ const MyVehiclesScreen: FC<MyVehiclesScreenProps> = ({ navigation }) => {
                     customer_id: customerId, // Usamos el customerId del estado
                     plate: selectedVehicle.Placa,
                 };
-
-                console.log('esto seria lo que se manda', deleteRequest);
                 await deleteVehicle(deleteRequest);
                 // Si la eliminación es exitosa, actualiza la lista localmente
                 setVehicles(vehicles.filter((v) => v.id !== selectedId));

@@ -9,11 +9,10 @@ import LinkText from '../../components/common/LinkText';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {SearchCustomerRequest, SearchCustomerResponse} from '../../models/customer_models';
 import {loginCustomer} from '../../api/loginApi'
-
+import {LoginData} from '../../api/axiosConfig'
 interface LoginScreenProps {
   navigation: NativeStackNavigationProp<any>; // Adjust 'any' with your navigation type
 }
-
 const LoginScreen: FC<LoginScreenProps> = ({ navigation }) => {
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
@@ -21,22 +20,17 @@ const LoginScreen: FC<LoginScreenProps> = ({ navigation }) => {
   const [passwordError, setPasswordError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [loginError, setLoginError] = useState<string | null>(null);
-
   const validarCorreo = (correo: string): boolean => {
     const regex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     return regex.test(correo);
   };
-
-  const saveLoginData = async (data: SearchCustomerResponse) => {
-    try {
-      const jsonValue = JSON.stringify(data);
-      await AsyncStorage.setItem('authToken', jsonValue);
-      console.log('Datos de login guardados en AsyncStorage');
-    } catch (e) {
-      console.error('Error al guardar los datos de login:', e);
-    }
-  };
-
+const saveLoginData = async (data: LoginData) => {
+  try {
+    await AsyncStorage.setItem('authToken', data.token);
+    await AsyncStorage.setItem('userId', data.id.toString());
+  } catch (e) {
+  }
+};
   const handleLogin = async () => {
     let isValid = true;
 
@@ -49,7 +43,6 @@ const LoginScreen: FC<LoginScreenProps> = ({ navigation }) => {
     } else {
       setEmailError(null);
     }
-
     if (!password) {
       setPasswordError('Por favor, introduce tu contraseña.');
       isValid = false;
@@ -73,13 +66,8 @@ const LoginScreen: FC<LoginScreenProps> = ({ navigation }) => {
         const response: SearchCustomerResponse = await loginCustomer(request)
 
         setLoading(false);
-        console.log('Respuesta del login:', response);
         await saveLoginData(response);
         navigation.navigate('MainMenu');
-        const value = await AsyncStorage.getItem('authToken');
-        if (typeof value === "string") {
-          console.log(JSON.parse(value));
-        }
       } catch (error: any) {
         setLoading(false);
         console.error('Error al iniciar sesión:', error.response?.data || error.message);
