@@ -154,7 +154,7 @@ def transform_paymentwateway_update_model(request: UpdateCardRequest, paymentGat
     return {
         "token": paymentGateway.token,
         "pan": paymentGateway.pan,
-        "cvc": request.cvc,
+        "cvc": paymentGateway.cvc,
         "exp_month": request.month,
         "exp_year": request.year,
         "card_owner_name": request.full_name_customer
