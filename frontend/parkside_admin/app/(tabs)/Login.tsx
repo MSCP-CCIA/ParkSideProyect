@@ -66,14 +66,8 @@ const Login: FC<LoginProps> = ({ navigation }) => {
         const response: SearchEmployeeResponse = await loginEmployee(request);
 
         setLoading(false);
-        console.log('Respuesta del login:', response);
         await saveLoginData(response);
         navigation.navigate('Usuarios');
-
-        const value = await AsyncStorage.getItem('authToken');
-        if (typeof value === 'string') {
-          console.log(JSON.parse(value));
-        }
       } catch (error: any) {
         setLoading(false);
         console.error('Error al iniciar sesión:', error.response?.data || error.message);

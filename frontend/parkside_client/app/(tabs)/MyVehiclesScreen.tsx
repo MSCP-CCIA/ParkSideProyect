@@ -10,29 +10,18 @@ import {
 import ScreenLayout from '../layouts/ScreenLayout';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios, { AxiosResponse } from 'axios';
-import {SearchCustomerVehiclesRequest, SearchVehiclesResponse} from '../../models/vehicle_models'
-import {listVehicles} from '../../api/listVehiclesApi'
-
+import {SearchCustomerVehiclesRequest, SearchVehiclesResponse} from '@/models/vehicle_models'
+import {listVehicles} from '@/api/listVehiclesApi'
+import { DeleteVehicleRequest } from '@/models/vehicle_models';
+import { Message } from '@/models/message_models';
+import{deleteVehicle} from '../../api/deleteVehicleApi'
 
 
 
 // API Service para eliminar vehículo
-interface DeleteVehicleRequest {
-    customer_id: number;
-    plate: string;
-}
 
-const deleteVehicle = async (deleteRequest: DeleteVehicleRequest): Promise<AxiosResponse<any>> => {
-    try {
-        const response = await axios.delete(
-            'http://127.0.0.1:8000/api/v1/vehicle/delete-vehicle-{plate}',
-            { data: deleteRequest } // Envuelve deleteRequest dentro de la propiedad 'data'
-        );
-        return response;
-    } catch (error: any) {
-        throw error;
-    }
-};
+
+
 
 interface MyVehiclesScreenProps {
     navigation: any;
@@ -130,11 +119,11 @@ const MyVehiclesScreen: FC<MyVehiclesScreenProps> = ({ navigation }) => {
             setLoading(true);
             setError(null);
             try {
-                const deleteRequest: DeleteVehicleRequest = {
-                    customer_id: customerId, // Usamos el customerId del estado
+                const Request: DeleteVehicleRequest = {
+                    customer_id: customerId,
                     plate: selectedVehicle.Placa,
                 };
-                await deleteVehicle(deleteRequest);
+                await deleteVehicle(Request);
                 // Si la eliminación es exitosa, actualiza la lista localmente
                 setVehicles(vehicles.filter((v) => v.id !== selectedId));
                 setSelectedId(null);
