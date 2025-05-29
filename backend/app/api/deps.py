@@ -1,24 +1,23 @@
 # app/api/deps.py
 
 from collections.abc import Generator
-from datetime import date
 from typing import Annotated
 
 import jwt
+import random
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from jwt.exceptions import InvalidTokenError
 from pydantic import ValidationError
-from sqlmodel import Session, select, desc
+from sqlmodel import Session, select
+from datetime import datetime, timedelta
 
 from app.core import security
 from app.core.config import settings
 from app.core.db import engine
 from app.models.paymentGateway import PaymentGateway
-from app.models.card import CreateCardRequest, UpdateCardRequest, Card
+from app.models.card import CreateCardRequest, UpdateCardRequest
 from app.models.customer import CreateCustomerRequest, Customer
-from app.models.parkingRegistration import ParkingRegistration
-from app.models.payment import Payment
 from app.models.employee import Employee
 from app.schemas.token import TokenPayload
 
@@ -190,3 +189,69 @@ def transform_customer_create_model(request: CreateCustomerRequest) -> dict:
         "is_active": request.is_active,
         "parking_id": request.parking_id
     }
+
+
+def generate_random_transaction_data(parking_id: int, employee_id: int = None) -> dict:
+    """
+    Generates a dictionary with random transaction data suitable for insertion into a database table.
+
+    Args:
+        parking_id (int): The parking ID where the user is.
+        employee_id (int, optional): The employee ID. Defaults to None.
+
+    Returns:
+        dict: A dictionary containing the generated transaction data.
+    """
+
+    data = {}
+
+    # status
+    status_options = ["Pendiente", "Aprobado", "Rechazado"]
+    data["status"] = random.choice(status_options)
+
+    # status_detail (depends on status)
+    if data["status"] == "Aprobado":
+        data["status_detail"] = random.choice(["Pago exitoso", "Transacción completada"])
+    elif data["status"] == "Pendiente":
+        data["status_detail"] = random.choice(["Esperando confirmación", "En proceso de validación"])
+    else: # rechazado
+        data["status_detail"] = random.choice(["Fondos insuficientes", "Transacción denegada por el banco", "Cancelado por el usuario"])
+
+    # payment_method
+    payment_method_options = ["Tarjeta", "Transferencia", "Efectivo"]
+    data["payment_method"] = random.choice(payment_method_options)
+
+    # payment_type (depends on payment_method)
+    if data["payment_method"] == "Tarjeta":
+        data["payment_type"] = random.choice(["Crédito", "Débito"])
+    elif data["payment_method"] == "Transferencia":
+        data["payment_type"] = random.choice(["PSE", "Bancolombia", "Nequi"])
+    else: # efectivo
+        data["payment_type"] = "Efectivo"
+
+    # transaction_amount
+    data["transaction_amount"] = round(random.uniform(5000, 50000), 2)
+
+    # installments (depends on payment_method)
+    if data["payment_method"] == "Tarjeta":
+        data["installments"] = random.randint(1, 3)
+    else: # transferencia or efectivo
+        data["installments"] = 1
+
+    # date_created
+    data["date_created"] = datetime.now()
+
+    # date_approved (depends on status)
+    if data["status"] == "Aprobado":
+        minutes_to_add = random.randint(1, 180)
+        data["date_approved"] = data["date_created"] + timedelta(minutes=minutes_to_add)
+    else:
+        data["date_approved"] = None
+
+    # parking_registration_id
+    data["parking_registration_id"] = parking_id
+
+    # employee_id
+    data["employee_id"] = employee_id
+
+    return data

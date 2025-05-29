@@ -2,6 +2,8 @@ from fastapi import HTTPException, status
 from sqlmodel import Session, select, desc
 from app.models.parkingRegistration import *
 from app.models.vehicle import Vehicle
+from app.models.payment import Payment
+from app.api.deps import generate_random_transaction_data
 
 # ------------------------- ML and Employee Actions ------------------------- #
 
@@ -28,8 +30,10 @@ def get_customer_vehicle(*, session: Session, request: EntryOrUpdateVehicleReque
 def create_parking_registration(*, session: Session, request: EntryOrUpdateVehicleRequest) -> ParkingRegistration | None:
     try:
         statement = (select(ParkingRegistration)
+                     .join(Vehicle)
                      .where((Vehicle.plate == request.plate))
-                     .order_by(desc(ParkingRegistration.entry_datetime)))
+                     .order_by(desc(ParkingRegistration.entry_datetime))
+        )
         parkingRegistration = session.exec(statement).first()
         if not parkingRegistration or parkingRegistration.exit_datetime is not None:
             register = EntryVehicle(
@@ -37,9 +41,7 @@ def create_parking_registration(*, session: Session, request: EntryOrUpdateVehic
                 exit_datetime=None,
                 plate=request.plate
             )
-            db_obj = ParkingRegistration.model_validate(
-                register
-            )
+            db_obj = ParkingRegistration.model_validate(register)
             session.add(db_obj)
             session.commit()
             session.refresh(db_obj)
@@ -66,14 +68,20 @@ def update_parking_registration(*, session: Session, request: EntryOrUpdateVehic
                 detail="Registro de parqueo no encontrado o ya cerrado"
             )
         parking_registration.exit_datetime = datetime.now()
+        # Simulación de Payment
+        payment_json = generate_random_transaction_data(parking_id=parking_registration.id)
+        db_payment = Payment.model_validate(payment_json)
 
         session.add(parking_registration)
+        session.add(db_payment)
         session.commit()
         session.refresh(parking_registration)
+        session.refresh(db_payment)
         return parking_registration
     except HTTPException:
         raise
     except Exception as e:
+        print(e)
         session.rollback()
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
