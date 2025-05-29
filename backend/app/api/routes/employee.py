@@ -12,25 +12,32 @@ router = APIRouter(prefix="/employee", tags=["employee"])
 
 @router.post("/login", response_model=SearchEmployeeResponse)
 def login_employee(session: SessionDep, request: SearchEmployeeRequest) -> SearchEmployeeResponse:
-    employee = authenticate_employee(session=session, request=request)
-    if not employee:
+    try:
+        employee = authenticate_employee(session=session, request=request)
+        if not employee:
+            raise HTTPException(
+                status_code=400,
+                detail="Incorrect email or password"
+            )
+        elif not employee.is_active:
+            raise HTTPException(
+                status_code=400,
+                detail="Inactive user"
+            )
+        access_token = create_access_token(
+            data={"sub": str(employee.id)},
+            expires_delta=timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+        )
+        return SearchEmployeeResponse(
+            id=employee.id,
+            token=access_token
+        )
+    except Exception as e:
+        print(e)
         raise HTTPException(
             status_code=400,
             detail="Incorrect email or password"
         )
-    elif not employee.is_active:
-        raise HTTPException(
-            status_code=400,
-            detail="Inactive user"
-        )
-    access_token = create_access_token(
-        data={"sub": str(employee.id)},
-        expires_delta=timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
-    )
-    return SearchEmployeeResponse(
-        id=employee.id,
-        token=access_token
-    )
 
 
 @router.post("/update-employee", response_model=Message)

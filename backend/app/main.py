@@ -50,6 +50,7 @@ async def verify_token_middleware(request: Request, call_next):
         f"{settings.API_V1_STR}/token",
         f"{settings.API_V1_STR}/customer/register",
         f"{settings.API_V1_STR}/customer/login",
+        f"{settings.API_V1_STR}/employee/login",
         # Modelos para probar (borrar)
         f"{settings.API_V1_STR}/cards/register-card",
         f"{settings.API_V1_STR}/cards/update-card",
@@ -57,7 +58,6 @@ async def verify_token_middleware(request: Request, call_next):
         f"{settings.API_V1_STR}/cards/get-cards",
         f"{settings.API_V1_STR}/cards/delete-card",
         f"{settings.API_V1_STR}/cards/register-card",
-        f"{settings.API_V1_STR}/employee/login",
         f"{settings.API_V1_STR}/vehicle/register-vehicle",
         f"{settings.API_V1_STR}/flow/entry-register",
         f"{settings.API_V1_STR}/flow/exit-register",
