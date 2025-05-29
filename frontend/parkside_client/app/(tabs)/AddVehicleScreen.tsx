@@ -48,7 +48,6 @@ const AddVehicleScreen: FC<AddVehicleScreenProps> = ({ navigation }) => {
             navigation.navigate('Login'); // Redirigir a la pantalla de inicio de sesión
           }
         } catch (error) {
-          console.error('Error al obtener el ID del cliente:', error);
           Alert.alert('Error', 'No se pudo obtener la información del usuario.');
           navigation.navigate('Login');
         }
@@ -108,7 +107,6 @@ const AddVehicleScreen: FC<AddVehicleScreenProps> = ({ navigation }) => {
         navigation.navigate('MainMenu');
       } catch (error: any) {
         setLoading(false);
-        console.error("Error al registrar el vehiculo", error)
         Alert.alert('Error', 'No se pudo registrar el vehículo. Por favor, intenta de nuevo.');
       }
     } else if (!customerId) {

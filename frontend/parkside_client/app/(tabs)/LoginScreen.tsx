@@ -29,7 +29,6 @@ const LoginScreen: FC<LoginScreenProps> = ({ navigation }) => {
       await AsyncStorage.setItem('authToken', data.token);
       await AsyncStorage.setItem('userId', data.id.toString());
     } catch (e) {
-      console.error("Error setting AsyncStorage item:", e);
     }
   };
   const handleLogin = async () => {
@@ -71,7 +70,6 @@ const LoginScreen: FC<LoginScreenProps> = ({ navigation }) => {
         navigation.navigate('MainMenu');
       } catch (error: any) {
         setLoading(false);
-        console.error('Error al iniciar sesión:', error.response?.data || error.message);
         setLoginError(error.response?.data?.message || 'Error al iniciar sesión. Por favor, intenta de nuevo.');
         Alert.alert('Error', error.response?.data?.message || 'No se pudo iniciar sesión.');
       }

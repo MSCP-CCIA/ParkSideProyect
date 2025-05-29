@@ -36,7 +36,6 @@ const PaymentMethodsScreen: FC<PaymentMethodsScreenProps> = ({ navigation }) => 
         const customer_id = idString ? parseInt(idString, 10) : null;
 
         if (!customer_id) {
-          console.warn('No se encontró el ID del usuario');
           return;
         }
         const request: SearchCardsRequest = {
@@ -53,7 +52,6 @@ const PaymentMethodsScreen: FC<PaymentMethodsScreenProps> = ({ navigation }) => 
 
         setPaymentMethods(formattedCards);
       } catch (error) {
-        console.error('Error al obtener tarjetas:', error);
       }
     };
 

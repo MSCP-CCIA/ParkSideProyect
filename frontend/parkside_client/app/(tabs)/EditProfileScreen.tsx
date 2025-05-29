@@ -76,7 +76,6 @@ const EditProfileScreen: FC<EditProfileScreenProps> = ({ navigation, route }) =>
         };
 
         const response: SearchMyInformationResponse = await getInfoUser(request);
-        console.log(response)
         setUserId(response.id);
         setDocumentType(response.document_type);
         setEmail(response.email);
@@ -89,7 +88,6 @@ const EditProfileScreen: FC<EditProfileScreenProps> = ({ navigation, route }) =>
         setLoadingInfo(false);
       } catch (error: any) {
         setLoadingInfo(false);
-        console.error('Error al cargar info del usuario:', error.message || error);
         Alert.alert('Error', 'No se pudo cargar la información del usuario.');
       }
     };
@@ -147,7 +145,6 @@ const EditProfileScreen: FC<EditProfileScreenProps> = ({ navigation, route }) =>
         navigation.goBack();
       } catch (error: any) {
         setLoading(false);
-        console.error('Error al actualizar el perfil:', error.response?.data || error.message);
         const msg = error.response?.data?.message || 'Error al actualizar el perfil. Por favor, intenta de nuevo.';
         setUpdateError(msg);
         Alert.alert('Error', msg);

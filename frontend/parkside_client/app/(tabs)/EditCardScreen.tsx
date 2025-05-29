@@ -24,7 +24,6 @@ interface EditCardScreenProps {
 
 const EditCardScreen: FC<EditCardScreenProps> = ({ navigation, route }) => {
     const { searchCardResponse }: { searchCardResponse: SearchCardResponse } = route.params;
-    console.log(searchCardResponse);
 
     // Inicializar estados con valores recibidos para inputs editables
     const [cardHolderName, setCardHolderName] = useState(searchCardResponse.full_name_customer);
@@ -111,10 +110,10 @@ const EditCardScreen: FC<EditCardScreenProps> = ({ navigation, route }) => {
                 year: year,
                 customer_id: id,
             }
-            console.log(request)
+
             const response: Message = await updateCard(request);
-            console.log('response',response)
-                Alert.alert('Cambios guardados', 'Tu tarjeta ha sido actualizada correctamente.');
+
+            Alert.alert('Cambios guardados', 'Tu tarjeta ha sido actualizada correctamente.');
             navigation.navigate('MainMenu');
         }
     };

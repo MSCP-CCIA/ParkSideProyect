@@ -58,7 +58,6 @@ const MovementsScreen: FC<MovementsScreenProps> = ({ navigation }) => {
         setMovementsData(formattedMovements);
         setLoading(false);
       } catch (error) {
-        console.error('Error al cargar movimientos:', error);
         Alert.alert('Error', 'No se pudo cargar el historial de movimientos.');
         setLoading(false);
       }

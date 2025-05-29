@@ -99,14 +99,12 @@ const RegisterScreen: FC<RegisterScreenProps> = ({ navigation }) => {
                       is_active: true,
                       parking_id: 1,
                 }
-                console.log(request)
+
                 const response: Message = await registerCustomer(request)
                 setLoading(false);
-                console.log('Registro exitoso:', response);
                 navigation.navigate('Login')
             } catch (error: any) {
                 setLoading(false);
-                console.error('Error al registrar:', error.response?.data || error.message);
                 setRegistrationError(error.response?.data?.message || 'Error al registrar. Por favor, intenta de nuevo.');
                 Alert.alert('Error', error.response?.data?.message || 'No se pudo registrar la cuenta.');
             }

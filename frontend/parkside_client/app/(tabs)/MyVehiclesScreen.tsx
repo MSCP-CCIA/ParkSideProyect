@@ -30,7 +30,6 @@ const deleteVehicle = async (deleteRequest: DeleteVehicleRequest): Promise<Axios
         );
         return response;
     } catch (error: any) {
-        console.error('Error al eliminar el vehículo:', error);
         throw error;
     }
 };
@@ -75,7 +74,6 @@ const MyVehiclesScreen: FC<MyVehiclesScreenProps> = ({ navigation }) => {
                     navigation.navigate('AddVehicle'); // Redirigir a la pantalla de inicio de sesión
                 }
             } catch (error) {
-                console.error('Error al obtener el ID del cliente:', error);
                 Alert.alert('Error', 'No se pudo obtener la información del usuario.');
                 navigation.navigate('Login');
             } finally {
@@ -142,7 +140,6 @@ const MyVehiclesScreen: FC<MyVehiclesScreenProps> = ({ navigation }) => {
                 setSelectedId(null);
                 Alert.alert('Vehículo eliminado', 'Se ha eliminado correctamente.');
             } catch (err: any) {
-                console.error(`Error al eliminar el vehículo: ${err.message}`);
                 setError(`Error al eliminar el vehículo: ${err.message}`);
                 Alert.alert('Error', 'No se pudo eliminar el vehículo. Por favor, intenta de nuevo.');
             } finally {

@@ -40,7 +40,6 @@ const ChangePasswordScreen: FC<ChangePasswordScreenProps> = ({ navigation }) => 
     }
 
     setEmailError(null);
-    console.log('Solicitando cambio de contraseña para:', email);
     Alert.alert(
         'Correo enviado',
         'Se ha enviado un enlace para cambiar la contraseña a tu correo.'
