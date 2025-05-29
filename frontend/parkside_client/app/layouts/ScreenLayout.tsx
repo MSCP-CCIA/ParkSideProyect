@@ -20,7 +20,7 @@ import React, { FC, ReactNode } from 'react';
          <Text style={styles.title}>{title}</Text>
        </View>
        <View style={styles.container}>
-         {children}
+           {children}
        </View>
      </SafeAreaView>
    );
