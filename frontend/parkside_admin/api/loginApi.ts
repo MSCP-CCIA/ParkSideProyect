@@ -4,6 +4,6 @@ import {SearchEmployeeRequest, SearchEmployeeResponse} from '@/models/loginModel
 export const loginEmployee = async (
     data: SearchEmployeeRequest
 ): Promise<SearchEmployeeResponse> => {
-    const response = await api.post<SearchEmployeeResponse>('/api/v1/employee/login/', data);
+    const response = await api.post<SearchEmployeeResponse>('/api/v1/employee/login', data);
     return response.data;
 };

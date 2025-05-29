@@ -9,7 +9,7 @@ export const getUsuarioPorId = async (
   data: SearchCustomerByIdRequest
 ): Promise<SearchCustomersResponse> => {
   const response = await api.post<SearchCustomersResponse>(
-    '/api/v1/customer/get-customer-by-id/',
+    '/api/v1/customer/get-customer-by-id',
     data
   );
   return response.data;
@@ -18,5 +18,5 @@ export const getUsuarioPorId = async (
 export const updateEstadoUsuario = async (
   data: UpdateCustomerStateRequest
 ): Promise<void> => {
-  await api.post('/api/v1/customer/update-customer-state/', data);
+  await api.post('/api/v1/customer/update-customer-state', data);
 };

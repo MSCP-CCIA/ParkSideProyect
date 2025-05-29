@@ -8,7 +8,7 @@ import InputField from '../../components/common/InputField';
 import Button from '../../components/common/Button';
 import LinkText from '../../components/common/LinkText';
 import { loginEmployee } from '../../api/loginApi';
-import { SearchEmployeeRequest } from '@/models/loginModels';
+import { SearchEmployeeRequest, SearchEmployeeResponse } from '@/models/loginModels';
 
 interface LoginProps {
   navigation: NativeStackNavigationProp<any>;
@@ -19,10 +19,22 @@ const Login: FC<LoginProps> = ({ navigation }) => {
   const [password, setPassword] = useState('');
   const [emailError, setEmailError] = useState<string | null>(null);
   const [passwordError, setPasswordError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [loginError, setLoginError] = useState<string | null>(null);
 
   const validarCorreo = (correo: string): boolean => {
     const regex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     return regex.test(correo);
+  };
+
+  const saveLoginData = async (data: SearchEmployeeResponse) => {
+    try {
+      const jsonValue = JSON.stringify(data);
+      await AsyncStorage.setItem('authToken', jsonValue);
+      console.log('Datos de login guardados en AsyncStorage');
+    } catch (e) {
+      console.error('Error al guardar los datos de login:', e);
+    }
   };
 
   const handleLogin = async () => {
@@ -48,26 +60,30 @@ const Login: FC<LoginProps> = ({ navigation }) => {
       setPasswordError(null);
     }
 
-    if (!isValid) {
-      Alert.alert('Error', 'Corrige los errores en los campos.');
-      return;
-    }
+    if (isValid) {
+      setLoading(true);
+      setLoginError(null);
+      try {
+        const request: SearchEmployeeRequest = { email, password };
+        const response: SearchEmployeeResponse = await loginEmployee(request);
 
-    const credentials: SearchEmployeeRequest = {
-      email,
-      password,
-    };
+        setLoading(false);
+        console.log('Respuesta del login:', response);
+        await saveLoginData(response);
+        navigation.navigate('Usuarios');
 
-    try {
-      const response = await loginEmployee(credentials);
-      await AsyncStorage.setItem('authToken', response.token);
-      await AsyncStorage.setItem('authUserId', response.id.toString());
-
-      Alert.alert('Inicio de sesión exitoso');
-      navigation.navigate('Usuarios');
-    } catch (error) {
-      console.error('Login error:', error);
-      Alert.alert('Error', 'Correo o contraseña incorrectos.');
+        const value = await AsyncStorage.getItem('authToken');
+        if (typeof value === 'string') {
+          console.log(JSON.parse(value));
+        }
+      } catch (error: any) {
+        setLoading(false);
+        console.error('Error al iniciar sesión:', error.response?.data || error.message);
+        setLoginError(error.response?.data?.message || 'Error al iniciar sesión. Por favor, intenta de nuevo.');
+        Alert.alert('Error', error.response?.data?.message || 'No se pudo iniciar sesión.');
+      }
+    } else {
+      Alert.alert('Error', 'Por favor, corrige los errores en los campos.');
     }
   };
 
