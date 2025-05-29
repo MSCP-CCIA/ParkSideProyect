@@ -3,9 +3,10 @@ import { View, Text, StyleSheet, TouchableOpacity, KeyboardAvoidingView, Platfor
 import ScreenLayout from '../layouts/ScreenLayout';
 import ValidatedTextInput from '../../components/common/ValidatedTextInput';
 import CardLogo from '../../components/cardValidation/CardLogo';
-import axios, { AxiosResponse } from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
+import {CreateCardRequest} from '../../models/card_models'
+import {Message} from '../../models/message_models'
+import {addCard} from '../../api/addCardApi'
 // API Service
 interface SaveCardRequest {
     card_number: number;
@@ -17,18 +18,6 @@ interface SaveCardRequest {
     customer_id: number;
 }
 
-const saveCard = async (cardData: SaveCardRequest): Promise<AxiosResponse<any>> => {
-    try {
-        const response = await axios.post(
-            'http://127.0.0.1:8000/api/v1/cards/register-card/', // Reemplaza con la URL de tu API para guardar tarjetas
-            cardData
-        );
-        return response;
-    } catch (error: any) {
-        console.error('Error al guardar la tarjeta:', error);
-        throw error;
-    }
-};
 
 interface AgregarTarjetaScreenProps {
     navigation: any;
@@ -53,9 +42,10 @@ const AgregarTarjetaScreen: FC<AgregarTarjetaScreenProps> = ({ navigation }) => 
     useEffect(() => {
         const getCustomerIdFromStorage = async () => {
             try {
-                const storedData = await AsyncStorage.getItem('loginData');
+                const storedData = await AsyncStorage.getItem('authToken');
                 if (storedData) {
-                    const { id } = JSON.parse(storedData);
+                    const idString = await AsyncStorage.getItem('userId');
+                    const id = idString ? parseInt(idString, 10) : null;
                     setCustomerId(id);
                 } else {
                     // Manejar el caso en que no hay datos de inicio de sesión
@@ -161,21 +151,19 @@ const AgregarTarjetaScreen: FC<AgregarTarjetaScreenProps> = ({ navigation }) => 
                 const cardNumberNumber = parseInt(cardNumber, 10);
                 const cvvNumber = parseInt(cvv, 10);
 
-                const cardData: SaveCardRequest = {
+                const request: CreateCardRequest = {
                     card_number: cardNumberNumber,
                     full_name_customer: cardHolderName,
                     month: month,
                     year: year,
                     cvc: cvvNumber,
                     card_type: getCardType(cardNumber),
-                    customer_id: customerId, // Usamos el customerId del estado
-                };
-
-                await saveCard(cardData);
+                    customer_id: customerId,
+                }
+                const reponse = await addCard(request)
                 setLoading(false);
                 setSaveSuccess(true);
-                // Puedes navegar aquí si deseas una navegación automática sin alerta
-                navigation.goBack();
+                navigation.navigate('PaymentMethods');
             } catch (error: any) {
                 setLoading(false);
                 setSaveError('Error al guardar la tarjeta. Por favor, intenta de nuevo.');

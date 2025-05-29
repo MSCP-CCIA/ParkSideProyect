@@ -1,18 +1,92 @@
-import React, { FC } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
+import React, { FC, useEffect, useState } from 'react'; // Importa useEffect y useState
+import { View, Text, StyleSheet, TouchableOpacity, Alert, ActivityIndicator } from 'react-native'; // Importa ActivityIndicator para carga
+import AsyncStorage from '@react-native-async-storage/async-storage'; // Para obtener el userId
 import ScreenLayout from '../layouts/ScreenLayout';
-import CardLogo from '../../components/cardValidation/CardLogo';
+import CardLogo from '../../components/cardValidation/CardLogoType';
+
+// Importa las interfaces y la función de la API
+import { SearchCardRequest, SearchCardResponse } from '../../models/card_models'; // Ajusta la ruta si es necesario
+import { getCard } from '../../api/getCardApi'; // Ajusta la ruta si es necesario
 
 interface CardDetailsScreenProps {
     navigation: any;
     route: any;
 }
 
-const CardDetailsScreen: FC<CardDetailsScreenProps> = ({ navigation, route }) => {
-    const { paymentMethod } = route.params;
+// Extiende la interfaz PaymentMethod si no la tenías en esta vista para incluir el tipo de tarjeta
+// Si 'cardType' no viene en route.params.paymentMethod, la API lo devolverá.
+interface RoutePaymentMethod {
+  type: 'visa' | 'mastercard'; // Necesario para CardLogo
+  last4: string;
+  // Si paymentMethod tiene más propiedades iniciales, agrégalas aquí
+}
 
-    const handleEdit = () => {
-        navigation.navigate('EditCardScreen', { paymentMethod });
+const CardDetailsScreen: FC<CardDetailsScreenProps> = ({ navigation, route }) => {
+    // Asegúrate de que paymentMethod que viene por ruta tenga 'last4' y 'type' para CardLogo
+    const { paymentMethod }: { paymentMethod: RoutePaymentMethod } = route.params;
+
+    // Estados para almacenar los datos de la API
+    const [cardDetails, setCardDetails] = useState<SearchCardResponse | null>(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+
+    useEffect(() => {
+        const fetchCardDetails = async () => {
+            try {
+                setLoading(true); // Inicia la carga
+                setError(null); // Resetea errores previos
+
+                const idString = await AsyncStorage.getItem('userId');
+                const customer_id = idString ? parseInt(idString, 10) : null;
+
+                if (!customer_id) {
+                    console.warn('No se encontró el ID del usuario para obtener detalles de la tarjeta');
+                    setError('No se pudo cargar el ID de usuario.');
+                    setLoading(false);
+                    return;
+                }
+                console.log(parseInt(paymentMethod.last4))
+                console.log(customer_id)
+                const request: SearchCardRequest = {
+                    last_four_digits: parseInt(paymentMethod.last4),
+                    customer_id: customer_id,
+                };
+                console.log(request)
+
+                const response = await getCard(request);
+                setCardDetails(response); // Almacena la respuesta de la API
+            } catch (err) {
+                console.error('Error al obtener los detalles de la tarjeta:', err);
+                setError('Error al cargar los detalles de la tarjeta.');
+                Alert.alert('Error', 'No se pudieron cargar los detalles de la tarjeta. Por favor, inténtalo de nuevo.');
+            } finally {
+                setLoading(false); // Finaliza la carga
+            }
+        };
+
+        fetchCardDetails();
+    }, [paymentMethod.last4]); // Dependencia: re-ejecuta si cambian los últimos 4 dígitos
+
+    const handleEdit = async () => { // Hacemos esta función async para obtener el userId
+        try {
+            const idString = await AsyncStorage.getItem('userId');
+            const customer_id = idString ? parseInt(idString, 10) : null;
+
+            if (!customer_id) {
+                Alert.alert('Error', 'No se pudo obtener el ID del usuario para editar la tarjeta.');
+                return;
+            }
+
+            const request: SearchCardRequest = {
+                last_four_digits: parseInt(paymentMethod.last4, 10),
+                customer_id: customer_id,
+            };
+
+            navigation.navigate('EditCardScreen', { searchCardRequest: request });
+        } catch (err) {
+            console.error('Error al preparar la edición:', err);
+            Alert.alert('Error', 'No se pudo preparar la edición de la tarjeta.');
+        }
     };
 
     const handleDelete = () => {
@@ -33,20 +107,65 @@ const CardDetailsScreen: FC<CardDetailsScreenProps> = ({ navigation, route }) =>
         );
     };
 
+    if (loading) {
+        return (
+            <ScreenLayout title="Datos Tarjeta" navigation={navigation}>
+                <View style={styles.loadingContainer}>
+                    <ActivityIndicator size="large" color="#1976D2" />
+                    <Text>Cargando detalles de la tarjeta...</Text>
+                </View>
+            </ScreenLayout>
+        );
+    }
+
+    if (error) {
+        return (
+            <ScreenLayout title="Datos Tarjeta" navigation={navigation}>
+                <View style={styles.errorContainer}>
+                    <Text style={styles.errorText}>{error}</Text>
+                    <TouchableOpacity onPress={() => navigation.goBack()} style={styles.retryButton}>
+                        <Text style={styles.retryButtonText}>Volver</Text>
+                    </TouchableOpacity>
+                </View>
+            </ScreenLayout>
+        );
+    }
+
+    // Si cardDetails es null aquí, significa que algo salió mal después de la carga inicial
+    // y no hubo un error capturado específicamente para mostrar un mensaje.
+    // Esto podría ocurrir si la API devuelve null o un formato inesperado sin lanzar un error.
+    if (!cardDetails) {
+      return (
+        <ScreenLayout title="Datos Tarjeta" navigation={navigation}>
+          <View style={styles.errorContainer}>
+            <Text style={styles.errorText}>No se encontraron datos de la tarjeta.</Text>
+            <TouchableOpacity onPress={() => navigation.goBack()} style={styles.retryButton}>
+              <Text style={styles.retryButtonText}>Volver</Text>
+            </TouchableOpacity>
+          </View>
+        </ScreenLayout>
+      );
+    }
+
+
     return (
         <ScreenLayout title="Datos Tarjeta" navigation={navigation}>
             <View style={styles.container}>
-                <CardLogo cardNumber={paymentMethod.number} />
+                {/* Asegúrate de que CardLogo puede recibir 'type' o 'cardNumber' según lo que use para mostrar el logo */}
+                {/* Si 'type' viene en la respuesta de la API, podrías usar cardDetails.card_type */}
+                <CardLogo cardType={paymentMethod.type} />
                 <Text style={styles.cardNumber}>****{paymentMethod.last4}</Text>
 
                 <View style={styles.fieldGroup}>
                     <Text style={styles.label}>Titular de la tarjeta</Text>
-                    <Text style={styles.field}>Juan Valdés</Text>
+                    {/* Usa los datos de la API aquí */}
+                    <Text style={styles.field}>{cardDetails.full_name_customer}</Text>
                 </View>
 
                 <View style={styles.fieldGroup}>
                     <Text style={styles.label}>Fecha de vencimiento</Text>
-                    <Text style={styles.field}>09/2027</Text>
+                    {/* Usa los datos de la API aquí */}
+                    <Text style={styles.field}>{cardDetails.expiration_date}</Text>
                 </View>
 
                 <TouchableOpacity style={styles.editButton} onPress={handleEdit}>
@@ -120,6 +239,33 @@ const styles = StyleSheet.create({
         fontSize: 16,
         fontWeight: 'bold',
     },
+    loadingContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    errorContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        padding: 20,
+    },
+    errorText: {
+        fontSize: 16,
+        color: 'red',
+        textAlign: 'center',
+        marginBottom: 20,
+    },
+    retryButton: {
+      backgroundColor: '#1976D2',
+      paddingVertical: 10,
+      paddingHorizontal: 20,
+      borderRadius: 10,
+    },
+    retryButtonText: {
+      color: 'white',
+      fontSize: 16,
+    }
 });
 
 export default CardDetailsScreen;

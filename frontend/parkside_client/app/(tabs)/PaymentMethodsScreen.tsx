@@ -14,6 +14,8 @@ import PaymentMethodItem from '../../components/cardValidation/PaymentMethodItem
 import { listCards } from '../../api/listCardsApi';
 import { SearchCard } from '../../models/card_models';
 import {SearchCardsRequest, SearchCardsResponse} from '../../models/card_models'
+import {SearchCardRequest} from '../../models/card_models'
+import {SearchCardResponse} from '../../models/card_models'
 interface PaymentMethodsScreenProps {
   navigation: any;
 }
@@ -46,6 +48,7 @@ const PaymentMethodsScreen: FC<PaymentMethodsScreenProps> = ({ navigation }) => 
           id: index.toString(),
           type: card.card_type === 'mastercard' ? 'mastercard' : 'visa',
           last4: card.last_four_digits.toString().padStart(4, '0'),
+
         }));
 
         setPaymentMethods(formattedCards);
@@ -58,6 +61,7 @@ const PaymentMethodsScreen: FC<PaymentMethodsScreenProps> = ({ navigation }) => 
   }, []);
 
   const handleCardPress = (item: PaymentMethod) => {
+
     navigation.navigate('CardDetailsScreen', { paymentMethod: item });
   };
 
