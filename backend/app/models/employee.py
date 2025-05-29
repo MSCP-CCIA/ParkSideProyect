@@ -11,6 +11,7 @@ class Employee(SQLModel, table=True):
     id: int = Field(sa_column=Column(BigInteger, primary_key=True))
     full_name: str = Field(index=True)
     email: str = Field(index=True)
+    document_type: str
     password_hash: str
     phone: int
     job_position: str

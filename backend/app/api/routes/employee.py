@@ -54,7 +54,7 @@ def update_employee(session: SessionDep, request: UpdateEmployeeRequest) -> Mess
 
 
 @router.post("/info", response_model=SearchInformationResponse)
-def get_info(session: SessionDep, request: SearchInformationRequest) -> SearchInformationRequest:
+def get_info(session: SessionDep, request: SearchInformationRequest) -> SearchInformationResponse:
     try:
         employee = get_employee_by_id(session=session, request=request)
         return SearchInformationResponse(
@@ -66,5 +66,5 @@ def get_info(session: SessionDep, request: SearchInformationRequest) -> SearchIn
     except Exception as e:
         raise HTTPException(
             status_code=400,
-            detail="Error inesperado al traer la información el usuario"
+            detail=f"Error inesperado al traer la información el usuario: {e}"
         )

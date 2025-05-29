@@ -52,6 +52,7 @@ async def verify_token_middleware(request: Request, call_next):
         f"{settings.API_V1_STR}/customer/login",
         f"{settings.API_V1_STR}/employee/login",
         # Modelos para probar (borrar)
+        f"{settings.API_V1_STR}/employee/info",
         f"{settings.API_V1_STR}/customer/get-customer-by-id",
         f"{settings.API_V1_STR}/cards/register-card",
         f"{settings.API_V1_STR}/cards/update-card",
