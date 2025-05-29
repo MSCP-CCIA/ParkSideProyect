@@ -52,6 +52,7 @@ async def verify_token_middleware(request: Request, call_next):
         f"{settings.API_V1_STR}/customer/login",
         f"{settings.API_V1_STR}/employee/login",
         # Modelos para probar (borrar)
+        f"{settings.API_V1_STR}/customer/get-customer-by-id",
         f"{settings.API_V1_STR}/cards/register-card",
         f"{settings.API_V1_STR}/cards/update-card",
         f"{settings.API_V1_STR}/cards/get-card",
@@ -63,7 +64,9 @@ async def verify_token_middleware(request: Request, call_next):
         f"{settings.API_V1_STR}/flow/exit-register",
         f"{settings.API_V1_STR}/vehicle/get-vehicle-by-plate-entry",
         f"{settings.API_V1_STR}/vehicle/get-vehicle-by-plate-exit",
+        f"{settings.API_V1_STR}/vehicle/get-occupation-report",
         f"{settings.API_V1_STR}/payment/get-payment-report",
+        f"{settings.API_V1_STR}/payment/get-movements-history",
     ]
     if request.url.path in excluded_paths or request.url.path.startswith("/static"):
         return await call_next(request)

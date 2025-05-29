@@ -1,9 +1,12 @@
+from zoneinfo import ZoneInfo
 from fastapi import HTTPException, status
 from sqlmodel import Session, select, desc
 from app.models.vehicle import *
 from app.models.customer import Customer
 from app.models.parkingRegistration import ParkingRegistration
 from app.api.deps import get_parking_employee
+
+LOCAL_ZONE = ZoneInfo("America/Bogota")
 
 # ------------------------- Customer Actions ------------------------- #
 
@@ -195,10 +198,10 @@ def get_occupation_report_crud(*, session: Session, request: SearchOccupationRep
             SearchOccupationReport(
                 plate=i.plate,
                 customer_full_name=i.full_name,
-                entry_date=i.entry_datetime.strftime("%Y-%m-%d"),
-                entry_time=i.entry_datetime.strftime("%H:%M:%S"),
-                exit_date=i.exit_datetime.strftime("%Y-%m-%d") if i.exit_datetime else None,
-                exit_time=i.exit_datetime.strftime("%H:%M:%S") if i.exit_datetime else None
+                entry_date=i.entry_datetime.astimezone(LOCAL_ZONE).strftime("%Y-%m-%d"),
+                entry_time=i.entry_datetime.astimezone(LOCAL_ZONE).strftime("%H:%M:%S"),
+                exit_date=i.exit_datetime.astimezone(LOCAL_ZONE).strftime("%Y-%m-%d") if i.exit_datetime else None,
+                exit_time=i.exit_datetime.astimezone(LOCAL_ZONE).strftime("%H:%M:%S") if i.exit_datetime else None
             )
             for i in db_response
         ]

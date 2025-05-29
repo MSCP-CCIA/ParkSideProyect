@@ -25,6 +25,21 @@ class Payment(SQLModel, table=True):
     parking_registration: "ParkingRegistration" = Relationship(back_populates="payment")
     employee: Optional["Employee"] = Relationship(back_populates="payments")
 
+# ------------------------- Customer Actions ------------------------- #
+
+# Get Movements History
+
+class SearchMovementsHistoryRequest(BaseModel):
+    customer_id: int
+
+class SearchMovementsHistory(BaseModel):
+    date_approved: date
+    plate: str
+    payment: float
+
+class SearchMovementsHistoryResponse(BaseModel):
+    movements: List[SearchMovementsHistory]
+
 # ------------------------- Employee Actions ------------------------- #
 
 # Get Occupation Report for Employee
