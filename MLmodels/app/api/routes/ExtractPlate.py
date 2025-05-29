@@ -7,8 +7,9 @@ from MLmodels.Utils.message import Message
 from MLmodels.app.websocket.connection_manager import manager
 
 
-router = APIRouter(tags=["extractPlate"])
 
+router = APIRouter(tags=["extractPlate"])
+BACKEND_URL = os.getenv("BACKEND_URL", "http://localhost:8000")
 UPLOAD_DIR = "temp_uploads"
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 

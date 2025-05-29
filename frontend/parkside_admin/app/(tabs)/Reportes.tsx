@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TextInput, ScrollView, Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import DashboardLayout from '../layouts/DashboardLayout';
@@ -17,6 +17,11 @@ import {
   SearchOccupationReport
 } from '@/models/reporteOcupacionModels';
 
+const REPORTES = {
+  PAGOS: 'Reporte de pagos',
+  OCUPACION: 'Reporte de ocupación',
+};
+
 const Reportes = () => {
   const [selectedReport, setSelectedReport] = useState('');
   const [searchText, setSearchText] = useState('');
@@ -24,7 +29,7 @@ const Reportes = () => {
   const [ocupacionData, setOcupacionData] = useState<SearchOccupationReport[]>([]);
   const [loading, setLoading] = useState(false);
 
-  const reportOptions = ['Reporte de pagos', 'Reporte de ocupación'];
+  const reportOptions = [REPORTES.PAGOS, REPORTES.OCUPACION];
 
   const pagosHeaders = [
     { label: 'Número de Documento', key: 'documento' },
@@ -43,6 +48,12 @@ const Reportes = () => {
     { label: 'Hora Salida', key: 'horaSalida' },
   ];
 
+  useEffect(() => {
+    setSearchText('');
+    setPagosData([]);
+    setOcupacionData([]);
+  }, [selectedReport]);
+
   const handleRefresh = async () => {
     if (!searchText) {
       Alert.alert('Error', 'Por favor ingresa un número de documento o placa para buscar.');
@@ -52,12 +63,14 @@ const Reportes = () => {
     setLoading(true);
     try {
       const employeeIdStr = await AsyncStorage.getItem('userId');
-      const employee_id = employeeIdStr ? parseInt(employeeIdStr) : null;
+      const employee_id = employeeIdStr ? parseInt(employeeIdStr, 10) : null;
 
-      if (!employee_id) throw new Error('No se pudo obtener el ID del empleado');
+      if (!employee_id) {
+        throw new Error('No se pudo obtener el ID del empleado');
+      }
 
-      if (selectedReport === 'Reporte de pagos') {
-        const customer_id = parseInt(searchText);
+      if (selectedReport === REPORTES.PAGOS) {
+        const customer_id = parseInt(searchText, 10);
         if (isNaN(customer_id)) {
           throw new Error('Número de documento inválido');
         }
@@ -69,14 +82,17 @@ const Reportes = () => {
 
         const response = await getReportePagos(request);
         setPagosData(response.payment_report);
-      } else if (selectedReport === 'Reporte de ocupación') {
+        setOcupacionData([]); // Limpiar datos de ocupacion
+      } else if (selectedReport === REPORTES.OCUPACION) {
+        const plate = searchText;
         const request: SearchOccupationReportRequest = {
           employee_id,
-          plate: searchText,
+          plate,
         };
 
         const response = await getReporteOcupacion(request);
         setOcupacionData(response.occupation_report);
+        setPagosData([]); // Limpiar datos de pagos
       }
     } catch (error) {
       Alert.alert('Error', 'No se pudo cargar el reporte.');
@@ -85,6 +101,7 @@ const Reportes = () => {
       setOcupacionData([]);
     } finally {
       setLoading(false);
+      setSearchText(''); // Opcional: limpia el input luego de buscar
     }
   };
 
@@ -128,21 +145,23 @@ const Reportes = () => {
           <View style={styles.searchContainer}>
             <TextInput
               placeholder={
-                selectedReport === 'Reporte de pagos'
+                selectedReport === REPORTES.PAGOS
                   ? 'Buscar por Número de Documento'
-                  : 'Buscar por Placa del Vehículo'
+                  : selectedReport === REPORTES.OCUPACION
+                  ? 'Buscar por Placa del Vehículo'
+                  : ''
               }
               value={searchText}
               onChangeText={setSearchText}
               onSubmitEditing={handleRefresh}
               style={styles.searchInput}
-              keyboardType={selectedReport === 'Reporte de pagos' ? 'numeric' : 'default'}
+              keyboardType={selectedReport === REPORTES.PAGOS ? 'numeric' : 'default'}
             />
             <RefreshButton onPress={handleRefresh} />
           </View>
         )}
 
-        {selectedReport === 'Reporte de pagos' && (
+        {selectedReport === REPORTES.PAGOS && (
           <ReusableTable
             headers={pagosHeaders}
             data={filteredData(transformedPagosData, ['documento', 'usuario', 'fecha'])}
@@ -150,7 +169,7 @@ const Reportes = () => {
           />
         )}
 
-        {selectedReport === 'Reporte de ocupación' && (
+        {selectedReport === REPORTES.OCUPACION && (
           <ReusableTable
             headers={ocupacionHeaders}
             data={filteredData(transformedOcupacionData, ['placa', 'usuario', 'fechaEntrada'])}
