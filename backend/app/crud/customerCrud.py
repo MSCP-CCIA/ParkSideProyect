@@ -20,7 +20,7 @@ def create_user(*, session: Session, request: CreateCustomerRequest) -> Customer
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error al crear el usuario: {str(e)}"
+            detail=str(e)
         )
 
 
@@ -46,29 +46,53 @@ def update_user(*, session: Session, request: UpdateCustomerRequest) -> Customer
         session.rollback()
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error al actualizar el usuario: {str(e)}"
+            detail=str(e)
         )
 
 
 def get_customer_by_id(*, session: Session, request: SearchMyInformationRequest) -> Customer:
-    statement = select(Customer).where(Customer.id == request.id)
-    session_customer = session.exec(statement).first()
-    return session_customer
+    try:
+        statement = select(Customer).where(Customer.id == request.id)
+        session_customer = session.exec(statement).first()
+        return session_customer
+    except HTTPException as e:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(e)
+        )
 
 
 def get_customer_by_email(*, session: Session, email: str) -> Customer | None:
-    statement = select(Customer).where(Customer.email == email)
-    session_customer = session.exec(statement).first()
-    return session_customer
+    try:
+        statement = select(Customer).where(Customer.email == email)
+        session_customer = session.exec(statement).first()
+        return session_customer
+    except HTTPException as e:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(e)
+        )
 
 
 def authenticate_customer(*, session: Session, request: SearchCustomerRequest) -> Customer | None:
-    customer = get_customer_by_email(session=session, email=request.email)
-    if not customer:
-        return None
-    if not hash_password(request.password) != customer.password_hash:
-        return None
-    return customer
+    try:
+        customer = get_customer_by_email(session=session, email=request.email)
+        if not customer:
+            return None
+        if not hash_password(request.password) != customer.password_hash:
+            return None
+        return customer
+    except HTTPException as e:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(e)
+        )
 
 # ------------------------- Employee Actions ------------------------- #
 
@@ -88,7 +112,7 @@ def get_customer_by_id_crud(*, session: Session, request: SearchCustomerByIdRequ
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error al obtener los usuarios: {str(e)}"
+            detail=str(e)
         )
 
 
@@ -113,5 +137,5 @@ def update_customer_state_crud(*, session: Session, request: UpdateCustomerState
         session.rollback()
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error al actualizar el usuario: {str(e)}"
+            detail=str(e)
         )

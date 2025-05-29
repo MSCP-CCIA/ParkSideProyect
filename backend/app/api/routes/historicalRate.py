@@ -14,7 +14,7 @@ def register_rate(session: SessionDep, request: CreateHistoricalRateRequest) -> 
         return Message(message="Registro de tarifa exitoso")
     except Exception as e:
         raise HTTPException(
-            status_code=400,
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Error inesperado al registrar la tarifa: {e}"
         )
 
@@ -36,8 +36,8 @@ def get_rate(session: SessionDep, request: SearchHistoricalRateRequest) -> Searc
         )
     except Exception as e:
         raise HTTPException(
-            status_code=400,
-            detail="Error inesperado al buscar el registro de tarifa"
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error inesperado al buscar el registro de tarifa: {e}"
         )
 
 
@@ -63,5 +63,5 @@ def get_rates(session: SessionDep, request: SearchHistoricalRatesRequest) -> Sea
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error inesperado al buscar los vehículos: {str(e)}"
+            detail=f"Error inesperado al buscar los vehículos: {e}"
         )

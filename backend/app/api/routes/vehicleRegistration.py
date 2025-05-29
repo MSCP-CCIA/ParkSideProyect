@@ -14,8 +14,8 @@ def register_vehicle(session: SessionDep, request: CreateVehicleRequest) -> Mess
         return Message(message="Registro de vehículo exitoso")
     except Exception as e:
         raise HTTPException(
-            status_code=400,
-            detail="Error inesperado al registrar el vehículo"
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error inesperado al registrar el vehículo: {e}"
         )
 
 
@@ -34,8 +34,8 @@ def get_vehicle(session: SessionDep, request: SearchCustomerVehicleRequest) -> S
         )
     except Exception as e:
         raise HTTPException(
-            status_code=400,
-            detail="Error inesperado al buscar el vehiclo"
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error inesperado al buscar el vehiclo: {e}"
         )
 
 
@@ -59,7 +59,7 @@ def get_vehicles(session: SessionDep, request: SearchCustomerVehiclesRequest) ->
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error inesperado al buscar los vehículos"
+            detail=f"Error inesperado al buscar los vehículos: {e}"
         )
 
 
@@ -84,7 +84,7 @@ def get_all_customer_vehicles(session: SessionDep, request: SearchAllCustomerVeh
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error inesperado al buscar los vehículos para este cliente"
+            detail=f"Error inesperado al buscar los vehículos para este cliente: {e}"
         )
 
 
@@ -95,7 +95,7 @@ def get_vehicle_by_plate_entry(session: SessionDep, request: SearchRegistrationB
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error inesperado al buscar el vehículo: {str(e)}"
+            detail=f"Error inesperado al buscar el vehículo: {e}"
         )
 
 
@@ -106,7 +106,7 @@ def get_vehicle_by_plate_exit(session: SessionDep, request: SearchRegistrationBy
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error inesperado al buscar el vehículo: {str(e)}"
+            detail=f"Error inesperado al buscar el vehículo: {e}"
         )
 
 
@@ -117,5 +117,5 @@ def get_occupation_report(session: SessionDep, request: SearchOccupationReportRe
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error inesperado al obtener el reporte"
+            detail=f"Error inesperado al obtener el reporte: {e}"
         )

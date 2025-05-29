@@ -20,7 +20,7 @@ def create_rate(*, session: Session, request: CreateHistoricalRateRequest) -> Hi
                 session.add(previous_rate)
             else:
                 raise HTTPException(
-                    status_code=400,
+                    status_code=status.HTTP_400_BAD_REQUEST,
                     detail="La fecha de las nuevas tarifas debe ser mayor a la fecha de inicio de las últimas tarifas."
                 )
         if request.car_rate or request.motorbike_rate:
@@ -37,7 +37,7 @@ def create_rate(*, session: Session, request: CreateHistoricalRateRequest) -> Hi
             session.refresh(db_obj)
             return db_obj
         raise HTTPException(
-            status_code=400,
+            status_code=status.HTTP_400_BAD_REQUEST,
             detail="Al menos una tarifa debe cambiar."
         )
     except HTTPException:
@@ -46,7 +46,7 @@ def create_rate(*, session: Session, request: CreateHistoricalRateRequest) -> Hi
         session.rollback()
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error al crear la tarifa: {str(e)}"
+            detail=str(e)
         )
 
 
@@ -68,7 +68,7 @@ def get_historical_rate_per_date(*, session: Session, request: SearchHistoricalR
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error al obtener la tafifa histórica: {str(e)}"
+            detail=str(e)
         )
 
 
@@ -90,5 +90,5 @@ def get_historical_rates(*, session: Session, request: SearchHistoricalRatesRequ
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error al obtener las tarifas: {str(e)}"
+            detail=str(e)
         )

@@ -17,13 +17,13 @@ def login_employee(session: SessionDep, request: SearchEmployeeRequest) -> Searc
         employee = authenticate_employee(session=session, request=request)
         if not employee:
             raise HTTPException(
-                status_code=400,
-                detail="Incorrect email or password"
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Correo o contraseña inválidos"
             )
         elif not employee.is_active:
             raise HTTPException(
-                status_code=400,
-                detail="Inactive user"
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Empleado inactivo"
             )
         access_token = create_access_token(
             data={"sub": str(employee.id)},
@@ -34,10 +34,9 @@ def login_employee(session: SessionDep, request: SearchEmployeeRequest) -> Searc
             token=access_token
         )
     except Exception as e:
-        print(e)
         raise HTTPException(
-            status_code=400,
-            detail="Incorrect email or password"
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(e)
         )
 
 
@@ -48,8 +47,8 @@ def update_employee(session: SessionDep, request: UpdateEmployeeRequest) -> Mess
         return Message(message="Actualización de empleado exitosa")
     except Exception as e:
         raise HTTPException(
-            status_code=400,
-            detail="Error inesperado al actualizar el empleado"
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error inesperado al actualizar el empleado: {e}"
         )
 
 
@@ -65,6 +64,6 @@ def get_info(session: SessionDep, request: SearchInformationRequest) -> SearchIn
         )
     except Exception as e:
         raise HTTPException(
-            status_code=400,
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Error inesperado al traer la información el usuario: {e}"
         )

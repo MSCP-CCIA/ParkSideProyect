@@ -24,7 +24,7 @@ def create_vehicle(*, session: Session, request: CreateVehicleRequest) -> Vehicl
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error al crear el vehículo: {str(e)}"
+            detail=str(e)
         )
 
 
@@ -45,7 +45,7 @@ def get_customer_vehicle(*, session: Session, request: SearchCustomerVehicleRequ
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error al obtener el vehículo: {str(e)}"
+            detail=str(e)
         )
 
 
@@ -64,7 +64,7 @@ def get_customer_vehicles(*, session: Session, request: SearchCustomerVehiclesRe
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error al obtener los vehículos: {str(e)}"
+            detail=str(e)
         )
 
 
@@ -87,7 +87,7 @@ def delete_customer_vehicle(*, session: Session, request: DeleteVehicleRequest) 
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error al eliminar el vehículo: {str(e)}"
+            detail=str(e)
         )
 
 
@@ -121,7 +121,7 @@ def get_all_customer_vehicles_crud(*, session: Session, request: SearchAllCustom
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error al obtener los vehículos: {str(e)}"
+            detail=str(e)
         )
 
 
@@ -149,7 +149,7 @@ def get_registrations_by_plate_entry_crud(*, session: Session, request: SearchRe
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error al obtener el vehículo: {str(e)}"
+            detail=str(e)
         )
 
 
@@ -177,7 +177,7 @@ def get_registrations_by_plate_exit_crud(*, session: Session, request: SearchReg
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error al obtener el vehículo: {str(e)}"
+            detail=str(e)
         )
 
 
@@ -211,5 +211,5 @@ def get_occupation_report_crud(*, session: Session, request: SearchOccupationRep
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error al obtener el vehículo: {str(e)}"
+            detail=str(e)
         )

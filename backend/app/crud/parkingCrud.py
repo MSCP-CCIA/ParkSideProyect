@@ -23,5 +23,5 @@ def get_parking(*, session: Session, request: SearchParkingRequest) -> Parking:
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error al obtener el parqueadero: {str(e)}"
+            detail=str(e)
         )

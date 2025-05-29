@@ -27,7 +27,7 @@ def get_customer_vehicle(*, session: Session, request: EntryOrUpdateVehicleReque
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error al obtener el vehículo: {str(e)}"
+            detail=str(e)
         )
 
 
@@ -56,7 +56,7 @@ def create_parking_registration(*, session: Session, request: EntryOrUpdateVehic
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error al crear el registro de parqueo: {str(e)}"
+            detail=str(e)
         )
 
 
@@ -90,5 +90,5 @@ def update_parking_registration(*, session: Session, request: EntryOrUpdateVehic
         session.rollback()
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error al actualizar el registro de parqueo: {str(e)}"
+            detail=str(e)
         )

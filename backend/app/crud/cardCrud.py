@@ -30,7 +30,7 @@ def create_card(*, session: Session, request: CreateCardRequest) -> Card:
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"No se pudo completar el registro de pasarela + tarjeta: {e}"
+            detail=str(e)
         )
 
 
@@ -66,7 +66,7 @@ def update_card_crud(*, session: Session, request: UpdateCardRequest) -> Card:
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error al actualizar la tarjeta: {str(e)}"
+            detail=str(e)
         )
 
 
@@ -96,7 +96,7 @@ def get_card_crud(*, session: Session, request: SearchCardRequest) -> tuple[Card
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error al obtener la tarjeta: {str(e)}"
+            detail=str(e)
         )
 
 
@@ -115,7 +115,7 @@ def get_cards_crud(*, session: Session, request: SearchCardsRequest) -> List[Car
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error al obtener las tarjetas: {str(e)}"
+            detail=str(e)
         )
 
 
@@ -140,5 +140,5 @@ def delete_card_crud(*, session: Session, request: DeleteCardRequest) -> bool:
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error al eliminar la tarjeta: {str(e)}"
+            detail=str(e)
         )

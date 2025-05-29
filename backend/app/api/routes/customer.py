@@ -17,32 +17,38 @@ def register(session: SessionDep, request: CreateCustomerRequest) -> Message:
         return Message(message="Registro de usuario exitoso")
     except Exception as e:
         raise HTTPException(
-            status_code=400,
-            detail="Error inesperado al registrar el usuario"
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error inesperado al registrar el usuario: {e}"
         )
 
 
 @router.post("/login", response_model=SearchCustomerResponse)
 def login_customer(session: SessionDep, request: SearchCustomerRequest) -> SearchCustomerResponse:
-    customer = authenticate_customer(session=session, request=request)
-    if not customer:
-        raise HTTPException(
-            status_code=400,
-            detail="Incorrect email or password"
+    try:
+        customer = authenticate_customer(session=session, request=request)
+        if not customer:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Incorrect email or password"
+            )
+        elif not customer.is_active:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Usuario inactivo"
+            )
+        access_token = create_access_token(
+            data={"sub": str(customer.id)},
+            expires_delta=timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
         )
-    elif not customer.is_active:
-        raise HTTPException(
-            status_code=400,
-            detail="Inactive user"
+        return SearchCustomerResponse(
+            id=customer.id,
+            token=access_token
         )
-    access_token = create_access_token(
-        data={"sub": str(customer.id)},
-        expires_delta=timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
-    )
-    return SearchCustomerResponse(
-        id=customer.id,
-        token=access_token
-    )
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error inesperado al iniciar sesión: {e}"
+        )
 
 
 @router.post("/info", response_model=SearchMyInformationResponse)
@@ -57,8 +63,8 @@ def get_info(session: SessionDep, request: SearchMyInformationRequest) -> Search
         )
     except Exception as e:
         raise HTTPException(
-            status_code=400,
-            detail="Error inesperado al traer la información el usuario"
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error inesperado al traer la información el usuario {e}"
         )
 
 
@@ -69,8 +75,8 @@ def update_customer(session: SessionDep, request: UpdateCustomerRequest) -> Mess
         return Message(message="Actualización de usuario exitosa")
     except Exception as e:
         raise HTTPException(
-            status_code=400,
-            detail="Error inesperado al actualizar el usuario"
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error inesperado al actualizar el usuario: {e}"
         )
 
 
@@ -96,7 +102,7 @@ def get_customer_by_id_employee(session: SessionDep, request: SearchCustomerById
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error inesperado al buscar los usuarios: {str(e)}"
+            detail=f"Error inesperado al buscar los usuarios: {e}"
         )
 
 
@@ -107,6 +113,6 @@ def update_customer_state(session: SessionDep, request: UpdateCustomerStateReque
         return Message(message="Actualización de estado exitosa")
     except Exception as e:
         raise HTTPException(
-            status_code=400,
-            detail="Error inesperado al actualizar el estado"
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error inesperado al actualizar el estado: {e}"
         )

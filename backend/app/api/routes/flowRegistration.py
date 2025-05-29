@@ -6,7 +6,7 @@ from app.models.parkingRegistration import EntryOrUpdateVehicleRequest
 
 router = APIRouter(prefix="/flow", tags=["flowRegistration"])
 
-# ------------------------- ML Actions ------------------------- #
+# ------------------------- ML & Employee Actions ------------------------- #
 
 @router.post("/entry-register", response_model=Message)
 def entry_register(session: SessionDep, request: EntryOrUpdateVehicleRequest | dict) -> Message:
@@ -19,8 +19,8 @@ def entry_register(session: SessionDep, request: EntryOrUpdateVehicleRequest | d
         return Message(message="El vehículo no existe")
     except Exception as e:
         raise HTTPException(
-            status_code=400,
-            detail="Error inesperado al registrar la entrada al parqueadero"
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error inesperado al registrar la entrada al parqueadero: {e}"
         )
 
 @router.post("/exit-register", response_model=Message)
@@ -33,8 +33,8 @@ def exit_register(session: SessionDep, request: EntryOrUpdateVehicleRequest) -> 
         return Message(message="El vehículo no existe")
     except Exception as e:
         raise HTTPException(
-            status_code=400,
-            detail="Error inesperado al actualizar el registro de parqueo"
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error inesperado al actualizar el registro de parqueo: {e}"
         )
 
 

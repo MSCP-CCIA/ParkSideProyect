@@ -21,8 +21,7 @@ def get_vehicle(session: SessionDep, request: SearchParkingRequest) -> SearchPar
             enterprise=parking.enterprise,
         )
     except Exception as e:
-        print(e)
         raise HTTPException(
-            status_code=400,
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Error inesperado al buscar el parqueadero"
         )

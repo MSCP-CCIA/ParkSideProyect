@@ -7,18 +7,30 @@ from app.core.security import hash_password
 # ------------------------- Employee Actions ------------------------- #
 
 def get_employee_by_email(*, session: Session, email: str) -> Employee | None:
-    statement = select(Employee).where(Employee.email == email)
-    session_employee = session.exec(statement).first()
-    return session_employee
+    try:
+        statement = select(Employee).where(Employee.email == email)
+        session_employee = session.exec(statement).first()
+        return session_employee
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(e)
+        )
 
 
 def authenticate_employee(*, session: Session, request: SearchEmployeeRequest) -> Employee | None:
-    employee = get_employee_by_email(session=session, email=request.email)
-    if not employee:
-        return None
-    if not hash_password(request.password) != employee.password_hash:
-        return None
-    return employee
+    try:
+        employee = get_employee_by_email(session=session, email=request.email)
+        if not employee:
+            return None
+        if not hash_password(request.password) != employee.password_hash:
+            return None
+        return employee
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(e)
+        )
 
 
 def update_employee_crud(*, session: Session, request: UpdateEmployeeRequest) -> Employee:
@@ -43,11 +55,17 @@ def update_employee_crud(*, session: Session, request: UpdateEmployeeRequest) ->
         session.rollback()
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error al actualizar el empleado: {str(e)}"
+            detail=str(e)
         )
 
 
 def get_employee_by_id(*, session: Session, request: SearchInformationRequest) -> Employee:
-    statement = select(Employee).where(Employee.id == request.id)
-    session_employee = session.exec(statement).first()
-    return session_employee
+    try:
+        statement = select(Employee).where(Employee.id == request.id)
+        session_employee = session.exec(statement).first()
+        return session_employee
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(e)
+        )

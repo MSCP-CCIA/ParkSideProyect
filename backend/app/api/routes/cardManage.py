@@ -16,8 +16,8 @@ def register_card(session: SessionDep, request: CreateCardRequest) -> Message:
         raise
     except Exception as e:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=str(e)
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error inesperado al registrar la tarjeta: {e}"
         )
 
 @router.post("/get-card", response_model=SearchCardResponse)
@@ -37,8 +37,8 @@ def get_card(session: SessionDep, request: SearchCardRequest) -> SearchCardRespo
         )
     except Exception as e:
         raise HTTPException(
-            status_code=400,
-            detail="Error inesperado al buscar la tarjeta"
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error inesperado al buscar la tarjeta {e}"
         )
 
 
@@ -62,7 +62,7 @@ def get_cards(session: SessionDep, request: SearchCardsRequest) -> SearchCardsRe
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error inesperado al buscar las tarjetas: {str(e)}"
+            detail=f"Error inesperado al buscar las tarjetas: {e}"
         )
 
 
@@ -73,19 +73,19 @@ def update_card(session: SessionDep, request: UpdateCardRequest) -> Message:
         return Message(message="Actualización de tarjeta exitosa")
     except Exception as e:
         raise HTTPException(
-            status_code=400,
-            detail="Error inesperado al actualizar la tarjeta"
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error inesperado al actualizar la tarjeta: {e}"
         )
 
 
 @router.delete("/delete-card", response_model=Message)
-def delete_card(session: SessionDep, request: DeleteCardRequest):
+def delete_card(session: SessionDep, request: DeleteCardRequest) -> Message:
     try:
         if delete_card_crud(session=session, request=request):
             return Message(message="Tarjeta eliminada correctamente")
-        return Message(message="La tarjeta no ha sido eliminada")
+        return Message(message="Tarjeta no encontrada")
     except Exception as e:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Tarjeta no encontrada"
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error inesperado al eliminar la tarjeta {e}"
         )
