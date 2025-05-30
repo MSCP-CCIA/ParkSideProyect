@@ -16,11 +16,9 @@ export const WebSocketAlertProvider: React.FC<{ children: React.ReactNode }> = (
         ws.current = new WebSocket("ws://54.84.106.200:8001/ws/alerts");
 
         ws.current.onopen = () => {
-            console.log("📡 WebSocket conectado");
         };
 
         ws.current.onmessage = (event) => {
-            console.log("Mensaje recibido:", event.data);
             setMessage(event.data);
             setVisible(true);
         };
@@ -30,7 +28,6 @@ export const WebSocketAlertProvider: React.FC<{ children: React.ReactNode }> = (
         };
 
         ws.current.onclose = () => {
-            console.log("🔌 WebSocket desconectado");
         };
 
         return () => {
