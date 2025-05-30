@@ -7,7 +7,7 @@ export interface LoginData {
   token: string;
 }
 
-const baseURL = 'http://127.0.0.1:8000';
+const baseURL = 'http://34.224.49.5:8000';
 
 const api: AxiosInstance = axios.create({
   baseURL,

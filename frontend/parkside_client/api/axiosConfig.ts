@@ -21,7 +21,7 @@ export interface LoginData {
 /**
  * URL base para las peticiones HTTP.
  */
-const baseURL = 'http://127.0.0.1:8000';
+const baseURL = 'http://34.224.49.5:8000';
 
 /**
  * Instancia configurada de Axios.
