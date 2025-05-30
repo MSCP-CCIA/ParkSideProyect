@@ -144,6 +144,7 @@ import React, { FC, useState } from 'react';
    drawerSignOutButton: {
      marginTop: 30,
      paddingVertical: 15,
+     paddingHorizontal: 20,
      alignItems: 'center',
      backgroundColor: '#1976D2',
      borderRadius: 5,
