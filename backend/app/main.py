@@ -44,6 +44,8 @@ async def verify_token_middleware(request: Request, call_next):
         f"{settings.API_V1_STR}/customer/register",
         f"{settings.API_V1_STR}/customer/login",
         f"{settings.API_V1_STR}/employee/login",
+        f"{settings.API_V1_STR}/flow/entry-register/",
+        f"{settings.API_V1_STR}/flow/exit-register/"
     ]
     if request.url.path in excluded_paths or request.url.path.startswith("/static"):
         return await call_next(request)
