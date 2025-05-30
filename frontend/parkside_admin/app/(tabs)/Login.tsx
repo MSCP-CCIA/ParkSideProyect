@@ -1,5 +1,4 @@
 import React, { useState, FC } from 'react';
-import { Alert } from 'react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import AuthLayout from '../layouts/AuthLayout';
@@ -7,6 +6,7 @@ import AuthTitle from '../../components/Auth/AuthTitle';
 import InputField from '../../components/common/InputField';
 import Button from '../../components/common/Button';
 import LinkText from '../../components/common/LinkText';
+import CustomAlert from '../../components/common/CustomAlert';
 import { loginEmployee } from '@/api/loginApi';
 import { SearchEmployeeRequest, SearchEmployeeResponse } from '@/models/loginModels';
 
@@ -21,6 +21,8 @@ const Login: FC<LoginProps> = ({ navigation }) => {
   const [passwordError, setPasswordError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [loginError, setLoginError] = useState<string | null>(null);
+  const [alertVisible, setAlertVisible] = useState(false);
+  const [alertMessage, setAlertMessage] = useState('');
 
   const validarCorreo = (correo: string): boolean => {
     const regex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
@@ -32,7 +34,13 @@ const Login: FC<LoginProps> = ({ navigation }) => {
       await AsyncStorage.setItem('authToken', data.token);
       await AsyncStorage.setItem('userId', data.id.toString());
     } catch (e) {
+      console.error('Error al guardar sesión:', e);
     }
+  };
+
+  const showAlert = (message: string) => {
+    setAlertMessage(message);
+    setAlertVisible(true);
   };
 
   const handleLogin = async () => {
@@ -70,12 +78,12 @@ const Login: FC<LoginProps> = ({ navigation }) => {
         navigation.navigate('Usuarios');
       } catch (error: any) {
         setLoading(false);
-        console.error('Error al iniciar sesión:', error.response?.data || error.message);
-        setLoginError(error.response?.data?.message || 'Error al iniciar sesión. Por favor, intenta de nuevo.');
-        Alert.alert('Error', error.response?.data?.message || 'No se pudo iniciar sesión.');
+        const msg = error.response?.data?.message || 'Error al iniciar sesión. Por favor, intenta de nuevo.';
+        setLoginError(msg);
+        showAlert(msg);
       }
     } else {
-      Alert.alert('Error', 'Por favor, corrige los errores en los campos.');
+      showAlert('Por favor, corrige los errores en los campos.');
     }
   };
 
@@ -108,6 +116,12 @@ const Login: FC<LoginProps> = ({ navigation }) => {
       />
       <Button title="INICIAR SESIÓN" onPress={handleLogin} style={{ marginBottom: 16 }} />
       <LinkText title="He olvidado mi contraseña" onPress={handleForgotPassword} style={{ marginBottom: 8 }} />
+
+      <CustomAlert
+        message={alertMessage}
+        visible={alertVisible}
+        onHide={() => setAlertVisible(false)}
+      />
     </AuthLayout>
   );
 };

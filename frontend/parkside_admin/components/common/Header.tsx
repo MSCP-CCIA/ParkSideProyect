@@ -2,7 +2,7 @@ import React from 'react';
 import { Image, StyleSheet, Text, View } from 'react-native';
 
 const Header = () => {
-    const adminName = 'Andres';
+    const adminName = 'Admin';
 
     return (
         <View style={styles.header}>

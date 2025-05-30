@@ -12,7 +12,9 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import DashboardLayout from '../layouts/DashboardLayout';
 import SelectableTable from '../../components/common/SelectableTable';
 import RefreshButton from '../../components/common/RefreshButton';
+import CustomAlert from '../../components/common/CustomAlert';
 import { getRegistroSalida } from '../../api/registroSalidaApi';
+import { liberarSalida } from '../../api/liberarSalidaApi';
 import {
   SearchRegistrationByPlateRequest,
   SearchRegistrationByPlateResponse,
@@ -30,6 +32,13 @@ const RegistroSalida = () => {
   const [selectedRows, setSelectedRows] = useState<number[]>([]);
   const [placa, setPlaca] = useState('');
   const [result, setResult] = useState<any[]>([]);
+  const [alertVisible, setAlertVisible] = useState(false);
+  const [alertMessage, setAlertMessage] = useState('');
+
+  const showAlert = (message: string) => {
+    setAlertMessage(message);
+    setAlertVisible(true);
+  };
 
   const handleSelectRow = (index: number) => {
     setSelectedRows((prev) =>
@@ -74,6 +83,22 @@ const RegistroSalida = () => {
     }
   };
 
+  const handleLiberarSalida = async () => {
+    try {
+      if (result.length === 0) return;
+
+      const plate = result[0].placa.toUpperCase();
+
+      const response = await liberarSalida({ plate });
+
+      // Mensaje personalizado del backend
+      showAlert(`Vehículo ${plate}: ${response.message}`);
+    } catch (error: any) {
+      console.error('Error al liberar salida:', error);
+      showAlert('Error: No se pudo registrar la salida del vehículo.');
+    }
+  };
+
   return (
     <DashboardLayout>
       <ScrollView>
@@ -100,11 +125,17 @@ const RegistroSalida = () => {
         <TouchableOpacity
           style={[styles.actionButton, result.length === 0 && styles.disabledButton]}
           disabled={result.length === 0}
-          onPress={() => Alert.alert('Acción', 'Salida liberada para el vehículo.')}
+          onPress={handleLiberarSalida}
         >
           <Text style={styles.buttonText}>Liberar salida del parqueadero</Text>
         </TouchableOpacity>
       </ScrollView>
+
+      <CustomAlert
+        message={alertMessage}
+        visible={alertVisible}
+        onHide={() => setAlertVisible(false)}
+      />
     </DashboardLayout>
   );
 };

@@ -12,7 +12,9 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import DashboardLayout from '../layouts/DashboardLayout';
 import SelectableTable from '../../components/common/SelectableTable';
 import RefreshButton from '../../components/common/RefreshButton';
+import CustomAlert from '../../components/common/CustomAlert';
 import { getRegistroEntrada } from '../../api/registroEntradaApi';
+import { liberarIngreso } from '../../api/liberarIngresoApi';
 import {
   SearchRegistrationByPlateRequest,
   SearchRegistrationByPlateResponse,
@@ -30,6 +32,13 @@ const RegistroEntrada = () => {
   const [selectedRows, setSelectedRows] = useState<number[]>([]);
   const [placa, setPlaca] = useState('');
   const [result, setResult] = useState<any[]>([]);
+  const [alertVisible, setAlertVisible] = useState(false);
+  const [alertMessage, setAlertMessage] = useState('');
+
+  const showAlert = (message: string) => {
+    setAlertMessage(message);
+    setAlertVisible(true);
+  };
 
   const handleSelectRow = (index: number) => {
     setSelectedRows((prev) =>
@@ -74,6 +83,16 @@ const RegistroEntrada = () => {
     }
   };
 
+  const handleLiberarIngreso = async () => {
+    try {
+      const response = await liberarIngreso({ plate: placa.toUpperCase() });
+      showAlert(`Vehículo ${placa.toUpperCase()}: ${response.message}`);
+    } catch (error: any) {
+      console.error('Error al liberar ingreso:', error);
+      Alert.alert('Error', 'No se pudo liberar el ingreso del vehículo.');
+    }
+  };
+
   return (
     <DashboardLayout>
       <ScrollView>
@@ -100,11 +119,17 @@ const RegistroEntrada = () => {
         <TouchableOpacity
           style={[styles.actionButton, result.length === 0 && styles.disabledButton]}
           disabled={result.length === 0}
-          onPress={() => Alert.alert('Acción', 'Ingreso liberado para el vehículo.')}
+          onPress={handleLiberarIngreso}
         >
           <Text style={styles.buttonText}>Liberar ingreso al parqueadero</Text>
         </TouchableOpacity>
       </ScrollView>
+
+      <CustomAlert
+        message={alertMessage}
+        visible={alertVisible}
+        onHide={() => setAlertVisible(false)}
+      />
     </DashboardLayout>
   );
 };

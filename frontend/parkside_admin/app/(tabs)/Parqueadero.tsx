@@ -29,7 +29,6 @@ const Parqueadero = () => {
         return;
       }
       const employee_id = parseInt(idString, 10);
-      console.log(employee_id)
       const requestData: SearchParkingRequest = { employee_id };
       const response = await getParkingApi(requestData);
       setParkingData(response);

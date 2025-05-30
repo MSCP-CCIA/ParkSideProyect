@@ -55,7 +55,6 @@ const Usuarios = () => {
         employee_id,
         customer_id: row.id,
       };
-      console.log(request)
       await updateEstadoUsuario(request);
 
       const nuevoEstado = !row.is_active;
