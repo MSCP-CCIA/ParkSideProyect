@@ -13,7 +13,7 @@ export const WebSocketAlertProvider: React.FC<{ children: React.ReactNode }> = (
     const ws = useRef<WebSocket | null>(null);
 
     useEffect(() => {
-        ws.current = new WebSocket("ws://localhost:8001/ws/alerts");
+        ws.current = new WebSocket("ws://54.84.106.200:8001/ws/alerts");
 
         ws.current.onopen = () => {
             console.log("📡 WebSocket conectado");
